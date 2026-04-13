@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reunion N10 - EOS Level 10 Meeting</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+        :root {
+            --bg-primary: #0a0e1a; --bg-secondary: #111827; --bg-card: #1a2236; --bg-card-hover: #1f2a42;
+            --accent-blue: #3b82f6; --accent-cyan: #06b6d4; --accent-emerald: #10b981;
+            --accent-amber: #f59e0b; --accent-rose: #f43f5e; --accent-violet: #8b5cf6;
+            --text-primary: #f1f5f9; --text-secondary: #94a3b8; --text-muted: #64748b;
+            --border-subtle: rgba(255,255,255,0.06); --border-active: rgba(59,130,246,0.4);
+            --shadow-glow: 0 0 40px rgba(59,130,246,0.15); --radius: 16px; --radius-sm: 10px;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg-primary); color:var(--text-primary); min-height:100vh; overflow-x:hidden; }
+        body::before { content:''; position:fixed; top:-50%; left:-50%; width:200%; height:200%;
+            background:radial-gradient(ellipse at 20% 50%,rgba(59,130,246,0.08) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(6,182,212,0.06) 0%,transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(139,92,246,0.05) 0%,transparent 50%);
+            animation:bgShift 20s ease-in-out infinite alternate; z-index:0; pointer-events:none; }
+        @keyframes bgShift { 0%{transform:translate(0,0) rotate(0deg)} 100%{transform:translate(-5%,-3%) rotate(3deg)} }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+        @keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+        /* Header */
+        .header { position:relative; z-index:10; padding:20px 32px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border-subtle); backdrop-filter:blur(20px); background:rgba(10,14,26,0.8); }
+        .header-left { display:flex; align-items:center; gap:16px; }
+        .logo-mark { width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg,var(--accent-blue),var(--accent-cyan)); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:18px; color:white; box-shadow:0 4px 20px rgba(59,130,246,0.3); }
+        .header-title { font-size:20px; font-weight:700; background:linear-gradient(135deg,var(--text-primary),var(--accent-cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .header-subtitle { font-size:12px; color:var(--text-muted); font-weight:500; letter-spacing:1px; text-transform:uppercase; }
+        .header-right { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+        .meeting-date { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--text-secondary); background:var(--bg-card); padding:8px 16px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); }
+        .btn-start-meeting { padding:10px 24px; background:linear-gradient(135deg,var(--accent-blue),var(--accent-cyan)); border:none; border-radius:var(--radius-sm); color:white; font-weight:600; font-size:14px; cursor:pointer; transition:all 0.3s; box-shadow:0 4px 20px rgba(59,130,246,0.3); }
+        .btn-start-meeting:hover { transform:translateY(-1px); box-shadow:0 6px 30px rgba(59,130,246,0.4); }
+        .btn-start-meeting:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+        .btn-ctrl { padding:10px 20px; border-radius:var(--radius-sm); font-weight:600; font-size:13px; cursor:pointer; transition:all 0.3s; display:none; align-items:center; gap:6px; }
+        .btn-ctrl.visible { display:inline-flex; }
+        .btn-prev { background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3); color:var(--accent-amber); }
+        .btn-prev:hover { background:rgba(245,158,11,0.22); }
+        .btn-reset { background:rgba(244,63,94,0.12); border:1px solid rgba(244,63,94,0.3); color:var(--accent-rose); }
+        .btn-reset:hover { background:rgba(244,63,94,0.22); }
+        .btn-history { background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.3); color:var(--accent-violet); }
+        .btn-history:hover { background:rgba(139,92,246,0.22); }
+
+        /* Layout */
+        .main { position:relative; z-index:5; display:grid; grid-template-columns:300px 1fr; gap:0; height:calc(100vh - 85px); }
+        .sidebar-left { border-right:1px solid var(--border-subtle); padding:24px; overflow-y:auto; background:rgba(17,24,39,0.4); }
+        .center-panel { padding:24px 32px; overflow-y:auto; }
+
+        .section-label { font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-muted); margin-bottom:16px; }
+        .participant-card { display:flex; align-items:center; gap:12px; padding:14px; border-radius:var(--radius-sm); margin-bottom:8px; transition:all 0.2s; cursor:default; border:1px solid transparent; }
+        .participant-card:hover { background:var(--bg-card-hover); border-color:var(--border-subtle); }
+        .avatar { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px; color:white; flex-shrink:0; }
+        .avatar-gv { background:linear-gradient(135deg,#f59e0b,#d97706); }
+        .avatar-sr { background:linear-gradient(135deg,#3b82f6,#2563eb); }
+        .avatar-is { background:linear-gradient(135deg,#10b981,#059669); }
+        .avatar-gr { background:linear-gradient(135deg,#8b5cf6,#7c3aed); }
+        .participant-info { flex:1; }
+        .participant-name { font-size:14px; font-weight:600; color:var(--text-primary); }
+        .participant-role { font-size:11px; color:var(--text-muted); margin-top:2px; }
+        .participant-badge { font-size:9px; font-weight:700; letter-spacing:0.5px; padding:3px 8px; border-radius:6px; text-transform:uppercase; }
+        .badge-visionario { background:rgba(245,158,11,0.15); color:#fbbf24; }
+        .badge-integrador { background:rgba(59,130,246,0.15); color:#60a5fa; }
+        .badge-gerente { background:rgba(100,116,139,0.15); color:#94a3b8; }
+        .eos-section { margin-top:28px; padding-top:20px; border-top:1px solid var(--border-subtle); }
+        .eos-component { display:flex; align-items:center; gap:10px; padding:8px 0; font-size:12px; color:var(--text-secondary); }
+        .eos-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+        /* Agenda */
+        .agenda-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
+        .total-timer { display:flex; align-items:center; gap:12px; background:var(--bg-card); padding:12px 20px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); }
+        .total-timer-label { font-size:11px; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:1px; }
+        .total-timer-value { font-family:'JetBrains Mono',monospace; font-size:28px; font-weight:700; color:var(--accent-cyan); }
+        .total-timer-value.warning { color:var(--accent-amber); }
+        .total-timer-value.danger { color:var(--accent-rose); }
+        .agenda-list { display:flex; flex-direction:column; gap:8px; }
+        .agenda-item { display:grid; grid-template-columns:52px 1fr auto auto; align-items:center; gap:16px; padding:18px 20px; border-radius:var(--radius); background:var(--bg-card); border:1px solid var(--border-subtle); transition:all 0.3s; cursor:pointer; position:relative; overflow:hidden; }
+        .agenda-item::before { content:''; position:absolute; left:0; top:0; height:100%; width:3px; border-radius:0 3px 3px 0; opacity:0; transition:opacity 0.3s; }
+        .agenda-item:hover { background:var(--bg-card-hover); border-color:var(--border-active); transform:translateX(2px); }
+        .agenda-item.active { border-color:var(--accent-blue); box-shadow:var(--shadow-glow); background:rgba(59,130,246,0.05); }
+        .agenda-item.active::before { opacity:1; background:var(--accent-blue); }
+        .agenda-item.completed { opacity:0.5; background:rgba(16,185,129,0.03); border-color:rgba(16,185,129,0.2); }
+        .agenda-item.completed::before { opacity:1; background:var(--accent-emerald); }
+        .agenda-step { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px; background:rgba(59,130,246,0.1); color:var(--accent-blue); transition:all 0.3s; }
+        .agenda-item.active .agenda-step { background:var(--accent-blue); color:white; box-shadow:0 4px 15px rgba(59,130,246,0.4); }
+        .agenda-item.completed .agenda-step { background:rgba(16,185,129,0.15); color:var(--accent-emerald); }
+        .agenda-item.completed .agenda-step::after { content:'\2713'; }
+        .agenda-item.completed .agenda-step .step-num { display:none; }
+        .agenda-content { flex:1; }
+        .agenda-name { font-size:15px; font-weight:600; color:var(--text-primary); margin-bottom:3px; }
+        .agenda-desc { font-size:12px; color:var(--text-muted); }
+        .agenda-duration { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--text-secondary); background:rgba(255,255,255,0.04); padding:6px 12px; border-radius:8px; }
+        .agenda-timer { font-family:'JetBrains Mono',monospace; font-size:22px; font-weight:700; color:var(--accent-cyan); min-width:80px; text-align:right; }
+        .agenda-timer.warning { color:var(--accent-amber); }
+        .agenda-timer.danger { color:var(--accent-rose); animation:pulse 1s infinite; }
+        .agenda-item.ids-item { background:linear-gradient(135deg,rgba(139,92,246,0.05),rgba(59,130,246,0.05)); border-color:rgba(139,92,246,0.2); }
+        .agenda-item.ids-item .agenda-step { background:rgba(139,92,246,0.15); color:var(--accent-violet); }
+        .agenda-item.ids-item.active { border-color:var(--accent-violet); box-shadow:0 0 40px rgba(139,92,246,0.15); }
+        .agenda-item.ids-item.active .agenda-step { background:var(--accent-violet); color:white; }
+
+        /* Progress */
+        .progress-bar-container { margin-top:24px; background:var(--bg-card); border-radius:var(--radius-sm); padding:16px 20px; border:1px solid var(--border-subtle); }
+        .progress-bar-header { display:flex; justify-content:space-between; margin-bottom:10px; }
+        .progress-label { font-size:11px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; }
+        .progress-percent { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent-cyan); font-weight:600; }
+        .progress-track { height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden; }
+        .progress-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--accent-blue),var(--accent-cyan)); transition:width 0.5s ease; width:0%; }
+
+        /* Bottom panels */
+        .bottom-panels { display:flex; flex-direction:column; gap:16px; margin-top:24px; padding-bottom:32px; }
+        .notes-panel,.todos-panel,.ids-panel,.rating-panel,.history-panel { background:var(--bg-card); border-radius:var(--radius); padding:16px; border:1px solid var(--border-subtle); }
+        .panel-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+        .panel-title-icon { width:20px; height:20px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; }
+        textarea.notes-input { width:100%; min-height:80px; background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:12px; color:var(--text-primary); font-family:'Inter',sans-serif; font-size:13px; resize:vertical; outline:none; transition:border-color 0.2s; }
+        textarea.notes-input:focus { border-color:var(--accent-blue); }
+        textarea.notes-input::placeholder { color:var(--text-muted); }
+
+        /* Todos */
+        .todo-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border-subtle); }
+        .todo-item:last-child { border-bottom:none; }
+        .todo-checkbox { width:18px; height:18px; border-radius:6px; border:2px solid var(--text-muted); cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
+        .todo-checkbox.checked { background:var(--accent-emerald); border-color:var(--accent-emerald); }
+        .todo-checkbox.checked::after { content:'\2713'; color:white; font-size:11px; font-weight:700; }
+        .todo-text { font-size:13px; color:var(--text-secondary); flex:1; }
+        .todo-text.done { text-decoration:line-through; color:var(--text-muted); }
+        .todo-owner { font-size:10px; font-weight:600; color:var(--text-muted); background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:4px; }
+        .todo-carried { font-size:9px; font-weight:600; color:var(--accent-amber); background:rgba(245,158,11,0.12); padding:2px 6px; border-radius:4px; }
+        .todo-delete { width:24px; height:24px; border-radius:6px; border:none; background:rgba(244,63,94,0.1); color:var(--accent-rose); cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; transition:all 0.2s; flex-shrink:0; }
+        .todo-delete:hover { background:rgba(244,63,94,0.25); }
+        .add-row { display:flex; gap:8px; margin-top:8px; }
+        .add-input { flex:1; background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:8px; padding:8px 12px; color:var(--text-primary); font-size:12px; font-family:'Inter',sans-serif; outline:none; }
+        .add-input:focus { border-color:var(--accent-blue); }
+        .add-input::placeholder { color:var(--text-muted); }
+        .add-btn { padding:8px 14px; background:rgba(59,130,246,0.15); border:1px solid rgba(59,130,246,0.3); border-radius:8px; color:var(--accent-blue); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+        .add-btn:hover { background:rgba(59,130,246,0.25); }
+        .owner-select { background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:8px; padding:8px; color:var(--text-primary); font-size:11px; font-family:'Inter',sans-serif; outline:none; width:80px; }
+
+        /* IDS */
+        .ids-step { display:flex; align-items:center; gap:10px; padding:10px; border-radius:var(--radius-sm); margin-bottom:6px; cursor:pointer; transition:all 0.2s; border:1px solid transparent; }
+        .ids-step:hover { background:rgba(255,255,255,0.03); }
+        .ids-step.active-ids { background:rgba(139,92,246,0.1); border-color:rgba(139,92,246,0.3); }
+        .ids-letter { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px; color:white; }
+        .ids-letter-i { background:linear-gradient(135deg,#ef4444,#dc2626); }
+        .ids-letter-d { background:linear-gradient(135deg,#f59e0b,#d97706); }
+        .ids-letter-s { background:linear-gradient(135deg,#10b981,#059669); }
+        .ids-text { font-size:13px; font-weight:500; color:var(--text-secondary); }
+
+        /* Rating */
+        .rating-stars { display:flex; gap:6px; margin-top:8px; }
+        .star { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); cursor:pointer; transition:all 0.2s; color:var(--text-muted); }
+        .star:hover,.star.selected { background:rgba(245,158,11,0.15); border-color:rgba(245,158,11,0.4); color:#fbbf24; }
+
+        /* History */
+        .history-entry { background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:14px; margin-bottom:10px; }
+        .history-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+        .history-date { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent-cyan); }
+        .history-rating { font-size:11px; font-weight:600; color:#fbbf24; background:rgba(245,158,11,0.12); padding:2px 8px; border-radius:4px; }
+        .history-todos { font-size:12px; color:var(--text-secondary); }
+        .history-todos li { padding:2px 0; list-style:none; }
+        .history-todos li::before { content:'- '; color:var(--text-muted); }
+        .history-notes-preview { font-size:11px; color:var(--text-muted); margin-top:6px; font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .history-delete { background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:12px; padding:4px; transition:color 0.2s; }
+        .history-delete:hover { color:var(--accent-rose); }
+        .history-empty { font-size:13px; color:var(--text-muted); text-align:center; padding:20px; }
+
+        /* Modal */
+        .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(8px); z-index:100; align-items:center; justify-content:center; }
+        .modal-overlay.show { display:flex; animation:fadeIn 0.3s ease; }
+        .modal { background:var(--bg-secondary); border-radius:24px; padding:48px; max-width:520px; width:90%; border:1px solid var(--border-subtle); box-shadow:0 25px 80px rgba(0,0,0,0.5); text-align:center; animation:slideUp 0.3s ease; }
+        .modal-timer { font-family:'JetBrains Mono',monospace; font-size:72px; font-weight:800; background:linear-gradient(135deg,var(--accent-cyan),var(--accent-blue)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin:24px 0; }
+        .modal-timer.warning { background:linear-gradient(135deg,var(--accent-amber),#d97706); -webkit-background-clip:text; }
+        .modal-timer.danger { background:linear-gradient(135deg,var(--accent-rose),#dc2626); -webkit-background-clip:text; animation:pulse 1s infinite; }
+        .modal-step-name { font-size:28px; font-weight:800; margin-bottom:8px; }
+        .modal-step-desc { font-size:14px; color:var(--text-secondary); margin-bottom:32px; }
+        .modal-buttons { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+        .modal-btn { padding:12px 32px; border-radius:12px; border:none; font-weight:600; font-size:14px; cursor:pointer; transition:all 0.2s; }
+        .modal-btn-primary { background:linear-gradient(135deg,var(--accent-blue),var(--accent-cyan)); color:white; box-shadow:0 4px 20px rgba(59,130,246,0.3); }
+        .modal-btn-primary:hover { transform:translateY(-1px); box-shadow:0 6px 30px rgba(59,130,246,0.4); }
+        .modal-btn-secondary { background:rgba(255,255,255,0.05); color:var(--text-secondary); border:1px solid var(--border-subtle); }
+        .modal-btn-secondary:hover { background:rgba(255,255,255,0.1); }
+        .modal-btn-danger { background:rgba(244,63,94,0.15); color:var(--accent-rose); border:1px solid rgba(244,63,94,0.3); }
+        .timer-ring-container { position:relative; width:120px; height:120px; margin:0 auto 16px; }
+        .timer-ring { transform:rotate(-90deg); }
+        .timer-ring-bg { fill:none; stroke:rgba(255,255,255,0.05); stroke-width:6; }
+        .timer-ring-progress { fill:none; stroke:var(--accent-cyan); stroke-width:6; stroke-linecap:round; transition:stroke-dashoffset 1s linear,stroke 0.3s; }
+        .timer-ring-progress.warning { stroke:var(--accent-amber); }
+        .timer-ring-progress.danger { stroke:var(--accent-rose); }
+
+        ::-webkit-scrollbar { width:6px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:3px; }
+        ::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,0.2); }
+        @media (max-width:900px) { .main { grid-template-columns:1fr; height:auto; } .sidebar-left { border:none; border-bottom:1px solid var(--border-subtle); } }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="header-left">
+        <div class="logo-mark">N10</div>
+        <div>
+            <div class="header-title">Reunion Nivel 10</div>
+            <div class="header-subtitle">EOS - Equipo de Liderazgo</div>
+        </div>
+    </div>
+    <div class="header-right">
+        <div class="meeting-date" id="meetingDate"></div>
+        <button class="btn-ctrl btn-history visible" onclick="toggleHistory()">Historial</button>
+        <button class="btn-ctrl btn-prev" id="btnPrev" onclick="prevStep()">&#9664; Anterior</button>
+        <button class="btn-ctrl btn-reset" id="btnReset" onclick="confirmReset()">&#8635; Reiniciar</button>
+        <button class="btn-start-meeting" id="btnStartMeeting" onclick="startMeeting()">Iniciar Reunion</button>
+    </div>
+</header>
+
+<div class="main">
+    <aside class="sidebar-left">
+        <div class="section-label">Participantes</div>
+        <div class="participant-card">
+            <div class="avatar avatar-gv">GV</div>
+            <div class="participant-info"><div class="participant-name">German Veiga</div><div class="participant-role">Dueno</div></div>
+            <span class="participant-badge badge-visionario">Visionario</span>
+        </div>
+        <div class="participant-card">
+            <div class="avatar avatar-sr">SR</div>
+            <div class="participant-info"><div class="participant-name">Santiago Rivera</div><div class="participant-role">Gte. Administracion</div></div>
+            <span class="participant-badge badge-integrador">Integrador</span>
+        </div>
+        <div class="participant-card">
+            <div class="avatar avatar-is">IS</div>
+            <div class="participant-info"><div class="participant-name">Ignacio Spera</div><div class="participant-role">Gte. Recursos Humanos</div></div>
+            <span class="participant-badge badge-gerente">Gerente</span>
+        </div>
+        <div class="participant-card">
+            <div class="avatar avatar-gr">GR</div>
+            <div class="participant-info"><div class="participant-name">Gabriel Rivara</div><div class="participant-role">Gte. Operaciones</div></div>
+            <span class="participant-badge badge-gerente">Gerente</span>
+        </div>
+        <div class="eos-section">
+            <div class="section-label">Componentes EOS</div>
+            <div class="eos-component"><div class="eos-dot" style="background:#3b82f6"></div><span>Vision</span></div>
+            <div class="eos-component"><div class="eos-dot" style="background:#10b981"></div><span>Personas</span></div>
+            <div class="eos-component"><div class="eos-dot" style="background:#06b6d4"></div><span>Datos</span></div>
+            <div class="eos-component"><div class="eos-dot" style="background:#f59e0b"></div><span>Asuntos</span></div>
+            <div class="eos-component"><div class="eos-dot" style="background:#ec4899"></div><span>Procesos</span></div>
+            <div class="eos-component"><div class="eos-dot" style="background:#8b5cf6"></div><span>Traccion</span></div>
+        </div>
+    </aside>
+
+    <main class="center-panel">
+        <div class="agenda-header">
+            <div class="section-label">Agenda de la Reunion</div>
+            <div class="total-timer"><div><div class="total-timer-label">Tiempo Total</div><div class="total-timer-value" id="totalTimer">90:00</div></div></div>
+        </div>
+        <div class="agenda-list" id="agendaList"></div>
+        <div class="progress-bar-container">
+            <div class="progress-bar-header"><span class="progress-label">Progreso</span><span class="progress-percent" id="progressPercent">0%</span></div>
+            <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+
+        <div class="bottom-panels">
+            <!-- IDS -->
+            <div class="ids-panel">
+                <div class="panel-title"><div class="panel-title-icon" style="background:rgba(139,92,246,0.15);color:#a78bfa;">I</div>Metodo IDS</div>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                    <div class="ids-step" onclick="setIDS(this)" style="flex:1;min-width:150px"><div class="ids-letter ids-letter-i">I</div><div class="ids-text">Identificar el tema raiz</div></div>
+                    <div class="ids-step" onclick="setIDS(this)" style="flex:1;min-width:150px"><div class="ids-letter ids-letter-d">D</div><div class="ids-text">Discutir abiertamente</div></div>
+                    <div class="ids-step" onclick="setIDS(this)" style="flex:1;min-width:150px"><div class="ids-letter ids-letter-s">S</div><div class="ids-text">Solucionar y asignar</div></div>
+                </div>
+            </div>
+
+            <!-- To-Dos -->
+            <div class="todos-panel">
+                <div class="panel-title"><div class="panel-title-icon" style="background:rgba(16,185,129,0.15);color:#34d399;">T</div>To-Dos de la Semana</div>
+                <div id="todoList"></div>
+                <div class="add-row">
+                    <input type="text" class="add-input" id="todoInput" placeholder="Nueva tarea..." onkeypress="if(event.key==='Enter')addTodo()">
+                    <select class="owner-select" id="todoOwner"><option value="GV">GV</option><option value="SR">SR</option><option value="IS">IS</option><option value="GR">GR</option></select>
+                    <button class="add-btn" onclick="addTodo()">+</button>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="notes-panel">
+                <div class="panel-title"><div class="panel-title-icon" style="background:rgba(59,130,246,0.15);color:#60a5fa;">N</div>Notas / Headlines</div>
+                <textarea class="notes-input" id="notesArea" placeholder="Noticias de empleados, clientes, logros destacados..." oninput="saveNotes()"></textarea>
+            </div>
+
+            <!-- Rating -->
+            <div class="rating-panel">
+                <div class="panel-title"><div class="panel-title-icon" style="background:rgba(245,158,11,0.15);color:#fbbf24;">R</div>Calificar Reunion</div>
+                <div class="rating-stars" id="ratingStars"></div>
+            </div>
+
+            <!-- History -->
+            <div class="history-panel" id="historyPanel" style="display:none">
+                <div class="panel-title"><div class="panel-title-icon" style="background:rgba(139,92,246,0.15);color:#a78bfa;">H</div>Historial de Reuniones</div>
+                <div id="historyList"></div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modalContent">
+        <div class="timer-ring-container">
+            <svg class="timer-ring" width="120" height="120">
+                <circle class="timer-ring-bg" cx="60" cy="60" r="54"/>
+                <circle class="timer-ring-progress" id="timerRingProgress" cx="60" cy="60" r="54" stroke-dasharray="339.292" stroke-dashoffset="0"/>
+            </svg>
+        </div>
+        <div class="modal-step-name" id="modalStepName"></div>
+        <div class="modal-timer" id="modalTimer">05:00</div>
+        <div class="modal-step-desc" id="modalStepDesc"></div>
+        <div class="modal-buttons">
+            <button class="modal-btn modal-btn-danger" id="btnModalPrev" onclick="prevStep()" style="display:none">&#9664; Anterior</button>
+            <button class="modal-btn modal-btn-secondary" onclick="pauseTimer()" id="btnPause">Pausar</button>
+            <button class="modal-btn modal-btn-primary" onclick="nextStep()" id="btnNext">Siguiente &#9654;</button>
+            <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Minimizar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const agenda = [
+    { id:'segue', step:1, name:'Segue / Resumen Rapido', desc:'Cada participante comparte algo positivo (personal o profesional)', duration:5*60 },
+    { id:'scorecard', step:2, name:'Scorecard', desc:'Revision de los indicadores de actividad semanal (5-15 numeros)', duration:5*60 },
+    { id:'rocks', step:3, name:'Rock Review', desc:'Estado de las Rocas del trimestre - On Track / Off Track', duration:5*60 },
+    { id:'headlines', step:4, name:'Headlines', desc:'Noticias relevantes de empleados y clientes', duration:5*60 },
+    { id:'todos', step:5, name:'To-Dos', desc:'Revision de tareas comprometidas la semana anterior', duration:5*60 },
+    { id:'ids', step:6, name:'IDS - Identificar, Discutir, Solucionar', desc:'Resolver los 3 temas mas importantes usando el metodo IDS', duration:60*60, isIDS:true },
+    { id:'conclude', step:7, name:'Cierre y Conclusion', desc:'Confirmar To-Dos, mensajes a comunicar y calificar la reunion', duration:5*60 }
+];
+
+let meetingStarted=false, currentStep=-1, stepTimeRemaining=0, totalTimeRemaining=90*60;
+let timerInterval=null, totalTimerInterval=null, isPaused=false, todos=[], rating=0, notesTimeout=null;
+
+// === API ===
+async function api(method, url, body) {
+    const opts = { method, headers:{'Content-Type':'application/json'} };
+    if (body) opts.body = JSON.stringify(body);
+    const r = await fetch(url, opts);
+    return r.json();
+}
+
+async function loadData() {
+    try {
+        const data = await api('GET','/api/data');
+        todos = data.currentTodos || [];
+        document.getElementById('notesArea').value = data.notes || '';
+        renderTodos();
+    } catch(e) { /* offline mode - no backend */ }
+}
+
+async function loadHistory() {
+    try {
+        const history = await api('GET','/api/history');
+        renderHistory(history);
+    } catch(e) {}
+}
+
+// === INIT ===
+function init() {
+    const now = new Date();
+    const days=['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
+    const months=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    document.getElementById('meetingDate').textContent = `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()} - ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    renderAgenda();
+    // Rating stars
+    let html='';
+    for(let i=1;i<=10;i++) html+=`<div class="star" onclick="setRating(${i})">${i}</div>`;
+    document.getElementById('ratingStars').innerHTML=html;
+    loadData();
+}
+
+function renderAgenda() {
+    document.getElementById('agendaList').innerHTML = agenda.map((item,i) => `
+        <div class="agenda-item ${item.isIDS?'ids-item':''}" id="agenda-${item.id}" onclick="jumpToStep(${i})">
+            <div class="agenda-step"><span class="step-num">${item.step}</span></div>
+            <div class="agenda-content"><div class="agenda-name">${item.name}</div><div class="agenda-desc">${item.desc}</div></div>
+            <div class="agenda-duration">${formatTime(item.duration)}</div>
+            <div class="agenda-timer" id="timer-${item.id}">--:--</div>
+        </div>`).join('');
+}
+
+// === MEETING CONTROL ===
+function startMeeting() {
+    if(meetingStarted) return;
+    meetingStarted=true;
+    document.getElementById('btnStartMeeting').textContent='En Curso...';
+    document.getElementById('btnStartMeeting').disabled=true;
+    document.getElementById('btnReset').classList.add('visible');
+    totalTimerInterval=setInterval(()=>{
+        if(!isPaused){ totalTimeRemaining--; updateTotalTimer(); if(totalTimeRemaining<=0) clearInterval(totalTimerInterval); }
+    },1000);
+    goToStep(0);
+}
+
+function goToStep(index) {
+    if(index>=agenda.length){ endMeeting(); return; }
+    if(currentStep>=0 && currentStep!==index){
+        const prev=document.getElementById(`agenda-${agenda[currentStep].id}`);
+        prev.classList.remove('active'); prev.classList.add('completed');
+        document.getElementById(`timer-${agenda[currentStep].id}`).textContent='OK';
+    }
+    currentStep=index; stepTimeRemaining=agenda[index].duration;
+    agenda.forEach(a=>document.getElementById(`agenda-${a.id}`).classList.remove('active'));
+    const el=document.getElementById(`agenda-${agenda[index].id}`);
+    el.classList.remove('completed'); el.classList.add('active');
+    el.scrollIntoView({behavior:'smooth',block:'center'});
+    document.getElementById(`timer-${agenda[index].id}`).textContent=formatTime(agenda[index].duration);
+    const showPrev=currentStep>0;
+    document.getElementById('btnPrev').classList.toggle('visible',showPrev);
+    document.getElementById('btnModalPrev').style.display=showPrev?'':'none';
+    updateProgress(); showModal(agenda[index]);
+    clearInterval(timerInterval);
+    timerInterval=setInterval(()=>{
+        if(!isPaused){ stepTimeRemaining--; updateStepTimer(); if(stepTimeRemaining<=0) clearInterval(timerInterval); }
+    },1000);
+}
+
+function jumpToStep(index) {
+    if(!meetingStarted||index<=currentStep) return;
+    for(let i=currentStep;i<index;i++){
+        const el=document.getElementById(`agenda-${agenda[i].id}`);
+        el.classList.remove('active'); el.classList.add('completed');
+        document.getElementById(`timer-${agenda[i].id}`).textContent='OK';
+    }
+    clearInterval(timerInterval); goToStep(index);
+}
+
+function nextStep(){ clearInterval(timerInterval); closeModal(); goToStep(currentStep+1); }
+
+function prevStep() {
+    if(currentStep<=0) return;
+    clearInterval(timerInterval); closeModal();
+    const prevIndex=currentStep-1;
+    for(let i=prevIndex;i<agenda.length;i++){
+        const el=document.getElementById(`agenda-${agenda[i].id}`);
+        el.classList.remove('active','completed');
+        document.getElementById(`timer-${agenda[i].id}`).textContent='--:--';
+    }
+    for(let i=0;i<prevIndex;i++){
+        const el=document.getElementById(`agenda-${agenda[i].id}`);
+        el.classList.remove('active'); el.classList.add('completed');
+        document.getElementById(`timer-${agenda[i].id}`).textContent='OK';
+    }
+    currentStep=prevIndex>0?prevIndex-1:-1;
+    goToStep(prevIndex);
+}
+
+async function endMeeting() {
+    clearInterval(timerInterval); clearInterval(totalTimerInterval); closeModal();
+    if(currentStep>=0){
+        const el=document.getElementById(`agenda-${agenda[currentStep].id}`);
+        el.classList.remove('active'); el.classList.add('completed');
+        document.getElementById(`timer-${agenda[currentStep].id}`).textContent='OK';
+    }
+    currentStep=agenda.length; updateProgress();
+    document.getElementById('btnStartMeeting').textContent='Finalizada';
+    document.getElementById('btnPrev').classList.remove('visible');
+    // Save to history
+    try {
+        const result = await api('POST','/api/meeting/end',{ rating });
+        todos = (await api('GET','/api/data')).currentTodos || [];
+        renderTodos();
+        loadHistory();
+        alert(`Reunion guardada. ${result.pendingCount} tarea(s) pendiente(s) transferida(s) a la proxima reunion.`);
+    } catch(e) {}
+}
+
+function confirmReset() {
+    closeModal();
+    const modal=document.getElementById('modalContent');
+    modal.innerHTML=`
+        <div style="font-size:48px;margin-bottom:16px">&#8635;</div>
+        <div class="modal-step-name">Reiniciar Reunion?</div>
+        <div class="modal-step-desc" style="margin:16px 0 32px">Se reiniciaran todos los timers y el progreso.<br>Los To-Dos y notas se mantienen.</div>
+        <div class="modal-buttons">
+            <button class="modal-btn modal-btn-danger" onclick="resetMeeting()">Si, Reiniciar</button>
+            <button class="modal-btn modal-btn-secondary" onclick="cancelReset()">Cancelar</button>
+        </div>`;
+    document.getElementById('modalOverlay').classList.add('show');
+}
+
+function cancelReset(){ closeModal(); restoreModal(); if(meetingStarted&&currentStep>=0) showModal(agenda[currentStep]); }
+
+function restoreModal(){
+    document.getElementById('modalContent').innerHTML=`
+        <div class="timer-ring-container"><svg class="timer-ring" width="120" height="120"><circle class="timer-ring-bg" cx="60" cy="60" r="54"/><circle class="timer-ring-progress" id="timerRingProgress" cx="60" cy="60" r="54" stroke-dasharray="339.292" stroke-dashoffset="0"/></svg></div>
+        <div class="modal-step-name" id="modalStepName"></div>
+        <div class="modal-timer" id="modalTimer">05:00</div>
+        <div class="modal-step-desc" id="modalStepDesc"></div>
+        <div class="modal-buttons">
+            <button class="modal-btn modal-btn-danger" id="btnModalPrev" onclick="prevStep()" style="display:none">&#9664; Anterior</button>
+            <button class="modal-btn modal-btn-secondary" onclick="pauseTimer()" id="btnPause">Pausar</button>
+            <button class="modal-btn modal-btn-primary" onclick="nextStep()" id="btnNext">Siguiente &#9654;</button>
+            <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Minimizar</button>
+        </div>`;
+}
+
+function resetMeeting(){
+    clearInterval(timerInterval); clearInterval(totalTimerInterval);
+    meetingStarted=false; currentStep=-1; stepTimeRemaining=0; totalTimeRemaining=90*60; isPaused=false; rating=0;
+    closeModal(); restoreModal();
+    document.getElementById('btnStartMeeting').textContent='Iniciar Reunion';
+    document.getElementById('btnStartMeeting').disabled=false;
+    document.getElementById('btnReset').classList.remove('visible');
+    document.getElementById('btnPrev').classList.remove('visible');
+    document.getElementById('totalTimer').textContent='90:00';
+    document.getElementById('totalTimer').className='total-timer-value';
+    document.getElementById('progressPercent').textContent='0%';
+    document.getElementById('progressFill').style.width='0%';
+    document.querySelectorAll('.star').forEach(el=>el.classList.remove('selected'));
+    renderAgenda();
+}
+
+// === TIMERS ===
+function formatTime(s){ if(s<0)s=0; return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; }
+
+function updateStepTimer(){
+    const item=agenda[currentStep];
+    const tEl=document.getElementById(`timer-${item.id}`), mEl=document.getElementById('modalTimer'), rEl=document.getElementById('timerRingProgress');
+    const str=formatTime(Math.abs(stepTimeRemaining)), disp=stepTimeRemaining<0?`-${str}`:str;
+    tEl.textContent=disp; if(mEl) mEl.textContent=disp;
+    let cls=''; if(stepTimeRemaining<0)cls='danger'; else if(stepTimeRemaining/item.duration<0.2)cls='warning';
+    tEl.className='agenda-timer '+cls; if(mEl) mEl.className='modal-timer '+cls;
+    if(rEl){ rEl.className.baseVal='timer-ring-progress '+cls; rEl.style.strokeDashoffset=2*Math.PI*54*(1-Math.max(0,stepTimeRemaining/item.duration)); }
+}
+
+function updateTotalTimer(){
+    const el=document.getElementById('totalTimer'), str=formatTime(Math.abs(totalTimeRemaining));
+    el.textContent=totalTimeRemaining<0?`-${str}`:str;
+    el.className='total-timer-value'; if(totalTimeRemaining<0)el.classList.add('danger'); else if(totalTimeRemaining<300)el.classList.add('warning');
+}
+
+function updateProgress(){
+    const c=currentStep>=0?currentStep:0, p=Math.round(c/agenda.length*100);
+    document.getElementById('progressPercent').textContent=p+'%';
+    document.getElementById('progressFill').style.width=p+'%';
+}
+
+// === MODAL ===
+function showModal(item){
+    const n=document.getElementById('modalStepName'),t=document.getElementById('modalTimer'),d=document.getElementById('modalStepDesc'),r=document.getElementById('timerRingProgress');
+    if(n)n.textContent=item.name; if(t)t.textContent=formatTime(item.duration); if(d)d.textContent=item.desc;
+    if(r){ r.style.strokeDashoffset='0'; r.className.baseVal='timer-ring-progress'; }
+    document.getElementById('modalOverlay').classList.add('show');
+    isPaused=false; const pb=document.getElementById('btnPause'); if(pb) pb.textContent='Pausar';
+}
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('show'); }
+function pauseTimer(){ isPaused=!isPaused; const pb=document.getElementById('btnPause'); if(pb) pb.textContent=isPaused?'Reanudar':'Pausar'; }
+
+// === TO-DOS (with API) ===
+async function addTodo(){
+    const input=document.getElementById('todoInput'), owner=document.getElementById('todoOwner').value, text=input.value.trim();
+    if(!text) return;
+    try {
+        const todo = await api('POST','/api/todos',{text,owner});
+        todos.push(todo);
+    } catch(e) {
+        todos.push({id:Date.now().toString(),text,owner,done:false});
+    }
+    input.value=''; renderTodos();
+}
+
+async function toggleTodo(id){
+    const t=todos.find(x=>x.id===id); if(!t)return;
+    t.done=!t.done;
+    try { await api('PATCH',`/api/todos/${id}`); } catch(e){}
+    renderTodos();
+}
+
+async function deleteTodo(id){
+    todos=todos.filter(x=>x.id!==id);
+    try { await api('DELETE',`/api/todos/${id}`); } catch(e){}
+    renderTodos();
+}
+
+function renderTodos(){
+    document.getElementById('todoList').innerHTML=todos.map(t=>`
+        <div class="todo-item">
+            <div class="todo-checkbox ${t.done?'checked':''}" onclick="toggleTodo('${t.id}')"></div>
+            <span class="todo-text ${t.done?'done':''}">${t.text}</span>
+            ${t.carried?'<span class="todo-carried">anterior</span>':''}
+            <span class="todo-owner">${t.owner}</span>
+            <button class="todo-delete" onclick="deleteTodo('${t.id}')" title="Eliminar">&times;</button>
+        </div>`).join('');
+}
+
+// === NOTES (auto-save) ===
+function saveNotes(){
+    clearTimeout(notesTimeout);
+    notesTimeout=setTimeout(async()=>{
+        try { await api('PUT','/api/notes',{notes:document.getElementById('notesArea').value}); } catch(e){}
+    },500);
+}
+
+// === IDS ===
+function setIDS(el){ document.querySelectorAll('.ids-step').forEach(e=>e.classList.remove('active-ids')); el.classList.add('active-ids'); }
+
+// === RATING ===
+function setRating(n){ rating=n; document.querySelectorAll('.star').forEach((el,i)=>el.classList.toggle('selected',i<n)); }
+
+// === HISTORY ===
+function toggleHistory(){
+    const p=document.getElementById('historyPanel');
+    const vis=p.style.display==='none';
+    p.style.display=vis?'block':'none';
+    if(vis) loadHistory();
+}
+
+function renderHistory(history){
+    if(!history||!history.length){ document.getElementById('historyList').innerHTML='<div class="history-empty">Sin reuniones previas</div>'; return; }
+    document.getElementById('historyList').innerHTML=history.map(h=>{
+        const d=new Date(h.date);
+        const days=['Dom','Lun','Mar','Mie','Jue','Vie','Sab'];
+        const dateStr=`${days[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+        const todosHtml=h.todos.map(t=>`<li style="${t.done?'text-decoration:line-through;opacity:0.5':''}">${t.text} <small>(${t.owner})</small></li>`).join('');
+        return `<div class="history-entry">
+            <div class="history-header">
+                <span class="history-date">${dateStr}</span>
+                <span style="display:flex;gap:8px;align-items:center">
+                    ${h.rating?`<span class="history-rating">${h.rating}/10</span>`:''}
+                    <button class="history-delete" onclick="deleteHistory('${h.id}')" title="Eliminar">&times;</button>
+                </span>
+            </div>
+            ${todosHtml?`<ul class="history-todos">${todosHtml}</ul>`:''}
+            ${h.notes?`<div class="history-notes-preview">${h.notes}</div>`:''}
+        </div>`;
+    }).join('');
+}
+
+async function deleteHistory(id){
+    try { await api('DELETE',`/api/history/${id}`); loadHistory(); } catch(e){}
+}
+
+init();
+</script>
+</body>
+</html>

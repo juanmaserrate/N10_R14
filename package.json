@@ -1,0 +1,13 @@
+{
+  "name": "reunion-n10",
+  "version": "1.0.0",
+  "description": "EOS Level 10 Meeting Manager",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}
