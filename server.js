@@ -4,7 +4,16 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const DATA_FILE = path.join(__dirname, 'data.json');
+
+// Railway Volume: set RAILWAY_VOLUME_MOUNT_PATH=/data in Railway dashboard
+// Falls back to local directory for development
+const DATA_DIR = process.env.RAILWAY_VOLUME_MOUNT_PATH || __dirname;
+const DATA_FILE = path.join(DATA_DIR, 'data.json');
+
+// Ensure data directory exists
+if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+}
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
