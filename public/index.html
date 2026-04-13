@@ -57,6 +57,7 @@
         .avatar-sr { background:linear-gradient(135deg,#3b82f6,#2563eb); }
         .avatar-is { background:linear-gradient(135deg,#10b981,#059669); }
         .avatar-gr { background:linear-gradient(135deg,#8b5cf6,#7c3aed); }
+        .avatar-jp { background:linear-gradient(135deg,#f43f5e,#e11d48); }
         .participant-info { flex:1; }
         .participant-name { font-size:14px; font-weight:600; color:var(--text-primary); }
         .participant-role { font-size:11px; color:var(--text-muted); margin-top:2px; }
@@ -91,6 +92,7 @@
         .agenda-content { flex:1; }
         .agenda-name { font-size:15px; font-weight:600; color:var(--text-primary); margin-bottom:3px; }
         .agenda-desc { font-size:12px; color:var(--text-muted); }
+        .agenda-counter { font-size:11px; font-weight:600; margin-top:4px; min-height:14px; }
         .agenda-duration { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--text-secondary); background:rgba(255,255,255,0.04); padding:6px 12px; border-radius:8px; }
         .agenda-timer { font-family:'JetBrains Mono',monospace; font-size:22px; font-weight:700; color:var(--accent-cyan); min-width:80px; text-align:right; }
         .agenda-timer.warning { color:var(--accent-amber); }
@@ -110,7 +112,7 @@
 
         /* Bottom panels */
         .bottom-panels { display:flex; flex-direction:column; gap:16px; margin-top:24px; padding-bottom:32px; }
-        .notes-panel,.todos-panel,.ids-panel,.rating-panel,.history-panel { background:var(--bg-card); border-radius:var(--radius); padding:16px; border:1px solid var(--border-subtle); }
+        .notes-panel,.todos-panel,.ids-panel,.rating-panel,.history-panel,.rocks-panel,.headlines-panel { background:var(--bg-card); border-radius:var(--radius); padding:16px; border:1px solid var(--border-subtle); }
         .panel-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
         .panel-title-icon { width:20px; height:20px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; }
         textarea.notes-input { width:100%; min-height:80px; background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:12px; color:var(--text-primary); font-family:'Inter',sans-serif; font-size:13px; resize:vertical; outline:none; transition:border-color 0.2s; }
@@ -137,6 +139,46 @@
         .add-btn:hover { background:rgba(59,130,246,0.25); }
         .owner-select { background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:8px; padding:8px; color:var(--text-primary); font-size:11px; font-family:'Inter',sans-serif; outline:none; width:80px; }
 
+        /* Rocks */
+        .rocks-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; margin-bottom:12px; }
+        .rock-card { background:rgba(255,255,255,0.02); border-radius:var(--radius-sm); padding:14px; border:1px solid var(--border-subtle); transition:all 0.3s; }
+        .rock-card.on-track { border-left:3px solid var(--accent-emerald); }
+        .rock-card.off-track { border-left:3px solid var(--accent-rose); }
+        .rock-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+        .rock-title { font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:10px; line-height:1.3; }
+        .rock-footer { display:flex; justify-content:space-between; align-items:center; }
+        .rock-due { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-muted); }
+        .rock-due.expiring { color:var(--accent-amber); }
+        .rock-due.expired { color:var(--accent-rose); font-weight:600; }
+        .rock-toggle { font-size:10px; font-weight:700; padding:4px 10px; border-radius:6px; border:none; cursor:pointer; transition:all 0.2s; text-transform:uppercase; letter-spacing:0.5px; }
+        .rock-toggle.on { background:rgba(16,185,129,0.15); color:var(--accent-emerald); }
+        .rock-toggle.off { background:rgba(244,63,94,0.15); color:var(--accent-rose); }
+        .rock-toggle:hover { opacity:0.8; }
+        .rock-delete { width:20px; height:20px; border-radius:5px; border:none; background:rgba(244,63,94,0.1); color:var(--accent-rose); cursor:pointer; font-size:12px; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
+        .rock-delete:hover { background:rgba(244,63,94,0.25); }
+        input[type="date"] { color-scheme:dark; }
+
+        /* Headlines */
+        .headline-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border-subtle); }
+        .headline-item:last-child { border-bottom:none; }
+        .headline-text { font-size:13px; color:var(--text-secondary); flex:1; }
+        .headline-delete { width:24px; height:24px; border-radius:6px; border:none; background:rgba(244,63,94,0.1); color:var(--accent-rose); cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; transition:all 0.2s; flex-shrink:0; }
+        .headline-delete:hover { background:rgba(244,63,94,0.25); }
+
+        /* Per-user Rating */
+        .rating-row { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+        .rating-user-label { font-size:13px; font-weight:600; width:36px; color:var(--text-secondary); text-align:center; }
+        .rating-user-stars { display:flex; gap:4px; }
+        .rating-user-stars .star { width:28px; height:28px; font-size:12px; }
+        .rating-average { margin-top:12px; padding-top:12px; border-top:1px solid var(--border-subtle); display:flex; align-items:center; gap:12px; }
+        .rating-avg-label { font-size:12px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; }
+        .rating-avg-value { font-family:'JetBrains Mono',monospace; font-size:24px; font-weight:700; color:var(--accent-amber); }
+
+        /* Conclude todos in modal */
+        .conclude-todos { text-align:left; max-height:200px; overflow-y:auto; margin:12px auto; padding:12px 16px; background:rgba(255,255,255,0.03); border-radius:var(--radius-sm); border:1px solid var(--border-subtle); max-width:420px; }
+        .conclude-todo-item { display:flex; align-items:center; gap:8px; padding:5px 0; font-size:13px; color:var(--text-secondary); border-bottom:1px solid rgba(255,255,255,0.03); }
+        .conclude-todo-item:last-child { border-bottom:none; }
+
         /* IDS */
         .ids-step { display:flex; align-items:center; gap:10px; padding:10px; border-radius:var(--radius-sm); margin-bottom:6px; cursor:pointer; transition:all 0.2s; border:1px solid transparent; }
         .ids-step:hover { background:rgba(255,255,255,0.03); }
@@ -147,20 +189,27 @@
         .ids-letter-s { background:linear-gradient(135deg,#10b981,#059669); }
         .ids-text { font-size:13px; font-weight:500; color:var(--text-secondary); }
 
-        /* Rating */
-        .rating-stars { display:flex; gap:6px; margin-top:8px; }
+        /* Rating star base */
         .star { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); cursor:pointer; transition:all 0.2s; color:var(--text-muted); }
         .star:hover,.star.selected { background:rgba(245,158,11,0.15); border-color:rgba(245,158,11,0.4); color:#fbbf24; }
 
         /* History */
         .history-entry { background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:14px; margin-bottom:10px; }
-        .history-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+        .history-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
         .history-date { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent-cyan); }
         .history-rating { font-size:11px; font-weight:600; color:#fbbf24; background:rgba(245,158,11,0.12); padding:2px 8px; border-radius:4px; }
+        .history-section { margin:6px 0; }
+        .history-section-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:4px; margin-top:8px; }
+        .history-ratings-row { display:flex; gap:8px; flex-wrap:wrap; }
+        .history-rating-item { font-size:11px; color:var(--text-secondary); background:rgba(255,255,255,0.03); padding:2px 8px; border-radius:4px; }
+        .history-rock-item { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:4px; font-size:11px; margin:2px; }
+        .history-rock-on { background:rgba(16,185,129,0.1); color:var(--accent-emerald); }
+        .history-rock-off { background:rgba(244,63,94,0.1); color:var(--accent-rose); }
+        .history-headline-item { font-size:11px; color:var(--text-secondary); padding:2px 0; }
         .history-todos { font-size:12px; color:var(--text-secondary); }
         .history-todos li { padding:2px 0; list-style:none; }
         .history-todos li::before { content:'- '; color:var(--text-muted); }
-        .history-notes-preview { font-size:11px; color:var(--text-muted); margin-top:6px; font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .history-notes-preview { font-size:11px; color:var(--text-muted); margin-top:4px; font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .history-delete { background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:12px; padding:4px; transition:color 0.2s; }
         .history-delete:hover { color:var(--accent-rose); }
         .history-empty { font-size:13px; color:var(--text-muted); text-align:center; padding:20px; }
@@ -229,13 +278,18 @@
         </div>
         <div class="participant-card">
             <div class="avatar avatar-is">IS</div>
-            <div class="participant-info"><div class="participant-name">Ignacio Spera</div><div class="participant-role">Gte. Recursos Humanos</div></div>
-            <span class="participant-badge badge-gerente">Gerente</span>
+            <div class="participant-info"><div class="participant-name">Ignacio Spera</div><div class="participant-role">Jefe de Recursos Humanos</div></div>
+            <span class="participant-badge badge-gerente">Jefe</span>
         </div>
         <div class="participant-card">
             <div class="avatar avatar-gr">GR</div>
             <div class="participant-info"><div class="participant-name">Gabriel Rivara</div><div class="participant-role">Gte. Operaciones</div></div>
             <span class="participant-badge badge-gerente">Gerente</span>
+        </div>
+        <div class="participant-card">
+            <div class="avatar avatar-jp">JP</div>
+            <div class="participant-info"><div class="participant-name">Juan Paz Biar</div><div class="participant-role">Jefe de Finanzas</div></div>
+            <span class="participant-badge badge-gerente">Jefe</span>
         </div>
         <div class="eos-section">
             <div class="section-label">Componentes EOS</div>
@@ -260,6 +314,29 @@
         </div>
 
         <div class="bottom-panels">
+            <!-- Rocks -->
+            <div class="rocks-panel">
+                <div class="panel-title"><div class="panel-title-icon" style="background:rgba(6,182,212,0.15);color:#22d3ee;">R</div>Rock Review - Metas Trimestrales</div>
+                <div id="rocksList" class="rocks-grid"></div>
+                <div class="add-row">
+                    <input type="text" class="add-input" id="rockInput" placeholder="Nueva Roca..." onkeypress="if(event.key==='Enter')addRock()">
+                    <select class="owner-select" id="rockOwner"><option value="GV">GV</option><option value="SR">SR</option><option value="IS">IS</option><option value="GR">GR</option><option value="JP">JP</option></select>
+                    <input type="date" class="add-input" id="rockDueDate" style="flex:0 0 150px">
+                    <button class="add-btn" onclick="addRock()">+</button>
+                </div>
+            </div>
+
+            <!-- Headlines -->
+            <div class="headlines-panel">
+                <div class="panel-title"><div class="panel-title-icon" style="background:rgba(236,72,153,0.15);color:#f472b6;">H</div>Headlines / Novedades</div>
+                <div id="headlinesList"></div>
+                <div class="add-row">
+                    <input type="text" class="add-input" id="headlineInput" placeholder="Novedad o noticia..." onkeypress="if(event.key==='Enter')addHeadline()">
+                    <select class="owner-select" id="headlineOwner"><option value="GV">GV</option><option value="SR">SR</option><option value="IS">IS</option><option value="GR">GR</option><option value="JP">JP</option></select>
+                    <button class="add-btn" onclick="addHeadline()">+</button>
+                </div>
+            </div>
+
             <!-- IDS -->
             <div class="ids-panel">
                 <div class="panel-title"><div class="panel-title-icon" style="background:rgba(139,92,246,0.15);color:#a78bfa;">I</div>Metodo IDS</div>
@@ -276,21 +353,26 @@
                 <div id="todoList"></div>
                 <div class="add-row">
                     <input type="text" class="add-input" id="todoInput" placeholder="Nueva tarea..." onkeypress="if(event.key==='Enter')addTodo()">
-                    <select class="owner-select" id="todoOwner"><option value="GV">GV</option><option value="SR">SR</option><option value="IS">IS</option><option value="GR">GR</option></select>
+                    <select class="owner-select" id="todoOwner"><option value="GV">GV</option><option value="SR">SR</option><option value="IS">IS</option><option value="GR">GR</option><option value="JP">JP</option></select>
                     <button class="add-btn" onclick="addTodo()">+</button>
                 </div>
             </div>
 
             <!-- Notes -->
             <div class="notes-panel">
-                <div class="panel-title"><div class="panel-title-icon" style="background:rgba(59,130,246,0.15);color:#60a5fa;">N</div>Notas / Headlines</div>
-                <textarea class="notes-input" id="notesArea" placeholder="Noticias de empleados, clientes, logros destacados..." oninput="saveNotes()"></textarea>
+                <div class="panel-title"><div class="panel-title-icon" style="background:rgba(59,130,246,0.15);color:#60a5fa;">N</div>Notas</div>
+                <textarea class="notes-input" id="notesArea" placeholder="Notas generales de la reunion..." oninput="saveNotes()"></textarea>
             </div>
 
-            <!-- Rating -->
+            <!-- Rating (per-user) -->
             <div class="rating-panel">
-                <div class="panel-title"><div class="panel-title-icon" style="background:rgba(245,158,11,0.15);color:#fbbf24;">R</div>Calificar Reunion</div>
-                <div class="rating-stars" id="ratingStars"></div>
+                <div class="panel-title"><div class="panel-title-icon" style="background:rgba(245,158,11,0.15);color:#fbbf24;">C</div>Calificar Reunion</div>
+                <div id="ratingRows"></div>
+                <div class="rating-average">
+                    <span class="rating-avg-label">Promedio</span>
+                    <span class="rating-avg-value" id="ratingAvg">--</span>
+                    <span style="font-size:14px;color:var(--text-muted)">/10</span>
+                </div>
             </div>
 
             <!-- History -->
@@ -334,8 +416,11 @@ const agenda = [
     { id:'conclude', step:7, name:'Cierre y Conclusion', desc:'Confirmar To-Dos, mensajes a comunicar y calificar la reunion', duration:5*60 }
 ];
 
+const participants = ['GV','SR','IS','GR','JP'];
 let meetingStarted=false, currentStep=-1, stepTimeRemaining=0, totalTimeRemaining=90*60;
-let timerInterval=null, totalTimerInterval=null, isPaused=false, todos=[], rating=0, notesTimeout=null;
+let timerInterval=null, totalTimerInterval=null, isPaused=false;
+let todos=[], rocks=[], headlines=[];
+let ratings={}, notesTimeout=null;
 
 // === API ===
 async function api(method, url, body) {
@@ -349,9 +434,14 @@ async function loadData() {
     try {
         const data = await api('GET','/api/data');
         todos = data.currentTodos || [];
+        rocks = data.rocks || [];
+        headlines = data.headlines || [];
         document.getElementById('notesArea').value = data.notes || '';
         renderTodos();
-    } catch(e) { /* offline mode - no backend */ }
+        renderRocks();
+        renderHeadlines();
+        updateCounters();
+    } catch(e) { /* offline mode */ }
 }
 
 async function loadHistory() {
@@ -368,10 +458,7 @@ function init() {
     const months=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
     document.getElementById('meetingDate').textContent = `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()} - ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
     renderAgenda();
-    // Rating stars
-    let html='';
-    for(let i=1;i<=10;i++) html+=`<div class="star" onclick="setRating(${i})">${i}</div>`;
-    document.getElementById('ratingStars').innerHTML=html;
+    initRatings();
     loadData();
 }
 
@@ -379,10 +466,37 @@ function renderAgenda() {
     document.getElementById('agendaList').innerHTML = agenda.map((item,i) => `
         <div class="agenda-item ${item.isIDS?'ids-item':''}" id="agenda-${item.id}" onclick="jumpToStep(${i})">
             <div class="agenda-step"><span class="step-num">${item.step}</span></div>
-            <div class="agenda-content"><div class="agenda-name">${item.name}</div><div class="agenda-desc">${item.desc}</div></div>
+            <div class="agenda-content">
+                <div class="agenda-name">${item.name}</div>
+                <div class="agenda-desc">${item.desc}</div>
+                <div class="agenda-counter" id="counter-${item.id}"></div>
+            </div>
             <div class="agenda-duration">${formatTime(item.duration)}</div>
             <div class="agenda-timer" id="timer-${item.id}">--:--</div>
         </div>`).join('');
+}
+
+function updateCounters() {
+    const cRocks = document.getElementById('counter-rocks');
+    if(cRocks) {
+        if(rocks.length > 0) {
+            const on = rocks.filter(r => r.on_track).length;
+            cRocks.innerHTML = `<span style="color:${on===rocks.length?'var(--accent-emerald)':'var(--accent-amber)'}">${on}/${rocks.length} On Track</span>`;
+        } else { cRocks.textContent = ''; }
+    }
+    const cHL = document.getElementById('counter-headlines');
+    if(cHL) {
+        if(headlines.length > 0) {
+            cHL.innerHTML = `<span style="color:var(--accent-cyan)">${headlines.length} novedad${headlines.length!==1?'es':''}</span>`;
+        } else { cHL.textContent = ''; }
+    }
+    const cTD = document.getElementById('counter-todos');
+    if(cTD) {
+        if(todos.length > 0) {
+            const done = todos.filter(t => t.done).length;
+            cTD.innerHTML = `<span style="color:${done===todos.length?'var(--accent-emerald)':'var(--accent-amber)'}">${done}/${todos.length} completados</span>`;
+        } else { cTD.textContent = ''; }
+    }
 }
 
 // === MEETING CONTROL ===
@@ -461,13 +575,17 @@ async function endMeeting() {
     currentStep=agenda.length; updateProgress();
     document.getElementById('btnStartMeeting').textContent='Finalizada';
     document.getElementById('btnPrev').classList.remove('visible');
-    // Save to history
     try {
-        const result = await api('POST','/api/meeting/end',{ rating });
-        todos = (await api('GET','/api/data')).currentTodos || [];
-        renderTodos();
+        const result = await api('POST','/api/meeting/end',{ ratings });
+        const data = await api('GET','/api/data');
+        todos = data.currentTodos || [];
+        rocks = data.rocks || [];
+        headlines = data.headlines || [];
+        renderTodos(); renderRocks(); renderHeadlines();
+        updateCounters();
         loadHistory();
-        alert(`Reunion guardada. ${result.pendingCount} tarea(s) pendiente(s) transferida(s) a la proxima reunion.`);
+        const avg = calculateAvgRating();
+        alert(`Reunion guardada (Promedio: ${avg}/10). ${result.pendingCount} tarea(s) pendiente(s) transferida(s).`);
     } catch(e) {}
 }
 
@@ -477,7 +595,7 @@ function confirmReset() {
     modal.innerHTML=`
         <div style="font-size:48px;margin-bottom:16px">&#8635;</div>
         <div class="modal-step-name">Reiniciar Reunion?</div>
-        <div class="modal-step-desc" style="margin:16px 0 32px">Se reiniciaran todos los timers y el progreso.<br>Los To-Dos y notas se mantienen.</div>
+        <div class="modal-step-desc" style="margin:16px 0 32px">Se reiniciaran todos los timers y el progreso.<br>Los To-Dos, Rocks y notas se mantienen.</div>
         <div class="modal-buttons">
             <button class="modal-btn modal-btn-danger" onclick="resetMeeting()">Si, Reiniciar</button>
             <button class="modal-btn modal-btn-secondary" onclick="cancelReset()">Cancelar</button>
@@ -503,7 +621,8 @@ function restoreModal(){
 
 function resetMeeting(){
     clearInterval(timerInterval); clearInterval(totalTimerInterval);
-    meetingStarted=false; currentStep=-1; stepTimeRemaining=0; totalTimeRemaining=90*60; isPaused=false; rating=0;
+    meetingStarted=false; currentStep=-1; stepTimeRemaining=0; totalTimeRemaining=90*60; isPaused=false;
+    participants.forEach(p => ratings[p] = 0);
     closeModal(); restoreModal();
     document.getElementById('btnStartMeeting').textContent='Iniciar Reunion';
     document.getElementById('btnStartMeeting').disabled=false;
@@ -513,8 +632,9 @@ function resetMeeting(){
     document.getElementById('totalTimer').className='total-timer-value';
     document.getElementById('progressPercent').textContent='0%';
     document.getElementById('progressFill').style.width='0%';
-    document.querySelectorAll('.star').forEach(el=>el.classList.remove('selected'));
+    initRatings();
     renderAgenda();
+    updateCounters();
 }
 
 // === TIMERS ===
@@ -545,13 +665,125 @@ function updateProgress(){
 // === MODAL ===
 function showModal(item){
     const n=document.getElementById('modalStepName'),t=document.getElementById('modalTimer'),d=document.getElementById('modalStepDesc'),r=document.getElementById('timerRingProgress');
-    if(n)n.textContent=item.name; if(t)t.textContent=formatTime(item.duration); if(d)d.textContent=item.desc;
+    if(n) n.textContent=item.name;
+    if(t) t.textContent=formatTime(item.duration);
+    if(d){
+        if(item.id==='conclude'){
+            let html='<div style="margin-bottom:12px">'+item.desc+'</div><div class="conclude-todos">';
+            if(todos.length===0){
+                html+='<div style="color:var(--text-muted);text-align:center;padding:8px">No hay To-Dos</div>';
+            } else {
+                todos.forEach(td=>{
+                    const chk=td.done?'<span style="color:var(--accent-emerald);font-weight:700">&#10003;</span>':'<span style="color:var(--accent-amber);font-weight:700">&#9675;</span>';
+                    html+=`<div class="conclude-todo-item">${chk}<span style="${td.done?'text-decoration:line-through;opacity:0.5':''}">${td.text}</span><span style="font-size:10px;color:var(--text-muted);margin-left:auto">${td.owner}</span></div>`;
+                });
+                const done=todos.filter(x=>x.done).length;
+                html+=`<div style="text-align:center;margin-top:8px;font-size:12px;color:var(--text-muted)">${done}/${todos.length} completados</div>`;
+            }
+            html+='</div>';
+            d.innerHTML=html;
+        } else {
+            d.textContent=item.desc;
+        }
+    }
     if(r){ r.style.strokeDashoffset='0'; r.className.baseVal='timer-ring-progress'; }
+    const btnNext=document.getElementById('btnNext');
+    if(btnNext) btnNext.innerHTML=currentStep===agenda.length-1?'Finalizar &#10003;':'Siguiente &#9654;';
     document.getElementById('modalOverlay').classList.add('show');
     isPaused=false; const pb=document.getElementById('btnPause'); if(pb) pb.textContent='Pausar';
 }
 function closeModal(){ document.getElementById('modalOverlay').classList.remove('show'); }
 function pauseTimer(){ isPaused=!isPaused; const pb=document.getElementById('btnPause'); if(pb) pb.textContent=isPaused?'Reanudar':'Pausar'; }
+
+// === ROCKS ===
+async function addRock(){
+    const input=document.getElementById('rockInput'), owner=document.getElementById('rockOwner').value;
+    const dueDate=document.getElementById('rockDueDate').value, title=input.value.trim();
+    if(!title) return;
+    try {
+        const rock=await api('POST','/api/rocks',{title,owner,due_date:dueDate||null});
+        rocks.push(rock);
+    } catch(e){
+        rocks.push({id:Date.now().toString(),title,owner,on_track:true,due_date:dueDate||null});
+    }
+    input.value=''; renderRocks(); updateCounters();
+}
+
+async function toggleRock(id){
+    const r=rocks.find(x=>x.id===id); if(!r)return;
+    r.on_track=!r.on_track;
+    try { await api('PATCH',`/api/rocks/${id}`); } catch(e){}
+    renderRocks(); updateCounters();
+}
+
+async function deleteRock(id){
+    rocks=rocks.filter(x=>x.id!==id);
+    try { await api('DELETE',`/api/rocks/${id}`); } catch(e){}
+    renderRocks(); updateCounters();
+}
+
+function getDaysLeft(dateStr){
+    const due=new Date(dateStr);
+    due.setHours(0,0,0,0);
+    const now=new Date();
+    now.setHours(0,0,0,0);
+    return Math.ceil((due-now)/(1000*60*60*24));
+}
+
+function renderRocks(){
+    const c=document.getElementById('rocksList');
+    if(rocks.length===0){ c.innerHTML='<div style="color:var(--text-muted);font-size:12px;padding:8px;grid-column:1/-1;text-align:center">Sin rocas definidas</div>'; return; }
+    c.innerHTML=rocks.map(r=>{
+        let dueClass='', dueText='';
+        if(r.due_date){
+            const d=getDaysLeft(r.due_date);
+            if(d<0){dueClass='expired';dueText=Math.abs(d)+'d vencida';}
+            else if(d<=14){dueClass='expiring';dueText=d+'d restantes';}
+            else{dueText=d+'d restantes';}
+        }
+        return `<div class="rock-card ${r.on_track?'on-track':'off-track'}">
+            <div class="rock-header">
+                <span class="todo-owner">${r.owner}</span>
+                <button class="rock-delete" onclick="deleteRock('${r.id}')">&times;</button>
+            </div>
+            <div class="rock-title">${r.title}</div>
+            <div class="rock-footer">
+                ${dueText?`<span class="rock-due ${dueClass}">${dueText}</span>`:'<span></span>'}
+                <button class="rock-toggle ${r.on_track?'on':'off'}" onclick="toggleRock('${r.id}')">${r.on_track?'On Track':'Off Track'}</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// === HEADLINES ===
+async function addHeadline(){
+    const input=document.getElementById('headlineInput'), owner=document.getElementById('headlineOwner').value, text=input.value.trim();
+    if(!text) return;
+    try {
+        const h=await api('POST','/api/headlines',{text,owner});
+        headlines.push(h);
+    } catch(e){
+        headlines.push({id:Date.now().toString(),text,owner});
+    }
+    input.value=''; renderHeadlines(); updateCounters();
+}
+
+async function deleteHeadline(id){
+    headlines=headlines.filter(x=>x.id!==id);
+    try { await api('DELETE',`/api/headlines/${id}`); } catch(e){}
+    renderHeadlines(); updateCounters();
+}
+
+function renderHeadlines(){
+    const c=document.getElementById('headlinesList');
+    if(headlines.length===0){ c.innerHTML='<div style="color:var(--text-muted);font-size:12px;padding:8px;text-align:center">Sin novedades</div>'; return; }
+    c.innerHTML=headlines.map(h=>`
+        <div class="headline-item">
+            <span class="todo-owner">${h.owner}</span>
+            <span class="headline-text">${h.text}</span>
+            <button class="headline-delete" onclick="deleteHeadline('${h.id}')" title="Eliminar">&times;</button>
+        </div>`).join('');
+}
 
 // === TO-DOS (with API) ===
 async function addTodo(){
@@ -563,20 +795,20 @@ async function addTodo(){
     } catch(e) {
         todos.push({id:Date.now().toString(),text,owner,done:false});
     }
-    input.value=''; renderTodos();
+    input.value=''; renderTodos(); updateCounters();
 }
 
 async function toggleTodo(id){
     const t=todos.find(x=>x.id===id); if(!t)return;
     t.done=!t.done;
     try { await api('PATCH',`/api/todos/${id}`); } catch(e){}
-    renderTodos();
+    renderTodos(); updateCounters();
 }
 
 async function deleteTodo(id){
     todos=todos.filter(x=>x.id!==id);
     try { await api('DELETE',`/api/todos/${id}`); } catch(e){}
-    renderTodos();
+    renderTodos(); updateCounters();
 }
 
 function renderTodos(){
@@ -601,8 +833,35 @@ function saveNotes(){
 // === IDS ===
 function setIDS(el){ document.querySelectorAll('.ids-step').forEach(e=>e.classList.remove('active-ids')); el.classList.add('active-ids'); }
 
-// === RATING ===
-function setRating(n){ rating=n; document.querySelectorAll('.star').forEach((el,i)=>el.classList.toggle('selected',i<n)); }
+// === PER-USER RATING ===
+function initRatings(){
+    const container=document.getElementById('ratingRows');
+    let html='';
+    participants.forEach(p=>{
+        ratings[p]=0;
+        html+=`<div class="rating-row"><span class="rating-user-label">${p}</span><div class="rating-user-stars" id="stars-${p}">`;
+        for(let i=1;i<=10;i++) html+=`<div class="star" onclick="setUserRating('${p}',${i})">${i}</div>`;
+        html+='</div></div>';
+    });
+    container.innerHTML=html;
+}
+
+function setUserRating(user,n){
+    ratings[user]=n;
+    const stars=document.getElementById(`stars-${user}`);
+    if(stars) stars.querySelectorAll('.star').forEach((el,i)=>el.classList.toggle('selected',i<n));
+    updateAvgRating();
+}
+
+function calculateAvgRating(){
+    const vals=Object.values(ratings).filter(v=>v>0);
+    if(vals.length===0) return '--';
+    return (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);
+}
+
+function updateAvgRating(){
+    document.getElementById('ratingAvg').textContent=calculateAvgRating();
+}
 
 // === HISTORY ===
 function toggleHistory(){
@@ -618,17 +877,43 @@ function renderHistory(history){
         const d=new Date(h.date);
         const days=['Dom','Lun','Mar','Mie','Jue','Vie','Sab'];
         const dateStr=`${days[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-        const todosHtml=h.todos.map(t=>`<li style="${t.done?'text-decoration:line-through;opacity:0.5':''}">${t.text} <small>(${t.owner})</small></li>`).join('');
+
+        // Per-user ratings
+        let ratingsHtml='';
+        if(h.ratings && typeof h.ratings==='object' && Object.keys(h.ratings).length>0){
+            ratingsHtml=`<div class="history-section"><div class="history-section-title">Calificaciones</div><div class="history-ratings-row">${Object.entries(h.ratings).map(([k,v])=>`<span class="history-rating-item">${k}: ${v}/10</span>`).join('')}</div></div>`;
+        }
+
+        // Rocks
+        let rocksHtml='';
+        if(h.rocks_data && h.rocks_data.length>0){
+            rocksHtml=`<div class="history-section"><div class="history-section-title">Rocks</div><div>${h.rocks_data.map(r=>`<span class="history-rock-item ${r.on_track?'history-rock-on':'history-rock-off'}">${r.on_track?'&#10003;':'&#10007;'} ${r.title} (${r.owner})</span>`).join('')}</div></div>`;
+        }
+
+        // Headlines
+        let headlinesHtml='';
+        if(h.headlines_data && h.headlines_data.length>0){
+            headlinesHtml=`<div class="history-section"><div class="history-section-title">Headlines</div>${h.headlines_data.map(hl=>`<div class="history-headline-item">- ${hl.text} <small>(${hl.owner})</small></div>`).join('')}</div>`;
+        }
+
+        // Todos
+        const todosItems=h.todos.map(t=>`<li style="${t.done?'text-decoration:line-through;opacity:0.5':''}">${t.text} <small>(${t.owner})</small></li>`).join('');
+        let todosHtml='';
+        if(todosItems) todosHtml=`<div class="history-section"><div class="history-section-title">To-Dos</div><ul class="history-todos">${todosItems}</ul></div>`;
+
+        // Notes
+        let notesHtml='';
+        if(h.notes) notesHtml=`<div class="history-section"><div class="history-section-title">Notas</div><div class="history-notes-preview">${h.notes}</div></div>`;
+
         return `<div class="history-entry">
             <div class="history-header">
                 <span class="history-date">${dateStr}</span>
                 <span style="display:flex;gap:8px;align-items:center">
-                    ${h.rating?`<span class="history-rating">${h.rating}/10</span>`:''}
+                    ${h.rating?`<span class="history-rating">Prom: ${h.rating}/10</span>`:''}
                     <button class="history-delete" onclick="deleteHistory('${h.id}')" title="Eliminar">&times;</button>
                 </span>
             </div>
-            ${todosHtml?`<ul class="history-todos">${todosHtml}</ul>`:''}
-            ${h.notes?`<div class="history-notes-preview">${h.notes}</div>`:''}
+            ${ratingsHtml}${rocksHtml}${headlinesHtml}${todosHtml}${notesHtml}
         </div>`;
     }).join('');
 }
