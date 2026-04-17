@@ -722,6 +722,11 @@ function goToStep(index) {
     document.getElementById('btnPrev').classList.toggle('visible',showPrev);
     document.getElementById('btnModalPrev').style.display=showPrev?'':'none';
     updateProgress(); showModal(agenda[index]);
+    // For segue step, auto-launch check-in popup for first pending participant
+    if(agenda[index].id==='segue'){
+        const nextIdx=participants.findIndex(p=>!checkins[p]?.done);
+        if(nextIdx!==-1) showCheckinPopup(nextIdx);
+    }
     clearInterval(timerInterval);
     timerInterval=setInterval(()=>{
         if(!isPaused){ stepTimeRemaining--; updateStepTimer(); if(stepTimeRemaining<=0) clearInterval(timerInterval); }
