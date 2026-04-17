@@ -190,6 +190,54 @@
         .ids-letter-s { background:linear-gradient(135deg,#10b981,#059669); }
         .ids-text { font-size:13px; font-weight:500; color:var(--text-secondary); }
 
+        /* IDS Issues (3 separated items) */
+        .ids-issues { margin-top:16px; display:flex; flex-direction:column; gap:12px; }
+        .ids-issue { background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:12px; }
+        .ids-issue-title { font-size:12px; font-weight:700; color:var(--accent-violet); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+        .ids-issue-field { margin-bottom:8px; }
+        .ids-issue-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-muted); margin-bottom:4px; display:block; }
+        .ids-issue-input { width:100%; background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:8px; padding:8px 10px; color:var(--text-primary); font-size:12px; font-family:'Inter',sans-serif; outline:none; resize:vertical; min-height:36px; }
+        .ids-issue-input:focus { border-color:var(--accent-violet); }
+
+        /* Check-in / Segue */
+        .checkin-participants { display:flex; flex-direction:column; gap:8px; }
+        .checkin-participant-row { display:flex; align-items:center; gap:10px; padding:10px 12px; background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); transition:all 0.2s; }
+        .checkin-participant-row.done { background:rgba(16,185,129,0.06); border-color:rgba(16,185,129,0.2); }
+        .checkin-participant-row.active { background:rgba(59,130,246,0.08); border-color:rgba(59,130,246,0.3); box-shadow:0 0 20px rgba(59,130,246,0.1); }
+        .checkin-user-badge { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; color:white; flex-shrink:0; }
+        .checkin-text { flex:1; font-size:13px; color:var(--text-secondary); font-style:italic; min-height:20px; }
+        .checkin-text.empty { color:var(--text-muted); }
+        .checkin-status { font-size:10px; font-weight:700; padding:4px 10px; border-radius:6px; text-transform:uppercase; letter-spacing:0.5px; }
+        .checkin-status.pending { background:rgba(255,255,255,0.05); color:var(--text-muted); }
+        .checkin-status.done { background:rgba(16,185,129,0.15); color:var(--accent-emerald); }
+        .checkin-start-btn { width:100%; margin-top:12px; padding:12px; background:linear-gradient(135deg,var(--accent-blue),var(--accent-cyan)); border:none; border-radius:var(--radius-sm); color:white; font-weight:700; font-size:13px; cursor:pointer; text-transform:uppercase; letter-spacing:0.8px; transition:all 0.2s; }
+        .checkin-start-btn:hover { transform:translateY(-1px); box-shadow:0 4px 20px rgba(59,130,246,0.3); }
+        .checkin-start-btn:disabled { opacity:0.5; cursor:not-allowed; }
+
+        /* Check-in popup modal */
+        .checkin-popup { background:linear-gradient(135deg,rgba(59,130,246,0.04),rgba(6,182,212,0.02)); border:2px solid rgba(59,130,246,0.3); border-radius:20px; padding:40px; max-width:520px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.5); }
+        .checkin-avatar-big { width:72px; height:72px; border-radius:20px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:26px; color:white; margin:0 auto 16px; }
+        .checkin-participant-name { font-size:22px; font-weight:700; text-align:center; margin-bottom:6px; color:var(--text-primary); }
+        .checkin-prompt { font-size:14px; color:var(--text-secondary); text-align:center; margin-bottom:24px; }
+        .checkin-input { width:100%; min-height:100px; background:rgba(255,255,255,0.04); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:14px; color:var(--text-primary); font-family:'Inter',sans-serif; font-size:14px; resize:vertical; outline:none; transition:border-color 0.2s; }
+        .checkin-input:focus { border-color:var(--accent-blue); }
+        .checkin-progress { text-align:center; margin-top:16px; font-size:12px; color:var(--text-muted); letter-spacing:0.5px; }
+        .checkin-progress-dots { display:flex; justify-content:center; gap:8px; margin-top:8px; }
+        .checkin-progress-dot { width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,0.1); transition:all 0.3s; }
+        .checkin-progress-dot.active { background:var(--accent-blue); box-shadow:0 0 10px var(--accent-blue); }
+        .checkin-progress-dot.done { background:var(--accent-emerald); }
+
+        /* Floating button to restore minimized modal */
+        .floating-timer { position:fixed; bottom:24px; right:24px; z-index:1000; display:none; align-items:center; gap:12px; padding:14px 22px; background:linear-gradient(135deg,var(--accent-blue),var(--accent-cyan)); border:none; border-radius:999px; color:white; font-weight:600; cursor:pointer; box-shadow:0 10px 40px rgba(59,130,246,0.4); transition:all 0.3s; animation:slideUp 0.3s ease; }
+        .floating-timer.visible { display:flex; }
+        .floating-timer:hover { transform:translateY(-2px); box-shadow:0 14px 50px rgba(59,130,246,0.5); }
+        .floating-timer-icon { font-size:18px; animation:pulse 2s infinite; }
+        .floating-timer-info { display:flex; flex-direction:column; align-items:flex-start; line-height:1.2; }
+        .floating-timer-label { font-size:10px; font-weight:500; opacity:0.85; letter-spacing:0.8px; text-transform:uppercase; }
+        .floating-timer-value { font-family:'JetBrains Mono',monospace; font-size:16px; font-weight:700; }
+        .floating-timer-value.warning { color:#fef3c7; }
+        .floating-timer-value.danger { color:#fecaca; }
+
         /* Rating star base */
         .star { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); cursor:pointer; transition:all 0.2s; color:var(--text-muted); }
         .star:hover,.star.selected { background:rgba(245,158,11,0.15); border-color:rgba(245,158,11,0.4); color:#fbbf24; }
@@ -315,6 +363,13 @@
         </div>
 
         <div class="bottom-panels">
+            <!-- Check-in / Segue -->
+            <div class="notes-panel" id="checkinPanel">
+                <div class="panel-title"><div class="panel-title-icon" style="background:rgba(59,130,246,0.15);color:#60a5fa;">S</div>Check-in / Resumen Rapido</div>
+                <div id="checkinList" class="checkin-participants"></div>
+                <button class="checkin-start-btn" id="checkinStartBtn" onclick="startCheckin()">Iniciar Check-in</button>
+            </div>
+
             <!-- Rocks -->
             <div class="rocks-panel">
                 <div class="panel-title"><div class="panel-title-icon" style="background:rgba(6,182,212,0.15);color:#22d3ee;">R</div>Rock Review - Metas Trimestrales</div>
@@ -340,12 +395,13 @@
 
             <!-- IDS -->
             <div class="ids-panel">
-                <div class="panel-title"><div class="panel-title-icon" style="background:rgba(139,92,246,0.15);color:#a78bfa;">I</div>Metodo IDS</div>
+                <div class="panel-title"><div class="panel-title-icon" style="background:rgba(139,92,246,0.15);color:#a78bfa;">I</div>Metodo IDS - 3 Temas</div>
                 <div style="display:flex;gap:12px;flex-wrap:wrap;">
                     <div class="ids-step" onclick="setIDS(this)" style="flex:1;min-width:150px"><div class="ids-letter ids-letter-i">I</div><div class="ids-text">Identificar el tema raiz</div></div>
                     <div class="ids-step" onclick="setIDS(this)" style="flex:1;min-width:150px"><div class="ids-letter ids-letter-d">D</div><div class="ids-text">Discutir abiertamente</div></div>
                     <div class="ids-step" onclick="setIDS(this)" style="flex:1;min-width:150px"><div class="ids-letter ids-letter-s">S</div><div class="ids-text">Solucionar y asignar</div></div>
                 </div>
+                <div class="ids-issues" id="idsIssues"></div>
             </div>
 
             <!-- To-Dos -->
@@ -385,6 +441,15 @@
     </main>
 </div>
 
+<!-- Floating button to restore minimized timer -->
+<button class="floating-timer" id="floatingTimer" onclick="restoreMinimizedModal()">
+    <span class="floating-timer-icon">&#9200;</span>
+    <div class="floating-timer-info">
+        <span class="floating-timer-label" id="floatingTimerLabel">Paso actual</span>
+        <span class="floating-timer-value" id="floatingTimerValue">--:--</span>
+    </div>
+</button>
+
 <!-- MODAL -->
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal" id="modalContent">
@@ -401,7 +466,7 @@
             <button class="modal-btn modal-btn-danger" id="btnModalPrev" onclick="prevStep()" style="display:none">&#9664; Anterior</button>
             <button class="modal-btn modal-btn-secondary" onclick="pauseTimer()" id="btnPause">Pausar</button>
             <button class="modal-btn modal-btn-primary" onclick="nextStep()" id="btnNext">Siguiente &#9654;</button>
-            <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Minimizar</button>
+            <button class="modal-btn modal-btn-secondary" onclick="minimizeModal()">Minimizar</button>
         </div>
     </div>
 </div>
@@ -417,11 +482,15 @@ const agenda = [
     { id:'conclude', step:7, name:'Cierre y Conclusion', desc:'Confirmar To-Dos, mensajes a comunicar y calificar la reunion', duration:5*60 }
 ];
 
-const participants = ['GV','SR','IS','GR','JP'];
+const participants = ['GV','JP','SR','IS','GR'];
+const participantNames = {GV:'German Veiga',JP:'Juan Paz Biar',SR:'Santiago Rivera',IS:'Ignacio Spera',GR:'Gabriel Rivara'};
+const participantColors = {GV:'avatar-gv',JP:'avatar-jp',SR:'avatar-sr',IS:'avatar-is',GR:'avatar-gr'};
 let meetingStarted=false, currentStep=-1, stepTimeRemaining=0, totalTimeRemaining=90*60;
 let timerInterval=null, totalTimerInterval=null, isPaused=false;
 let todos=[], rocks=[], headlines=[];
 let ratings={}, notesTimeout=null;
+let checkins={}, idsIssues=[{topic:'',identify:'',discuss:'',solve:''},{topic:'',identify:'',discuss:'',solve:''},{topic:'',identify:'',discuss:'',solve:''}];
+let isMinimized=false;
 
 // === API ===
 async function api(method, url, body) {
@@ -460,7 +529,130 @@ function init() {
     document.getElementById('meetingDate').textContent = `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()} - ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
     renderAgenda();
     initRatings();
+    initCheckins();
+    renderIdsIssues();
     loadData();
+}
+
+// === CHECK-INS ===
+function initCheckins(){
+    checkins={};
+    participants.forEach(p=>{ checkins[p]={text:'',done:false}; });
+    renderCheckinList();
+}
+
+function renderCheckinList(){
+    const c=document.getElementById('checkinList');
+    if(!c) return;
+    c.innerHTML=participants.map(p=>{
+        const ck=checkins[p]||{text:'',done:false};
+        const cls=ck.done?'done':'';
+        const status=ck.done?'<span class="checkin-status done">&#10003; Listo</span>':'<span class="checkin-status pending">Pendiente</span>';
+        const text=ck.text?`"${ck.text}"`:'Sin resumen aun...';
+        return `<div class="checkin-participant-row ${cls}">
+            <div class="checkin-user-badge avatar ${participantColors[p]}">${p}</div>
+            <div class="checkin-text ${ck.text?'':'empty'}">${text}</div>
+            ${status}
+        </div>`;
+    }).join('');
+    const doneCount=participants.filter(p=>checkins[p]?.done).length;
+    const btn=document.getElementById('checkinStartBtn');
+    if(btn){
+        if(doneCount===participants.length){
+            btn.textContent='Check-in Completo '+String.fromCharCode(10003);
+            btn.disabled=true;
+        } else if(doneCount>0){
+            btn.textContent=`Continuar Check-in (${doneCount}/${participants.length})`;
+            btn.disabled=false;
+        } else {
+            btn.textContent='Iniciar Check-in';
+            btn.disabled=false;
+        }
+    }
+}
+
+function startCheckin(){
+    const nextIdx=participants.findIndex(p=>!checkins[p]?.done);
+    if(nextIdx===-1) return;
+    showCheckinPopup(nextIdx);
+}
+
+function showCheckinPopup(idx){
+    const p=participants[idx];
+    const modal=document.getElementById('modalContent');
+    const wasOpen=document.getElementById('modalOverlay').classList.contains('show');
+    modal.innerHTML=`
+        <div class="checkin-popup">
+            <div class="checkin-avatar-big avatar ${participantColors[p]}">${p}</div>
+            <div class="checkin-participant-name">${participantNames[p]}</div>
+            <div class="checkin-prompt">Compartir algo positivo (personal o profesional)</div>
+            <textarea class="checkin-input" id="checkinTextarea" placeholder="Escribi tu resumen rapido aqui..." autofocus>${checkins[p]?.text||''}</textarea>
+            <div class="modal-buttons" style="margin-top:20px">
+                <button class="modal-btn modal-btn-secondary" onclick="cancelCheckin()">Cancelar</button>
+                <button class="modal-btn modal-btn-primary" onclick="completeCheckin(${idx})">Listo &#10003;</button>
+            </div>
+            <div class="checkin-progress">Participante ${idx+1} de ${participants.length}</div>
+            <div class="checkin-progress-dots">
+                ${participants.map((pp,i)=>{
+                    const cls=checkins[pp]?.done?'done':(i===idx?'active':'');
+                    return `<div class="checkin-progress-dot ${cls}"></div>`;
+                }).join('')}
+            </div>
+        </div>`;
+    document.getElementById('modalOverlay').classList.add('show');
+    setTimeout(()=>{ const ta=document.getElementById('checkinTextarea'); if(ta) ta.focus(); },50);
+}
+
+function cancelCheckin(){
+    closeModal();
+    restoreModal();
+    if(meetingStarted&&currentStep>=0&&!isMinimized) showModal(agenda[currentStep]);
+}
+
+function completeCheckin(idx){
+    const p=participants[idx];
+    const ta=document.getElementById('checkinTextarea');
+    const text=ta?ta.value.trim():'';
+    checkins[p]={text,done:true};
+    renderCheckinList();
+    const nextIdx=participants.findIndex(pp=>!checkins[pp]?.done);
+    if(nextIdx===-1){
+        closeModal();
+        restoreModal();
+        if(meetingStarted&&currentStep>=0) showModal(agenda[currentStep]);
+    } else {
+        showCheckinPopup(nextIdx);
+    }
+}
+
+// === IDS ISSUES ===
+function renderIdsIssues(){
+    const c=document.getElementById('idsIssues');
+    if(!c) return;
+    c.innerHTML=idsIssues.map((iss,i)=>`
+        <div class="ids-issue">
+            <div class="ids-issue-title">Tema ${i+1}</div>
+            <div class="ids-issue-field">
+                <label class="ids-issue-label">Topico</label>
+                <input class="ids-issue-input" type="text" value="${iss.topic.replace(/"/g,'&quot;')}" onchange="updateIdsIssue(${i},'topic',this.value)" placeholder="Cual es el tema?">
+            </div>
+            <div class="ids-issue-field">
+                <label class="ids-issue-label" style="color:#ef4444">I - Identificar</label>
+                <textarea class="ids-issue-input" onchange="updateIdsIssue(${i},'identify',this.value)" placeholder="Identificar la raiz...">${iss.identify}</textarea>
+            </div>
+            <div class="ids-issue-field">
+                <label class="ids-issue-label" style="color:#f59e0b">D - Discutir</label>
+                <textarea class="ids-issue-input" onchange="updateIdsIssue(${i},'discuss',this.value)" placeholder="Discutir abiertamente...">${iss.discuss}</textarea>
+            </div>
+            <div class="ids-issue-field">
+                <label class="ids-issue-label" style="color:#10b981">S - Solucionar</label>
+                <textarea class="ids-issue-input" onchange="updateIdsIssue(${i},'solve',this.value)" placeholder="Solucion acordada...">${iss.solve}</textarea>
+            </div>
+        </div>`).join('');
+}
+
+function updateIdsIssue(i,field,value){
+    if(idsIssues[i]) idsIssues[i][field]=value;
 }
 
 function renderAgenda() {
@@ -577,11 +769,22 @@ async function endMeeting() {
     document.getElementById('btnStartMeeting').textContent='Finalizada';
     document.getElementById('btnPrev').classList.remove('visible');
     try {
-        const result = await api('POST','/api/meeting/end',{ ratings });
+        // Build check-ins payload (array with user, name, text)
+        const checkinsPayload=participants.map(p=>({
+            user:p, name:participantNames[p],
+            text:checkins[p]?.text||'', done:checkins[p]?.done||false
+        }));
+        // Filter IDS issues that have at least a topic or any field filled
+        const idsPayload=idsIssues.filter(i=>i.topic.trim()||i.identify.trim()||i.discuss.trim()||i.solve.trim());
+        const result = await api('POST','/api/meeting/end',{ ratings, checkins:checkinsPayload, ids:idsPayload });
         const data = await api('GET','/api/data');
         todos = data.currentTodos || [];
         rocks = data.rocks || [];
         headlines = data.headlines || [];
+        // Reset transient state
+        initCheckins();
+        idsIssues=[{topic:'',identify:'',discuss:'',solve:''},{topic:'',identify:'',discuss:'',solve:''},{topic:'',identify:'',discuss:'',solve:''}];
+        renderIdsIssues();
         renderTodos(); renderRocks(); renderHeadlines();
         updateCounters();
         loadHistory();
@@ -616,13 +819,15 @@ function restoreModal(){
             <button class="modal-btn modal-btn-danger" id="btnModalPrev" onclick="prevStep()" style="display:none">&#9664; Anterior</button>
             <button class="modal-btn modal-btn-secondary" onclick="pauseTimer()" id="btnPause">Pausar</button>
             <button class="modal-btn modal-btn-primary" onclick="nextStep()" id="btnNext">Siguiente &#9654;</button>
-            <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Minimizar</button>
+            <button class="modal-btn modal-btn-secondary" onclick="minimizeModal()">Minimizar</button>
         </div>`;
 }
 
 function resetMeeting(){
     clearInterval(timerInterval); clearInterval(totalTimerInterval);
     meetingStarted=false; currentStep=-1; stepTimeRemaining=0; totalTimeRemaining=90*60; isPaused=false;
+    isMinimized=false;
+    document.getElementById('floatingTimer').classList.remove('visible');
     participants.forEach(p => ratings[p] = 0);
     closeModal(); restoreModal();
     document.getElementById('btnStartMeeting').textContent='Iniciar Reunion';
@@ -634,6 +839,9 @@ function resetMeeting(){
     document.getElementById('progressPercent').textContent='0%';
     document.getElementById('progressFill').style.width='0%';
     initRatings();
+    initCheckins();
+    idsIssues=[{topic:'',identify:'',discuss:'',solve:''},{topic:'',identify:'',discuss:'',solve:''},{topic:'',identify:'',discuss:'',solve:''}];
+    renderIdsIssues();
     renderAgenda();
     updateCounters();
 }
@@ -649,6 +857,7 @@ function updateStepTimer(){
     let cls=''; if(stepTimeRemaining<0)cls='danger'; else if(stepTimeRemaining/item.duration<0.2)cls='warning';
     tEl.className='agenda-timer '+cls; if(mEl) mEl.className='modal-timer '+cls;
     if(rEl){ rEl.className.baseVal='timer-ring-progress '+cls; rEl.style.strokeDashoffset=2*Math.PI*54*(1-Math.max(0,stepTimeRemaining/item.duration)); }
+    if(isMinimized) updateFloatingTimer();
 }
 
 function updateTotalTimer(){
@@ -694,6 +903,39 @@ function showModal(item){
     isPaused=false; const pb=document.getElementById('btnPause'); if(pb) pb.textContent='Pausar';
 }
 function closeModal(){ document.getElementById('modalOverlay').classList.remove('show'); }
+
+function minimizeModal(){
+    closeModal();
+    if(meetingStarted && currentStep>=0 && currentStep<agenda.length){
+        isMinimized=true;
+        const ft=document.getElementById('floatingTimer');
+        const lbl=document.getElementById('floatingTimerLabel');
+        if(lbl) lbl.textContent=agenda[currentStep].name.split('/')[0].trim().substring(0,24);
+        updateFloatingTimer();
+        ft.classList.add('visible');
+    }
+}
+
+function restoreMinimizedModal(){
+    isMinimized=false;
+    document.getElementById('floatingTimer').classList.remove('visible');
+    if(meetingStarted && currentStep>=0 && currentStep<agenda.length){
+        restoreModal();
+        showModal(agenda[currentStep]);
+    }
+}
+
+function updateFloatingTimer(){
+    const v=document.getElementById('floatingTimerValue');
+    if(!v) return;
+    const item=agenda[currentStep];
+    const str=formatTime(Math.abs(stepTimeRemaining));
+    v.textContent=stepTimeRemaining<0?`-${str}`:str;
+    v.className='floating-timer-value';
+    if(stepTimeRemaining<0) v.classList.add('danger');
+    else if(stepTimeRemaining/item.duration<0.2) v.classList.add('warning');
+}
+
 function pauseTimer(){ isPaused=!isPaused; const pb=document.getElementById('btnPause'); if(pb) pb.textContent=isPaused?'Reanudar':'Pausar'; }
 
 // === ROCKS ===
@@ -813,7 +1055,19 @@ async function deleteTodo(id){
 }
 
 function renderTodos(){
-    document.getElementById('todoList').innerHTML=todos.map(t=>`
+    // Show only pending (not done) - completed ones disappear from card but are saved to history on meeting end
+    const visible=todos.filter(t=>!t.done);
+    const c=document.getElementById('todoList');
+    if(visible.length===0 && todos.length===0){
+        c.innerHTML='<div style="color:var(--text-muted);font-size:12px;padding:8px;text-align:center">Sin to-dos</div>';
+        return;
+    }
+    if(visible.length===0){
+        const doneCount=todos.filter(t=>t.done).length;
+        c.innerHTML=`<div style="color:var(--accent-emerald);font-size:12px;padding:8px;text-align:center">&#10003; ${doneCount} completado${doneCount!==1?'s':''} - listos para archivar</div>`;
+        return;
+    }
+    c.innerHTML=visible.map(t=>`
         <div class="todo-item">
             <div class="todo-checkbox ${t.done?'checked':''}" onclick="toggleTodo('${t.id}')"></div>
             <span class="todo-text ${t.done?'done':''}">${t.text}</span>
@@ -897,6 +1151,28 @@ function renderHistory(history){
             headlinesHtml=`<div class="history-section"><div class="history-section-title">Headlines</div>${h.headlines_data.map(hl=>`<div class="history-headline-item">- ${hl.text} <small>(${hl.owner})</small></div>`).join('')}</div>`;
         }
 
+        // Check-ins
+        let checkinsHtml='';
+        if(h.checkins_data && h.checkins_data.length>0){
+            const filled=h.checkins_data.filter(c=>c.text && c.text.trim());
+            if(filled.length>0){
+                checkinsHtml=`<div class="history-section"><div class="history-section-title">Check-in / Segue</div>${filled.map(c=>`<div class="history-headline-item"><strong>${c.user}:</strong> "${c.text}"</div>`).join('')}</div>`;
+            }
+        }
+
+        // IDS
+        let idsHtml='';
+        if(h.ids_data && h.ids_data.length>0){
+            idsHtml=`<div class="history-section"><div class="history-section-title">IDS - Temas Resueltos</div>`+
+                h.ids_data.map((iss,i)=>`<div style="margin-bottom:8px;padding:8px;background:rgba(139,92,246,0.05);border-radius:6px;border-left:3px solid var(--accent-violet)">
+                    <div style="font-size:11px;font-weight:700;color:var(--accent-violet);margin-bottom:4px">TEMA ${i+1}${iss.topic?': '+iss.topic:''}</div>
+                    ${iss.identify?`<div class="history-headline-item"><small style="color:#ef4444">I:</small> ${iss.identify}</div>`:''}
+                    ${iss.discuss?`<div class="history-headline-item"><small style="color:#f59e0b">D:</small> ${iss.discuss}</div>`:''}
+                    ${iss.solve?`<div class="history-headline-item"><small style="color:#10b981">S:</small> ${iss.solve}</div>`:''}
+                </div>`).join('')+
+                `</div>`;
+        }
+
         // Todos
         const todosItems=h.todos.map(t=>`<li style="${t.done?'text-decoration:line-through;opacity:0.5':''}">${t.text} <small>(${t.owner})</small></li>`).join('');
         let todosHtml='';
@@ -914,7 +1190,7 @@ function renderHistory(history){
                     <button class="history-delete" onclick="deleteHistory('${h.id}')" title="Eliminar">&times;</button>
                 </span>
             </div>
-            ${ratingsHtml}${rocksHtml}${headlinesHtml}${todosHtml}${notesHtml}
+            ${checkinsHtml}${ratingsHtml}${rocksHtml}${headlinesHtml}${todosHtml}${idsHtml}${notesHtml}
         </div>`;
     }).join('');
 }

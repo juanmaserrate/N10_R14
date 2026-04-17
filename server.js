@@ -69,6 +69,8 @@ async function initDB() {
     await pool.query(`ALTER TABLE history ADD COLUMN IF NOT EXISTS ratings JSONB DEFAULT '{}'`);
     await pool.query(`ALTER TABLE history ADD COLUMN IF NOT EXISTS headlines_data JSONB DEFAULT '[]'`);
     await pool.query(`ALTER TABLE history ADD COLUMN IF NOT EXISTS rocks_data JSONB DEFAULT '[]'`);
+    await pool.query(`ALTER TABLE history ADD COLUMN IF NOT EXISTS checkins_data JSONB DEFAULT '[]'`);
+    await pool.query(`ALTER TABLE history ADD COLUMN IF NOT EXISTS ids_data JSONB DEFAULT '[]'`);
     console.log('Database tables ready');
 }
 
@@ -253,11 +255,15 @@ app.post('/api/meeting/end', async (req, res) => {
             ? Math.round(ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length)
             : (req.body.rating || 0);
 
-        // Save to history with all fields
+        // Check-ins and IDS data from client
+        const checkinsData = req.body.checkins || [];
+        const idsData = req.body.ids || [];
+
+        // Save to history with all fields (date auto-set to NOW by server)
         const historyId = Date.now().toString();
         await client.query(
-            'INSERT INTO history (id, date, todos, notes, rating, ratings, headlines_data, rocks_data) VALUES ($1, NOW(), $2, $3, $4, $5, $6, $7)',
-            [historyId, JSON.stringify(currentTodos), currentNotes, avgRating, JSON.stringify(ratings), JSON.stringify(currentHeadlines), JSON.stringify(currentRocks)]
+            'INSERT INTO history (id, date, todos, notes, rating, ratings, headlines_data, rocks_data, checkins_data, ids_data) VALUES ($1, NOW(), $2, $3, $4, $5, $6, $7, $8, $9)',
+            [historyId, JSON.stringify(currentTodos), currentNotes, avgRating, JSON.stringify(ratings), JSON.stringify(currentHeadlines), JSON.stringify(currentRocks), JSON.stringify(checkinsData), JSON.stringify(idsData)]
         );
 
         // Delete all current todos
@@ -296,7 +302,9 @@ app.get('/api/history', async (req, res) => {
             id: r.id, date: r.date, todos: r.todos, notes: r.notes,
             rating: r.rating, ratings: r.ratings || {},
             headlines_data: r.headlines_data || [],
-            rocks_data: r.rocks_data || []
+            rocks_data: r.rocks_data || [],
+            checkins_data: r.checkins_data || [],
+            ids_data: r.ids_data || []
         })));
     } catch (e) {
         console.error(e);
