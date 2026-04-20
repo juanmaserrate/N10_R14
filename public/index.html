@@ -626,7 +626,9 @@ function completeCheckin(idx){
     renderCheckinList();
     const nextIdx=participants.findIndex(pp=>!checkins[pp]?.done);
     if(nextIdx===-1){
-        if(meetingStarted&&currentStep>=0) showModal(agenda[currentStep]);
+        // All check-ins complete — auto-advance to Scorecard, keeping modal open
+        if(meetingStarted&&currentStep>=0&&currentStep<agenda.length-1) nextStep();
+        else if(meetingStarted&&currentStep>=0) showModal(agenda[currentStep]);
     } else {
         showCheckinPopup(nextIdx);
     }
