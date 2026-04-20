@@ -1117,10 +1117,8 @@ function buildModalTodos(){
     }
     if(all.length===0) html='<div style="color:var(--text-muted);font-size:12px;padding:12px;text-align:center">Sin To-Dos</div>';
     return `<div style="margin-bottom:12px">${html}</div>
-        <div class="add-row">
-            <input type="text" class="add-input" id="mTodoInput" placeholder="Nueva tarea..." onkeypress="if(event.key==='Enter')addTodoM()">
-            <select class="owner-select" id="mTodoOwner">${ownerOpts()}</select>
-            <button class="add-btn" onclick="addTodoM()">+</button>
+        <div style="font-size:11px;color:var(--text-muted);text-align:center;padding:8px;border-top:1px solid var(--border-subtle);margin-top:8px">
+            Nuevos To-Dos se cargan en Cierre y Conclusion
         </div>`;
 }
 
@@ -1157,17 +1155,31 @@ function buildModalConclude(){
         ratingsHtml+=`<div class="rating-row"><span class="rating-user-label">${p}</span><div class="rating-user-stars" id="stars-${p}" style="display:flex;gap:3px">${stars}</div></div>`;
     });
     ratingsHtml+=`</div><div class="rating-average" style="margin-top:12px"><span class="rating-avg-label">Promedio</span><span class="rating-avg-value" id="ratingAvg">${calculateAvgRating()}</span><span style="font-size:14px;color:var(--text-muted)">/10</span></div>`;
-    // To-Dos summary
+    // To-Dos summary (existing)
     const done=todos.filter(x=>x.done).length;
-    let todosHtml=`<div class="modal-section-title" style="margin-top:16px">To-Dos — ${done}/${todos.length} completados</div><div class="modal-conclude-todos">`;
+    let todosHtml=`<div class="modal-section-title" style="margin-top:16px">To-Dos de esta semana — ${done}/${todos.length} completados</div><div class="modal-conclude-todos">`;
     if(todos.length===0) todosHtml+='<div style="color:var(--text-muted);font-size:12px;text-align:center;padding:8px">Sin To-Dos</div>';
     else todos.forEach(t=>{
+        if(t.newThisMeeting) return; // shown in "new" section below
         const chk=t.done?'&#10003;':'&#9675;';
         const col=t.done?'var(--accent-emerald)':'var(--accent-amber)';
         todosHtml+=`<div class="conclude-todo-item"><span style="color:${col};font-weight:700">${chk}</span><span style="${t.done?'text-decoration:line-through;opacity:0.5':''}">${t.text}</span><span style="font-size:10px;color:var(--text-muted);margin-left:auto">${t.owner}</span></div>`;
     });
     todosHtml+='</div>';
-    return ratingsHtml+todosHtml;
+    // New To-Dos for next week
+    const newOnes=todos.filter(t=>t.newThisMeeting);
+    let newTodosHtml=`<div class="modal-section-title" style="margin-top:16px;color:var(--accent-cyan)">Nuevos To-Dos para la proxima semana (${newOnes.length})</div><div class="modal-conclude-todos">`;
+    if(newOnes.length===0) newTodosHtml+='<div style="color:var(--text-muted);font-size:12px;text-align:center;padding:8px">Agregar tareas abajo</div>';
+    else newOnes.forEach(t=>{
+        newTodosHtml+=`<div class="conclude-todo-item" style="background:rgba(6,182,212,0.08);border-left:2px solid var(--accent-cyan);padding-left:8px"><span style="color:var(--accent-cyan);font-weight:700">+</span><span>${t.text}</span><span style="font-size:10px;color:var(--text-muted);margin-left:auto">${t.owner}</span><button class="todo-delete" onclick="deleteTodo('${t.id}')" style="margin-left:8px">&times;</button></div>`;
+    });
+    newTodosHtml+=`</div>
+        <div class="add-row" style="margin-top:10px">
+            <input type="text" class="add-input" id="mConcludeTodoInput" placeholder="Nueva tarea para la proxima semana..." onkeypress="if(event.key==='Enter')addConcludeTodoM()">
+            <select class="owner-select" id="mConcludeTodoOwner">${ownerOpts()}</select>
+            <button class="add-btn" onclick="addConcludeTodoM()">+</button>
+        </div>`;
+    return ratingsHtml+todosHtml+newTodosHtml;
 }
 
 // --- Modal add functions (read from modal inputs) ---
@@ -1195,6 +1207,18 @@ async function addTodoM(){
     try{ const t=await api('POST','/api/todos',{text,owner}); todos.push(t); }
     catch(e){ todos.push({id:Date.now().toString(),text,owner,done:false,carried:false}); }
     renderTodos(); updateCounters(); syncModal();
+}
+async function addConcludeTodoM(){
+    const text=(document.getElementById('mConcludeTodoInput')?.value||'').trim();
+    const owner=document.getElementById('mConcludeTodoOwner')?.value||participants[0];
+    if(!text) return;
+    let t;
+    try{ t=await api('POST','/api/todos',{text,owner}); }
+    catch(e){ t={id:Date.now().toString(),text,owner,done:false,carried:false}; }
+    t.newThisMeeting=true;
+    todos.push(t);
+    renderTodos(); updateCounters(); syncModal();
+    setTimeout(()=>{ const i=document.getElementById('mConcludeTodoInput'); if(i) i.focus(); },0);
 }
 
 function closeModal(){ document.getElementById('modalOverlay').classList.remove('show'); }
