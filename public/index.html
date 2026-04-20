@@ -47,32 +47,7 @@
         /* Layout */
         .main { position:relative; z-index:5; display:grid; grid-template-columns:300px 1fr; gap:0; height:calc(100vh - 85px); }
         .sidebar-left { border-right:1px solid var(--border-subtle); padding:24px; overflow-y:auto; background:rgba(17,24,39,0.4); }
-        .center-panel { display:flex; flex-direction:column; overflow:hidden; }
-        .center-panel-scroll { padding:24px 32px; overflow-y:auto; flex:1; }
-
-        /* Sticky step bar (replaces modal overlay) */
-        .step-bar { display:none; position:sticky; top:0; z-index:50; background:linear-gradient(135deg,var(--bg-secondary),rgba(17,24,39,0.98)); border-bottom:1px solid var(--border-active); padding:14px 28px; align-items:center; gap:20px; backdrop-filter:blur(20px); box-shadow:0 4px 30px rgba(0,0,0,0.3); }
-        .step-bar.visible { display:flex; animation:slideUp 0.3s ease; }
-        .step-bar-ring { position:relative; flex-shrink:0; }
-        .step-bar-svg { transform:rotate(-90deg); }
-        .step-bar-ring-bg { fill:none; stroke:rgba(255,255,255,0.06); stroke-width:4; }
-        .step-bar-ring-prog { fill:none; stroke:var(--accent-cyan); stroke-width:4; stroke-linecap:round; stroke-dasharray:138; stroke-dashoffset:0; transition:stroke-dashoffset 0.5s,stroke 0.3s; }
-        .step-bar-ring-prog.warning { stroke:var(--accent-amber); }
-        .step-bar-ring-prog.danger { stroke:var(--accent-rose); }
-        .step-bar-info { flex:1; min-width:0; }
-        .step-bar-name { font-size:14px; font-weight:700; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .step-bar-desc { font-size:11px; color:var(--text-muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .step-bar-timer { font-family:'JetBrains Mono',monospace; font-size:28px; font-weight:800; color:var(--accent-cyan); min-width:90px; text-align:center; }
-        .step-bar-timer.warning { color:var(--accent-amber); }
-        .step-bar-timer.danger { color:var(--accent-rose); animation:pulse 1s infinite; }
-        .step-bar-btns { display:flex; gap:8px; flex-shrink:0; }
-        .sb-btn { padding:9px 18px; border-radius:10px; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s; border:1px solid transparent; white-space:nowrap; }
-        .sb-btn-prev { background:rgba(245,158,11,0.1); border-color:rgba(245,158,11,0.3); color:var(--accent-amber); display:none; }
-        .sb-btn-prev.visible { display:block; }
-        .sb-btn-pause { background:rgba(255,255,255,0.06); border-color:var(--border-subtle); color:var(--text-secondary); }
-        .sb-btn-pause:hover { background:rgba(255,255,255,0.12); }
-        .sb-btn-next { background:linear-gradient(135deg,var(--accent-blue),var(--accent-cyan)); color:white; box-shadow:0 4px 14px rgba(59,130,246,0.3); }
-        .sb-btn-next:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(59,130,246,0.4); }
+        .center-panel { padding:24px 32px; overflow-y:auto; }
 
         .section-label { font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-muted); margin-bottom:16px; }
         .participant-card { display:flex; align-items:center; gap:12px; padding:14px; border-radius:var(--radius-sm); margin-bottom:8px; transition:all 0.2s; cursor:default; border:1px solid transparent; }
@@ -377,27 +352,6 @@
     </aside>
 
     <main class="center-panel">
-        <!-- Sticky step bar: visible while meeting is running -->
-        <div class="step-bar" id="stepBar">
-            <div class="step-bar-ring">
-                <svg class="step-bar-svg" width="48" height="48">
-                    <circle class="step-bar-ring-bg" cx="24" cy="24" r="22"/>
-                    <circle class="step-bar-ring-prog" id="sbRingProg" cx="24" cy="24" r="22"/>
-                </svg>
-            </div>
-            <div class="step-bar-info">
-                <div class="step-bar-name" id="sbStepName">—</div>
-                <div class="step-bar-desc" id="sbStepDesc">—</div>
-            </div>
-            <div class="step-bar-timer" id="sbTimer">--:--</div>
-            <div class="step-bar-btns">
-                <button class="sb-btn sb-btn-prev" id="sbBtnPrev" onclick="prevStep()">&#9664; Anterior</button>
-                <button class="sb-btn sb-btn-pause" id="sbBtnPause" onclick="pauseTimer()">Pausar</button>
-                <button class="sb-btn sb-btn-next" id="sbBtnNext" onclick="nextStep()">Siguiente &#9654;</button>
-            </div>
-        </div>
-
-        <div class="center-panel-scroll">
         <div class="agenda-header">
             <div class="section-label">Agenda de la Reunion</div>
             <div class="total-timer"><div><div class="total-timer-label">Tiempo Total</div><div class="total-timer-value" id="totalTimer">90:00</div></div></div>
@@ -484,11 +438,19 @@
                 <div id="historyList"></div>
             </div>
         </div>
-        </div><!-- /center-panel-scroll -->
     </main>
 </div>
 
-<!-- MODAL (used only for check-in popups and confirmReset) -->
+<!-- Floating button to restore minimized timer -->
+<button class="floating-timer" id="floatingTimer" onclick="restoreMinimizedModal()">
+    <span class="floating-timer-icon">&#9200;</span>
+    <div class="floating-timer-info">
+        <span class="floating-timer-label" id="floatingTimerLabel">Paso actual</span>
+        <span class="floating-timer-value" id="floatingTimerValue">--:--</span>
+    </div>
+</button>
+
+<!-- MODAL -->
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal" id="modalContent">
         <div class="timer-ring-container">
@@ -758,7 +720,7 @@ function goToStep(index) {
     document.getElementById(`timer-${agenda[index].id}`).textContent=formatTime(agenda[index].duration);
     const showPrev=currentStep>0;
     document.getElementById('btnPrev').classList.toggle('visible',showPrev);
-    const _bmp=document.getElementById('btnModalPrev'); if(_bmp) _bmp.style.display=showPrev?'':'none';
+    document.getElementById('btnModalPrev').style.display=showPrev?'':'none';
     updateProgress(); showModal(agenda[index]);
     // For segue step, auto-launch check-in popup for first pending participant
     if(agenda[index].id==='segue'){
@@ -802,7 +764,7 @@ function prevStep() {
 }
 
 async function endMeeting() {
-    clearInterval(timerInterval); clearInterval(totalTimerInterval); closeModal(); hideStepBar();
+    clearInterval(timerInterval); clearInterval(totalTimerInterval); closeModal();
     if(currentStep>=0){
         const el=document.getElementById(`agenda-${agenda[currentStep].id}`);
         el.classList.remove('active'); el.classList.add('completed');
@@ -837,6 +799,7 @@ async function endMeeting() {
 }
 
 function confirmReset() {
+    closeModal();
     const modal=document.getElementById('modalContent');
     modal.innerHTML=`
         <div style="font-size:48px;margin-bottom:16px">&#8635;</div>
@@ -849,14 +812,29 @@ function confirmReset() {
     document.getElementById('modalOverlay').classList.add('show');
 }
 
-function cancelReset(){ closeModal(); }
-function restoreModal(){ /* step-bar is always present; no-op */ }
+function cancelReset(){ closeModal(); restoreModal(); if(meetingStarted&&currentStep>=0) showModal(agenda[currentStep]); }
+
+function restoreModal(){
+    document.getElementById('modalContent').innerHTML=`
+        <div class="timer-ring-container"><svg class="timer-ring" width="120" height="120"><circle class="timer-ring-bg" cx="60" cy="60" r="54"/><circle class="timer-ring-progress" id="timerRingProgress" cx="60" cy="60" r="54" stroke-dasharray="339.292" stroke-dashoffset="0"/></svg></div>
+        <div class="modal-step-name" id="modalStepName"></div>
+        <div class="modal-timer" id="modalTimer">05:00</div>
+        <div class="modal-step-desc" id="modalStepDesc"></div>
+        <div class="modal-buttons">
+            <button class="modal-btn modal-btn-danger" id="btnModalPrev" onclick="prevStep()" style="display:none">&#9664; Anterior</button>
+            <button class="modal-btn modal-btn-secondary" onclick="pauseTimer()" id="btnPause">Pausar</button>
+            <button class="modal-btn modal-btn-primary" onclick="nextStep()" id="btnNext">Siguiente &#9654;</button>
+            <button class="modal-btn modal-btn-secondary" onclick="minimizeModal()">Minimizar</button>
+        </div>`;
+}
 
 function resetMeeting(){
     clearInterval(timerInterval); clearInterval(totalTimerInterval);
     meetingStarted=false; currentStep=-1; stepTimeRemaining=0; totalTimeRemaining=90*60; isPaused=false;
     isMinimized=false;
-    closeModal(); hideStepBar();
+    document.getElementById('floatingTimer').classList.remove('visible');
+    participants.forEach(p => ratings[p] = 0);
+    closeModal(); restoreModal();
     document.getElementById('btnStartMeeting').textContent='Iniciar Reunion';
     document.getElementById('btnStartMeeting').disabled=false;
     document.getElementById('btnReset').classList.remove('visible');
@@ -865,7 +843,6 @@ function resetMeeting(){
     document.getElementById('totalTimer').className='total-timer-value';
     document.getElementById('progressPercent').textContent='0%';
     document.getElementById('progressFill').style.width='0%';
-    participants.forEach(p => ratings[p] = 0);
     initRatings();
     initCheckins();
     idsIssues=[{topic:'',identify:'',discuss:'',solve:''},{topic:'',identify:'',discuss:'',solve:''},{topic:'',identify:'',discuss:'',solve:''}];
@@ -879,20 +856,13 @@ function formatTime(s){ if(s<0)s=0; return `${String(Math.floor(s/60)).padStart(
 
 function updateStepTimer(){
     const item=agenda[currentStep];
-    const tEl=document.getElementById(`timer-${item.id}`);
-    const sbTimer=document.getElementById('sbTimer');
-    const sbRing=document.getElementById('sbRingProg');
+    const tEl=document.getElementById(`timer-${item.id}`), mEl=document.getElementById('modalTimer'), rEl=document.getElementById('timerRingProgress');
     const str=formatTime(Math.abs(stepTimeRemaining)), disp=stepTimeRemaining<0?`-${str}`:str;
-    if(tEl) tEl.textContent=disp;
+    tEl.textContent=disp; if(mEl) mEl.textContent=disp;
     let cls=''; if(stepTimeRemaining<0)cls='danger'; else if(stepTimeRemaining/item.duration<0.2)cls='warning';
-    if(tEl) tEl.className='agenda-timer '+(cls||'');
-    if(sbTimer){ sbTimer.textContent=disp; sbTimer.className='step-bar-timer'+(cls?' '+cls:''); }
-    if(sbRing){
-        sbRing.className.baseVal='step-bar-ring-prog'+(cls?' '+cls:'');
-        const circ=2*Math.PI*22;
-        sbRing.style.strokeDasharray=circ;
-        sbRing.style.strokeDashoffset=circ*(1-Math.max(0,stepTimeRemaining/item.duration));
-    }
+    tEl.className='agenda-timer '+cls; if(mEl) mEl.className='modal-timer '+cls;
+    if(rEl){ rEl.className.baseVal='timer-ring-progress '+cls; rEl.style.strokeDashoffset=2*Math.PI*54*(1-Math.max(0,stepTimeRemaining/item.duration)); }
+    if(isMinimized) updateFloatingTimer();
 }
 
 function updateTotalTimer(){
@@ -907,47 +877,71 @@ function updateProgress(){
     document.getElementById('progressFill').style.width=p+'%';
 }
 
-// === STEP BAR (replaces full-screen modal for meeting control) ===
+// === MODAL ===
 function showModal(item){
-    const sb=document.getElementById('stepBar');
-    const sbName=document.getElementById('sbStepName');
-    const sbDesc=document.getElementById('sbStepDesc');
-    const sbTimer=document.getElementById('sbTimer');
-    const sbRing=document.getElementById('sbRingProg');
-    const sbBtnPrev=document.getElementById('sbBtnPrev');
-    const sbBtnNext=document.getElementById('sbBtnNext');
-    const sbBtnPause=document.getElementById('sbBtnPause');
-
-    if(sbName) sbName.textContent=item.name;
-    if(sbDesc){
+    const n=document.getElementById('modalStepName'),t=document.getElementById('modalTimer'),d=document.getElementById('modalStepDesc'),r=document.getElementById('timerRingProgress');
+    if(n) n.textContent=item.name;
+    if(t) t.textContent=formatTime(item.duration);
+    if(d){
         if(item.id==='conclude'){
-            const done=todos.filter(x=>x.done).length;
-            sbDesc.textContent=`Cierre — ${done}/${todos.length} To-Dos completados`;
+            let html='<div style="margin-bottom:12px">'+item.desc+'</div><div class="conclude-todos">';
+            if(todos.length===0){
+                html+='<div style="color:var(--text-muted);text-align:center;padding:8px">No hay To-Dos</div>';
+            } else {
+                todos.forEach(td=>{
+                    const chk=td.done?'<span style="color:var(--accent-emerald);font-weight:700">&#10003;</span>':'<span style="color:var(--accent-amber);font-weight:700">&#9675;</span>';
+                    html+=`<div class="conclude-todo-item">${chk}<span style="${td.done?'text-decoration:line-through;opacity:0.5':''}">${td.text}</span><span style="font-size:10px;color:var(--text-muted);margin-left:auto">${td.owner}</span></div>`;
+                });
+                const done=todos.filter(x=>x.done).length;
+                html+=`<div style="text-align:center;margin-top:8px;font-size:12px;color:var(--text-muted)">${done}/${todos.length} completados</div>`;
+            }
+            html+='</div>';
+            d.innerHTML=html;
         } else {
-            sbDesc.textContent=item.desc;
+            d.textContent=item.desc;
         }
     }
-    if(sbTimer) sbTimer.textContent=formatTime(item.duration);
-    if(sbRing){ sbRing.style.strokeDashoffset='0'; sbRing.className.baseVal='step-bar-ring-prog'; }
-    if(sbBtnPrev) sbBtnPrev.classList.toggle('visible', currentStep>0);
-    if(sbBtnNext) sbBtnNext.innerHTML=currentStep===agenda.length-1?'Finalizar &#10003;':'Siguiente &#9654;';
-    if(sbBtnPause) sbBtnPause.textContent='Pausar';
-    if(sb) sb.classList.add('visible');
-    isPaused=false;
+    if(r){ r.style.strokeDashoffset='0'; r.className.baseVal='timer-ring-progress'; }
+    const btnNext=document.getElementById('btnNext');
+    if(btnNext) btnNext.innerHTML=currentStep===agenda.length-1?'Finalizar &#10003;':'Siguiente &#9654;';
+    document.getElementById('modalOverlay').classList.add('show');
+    isPaused=false; const pb=document.getElementById('btnPause'); if(pb) pb.textContent='Pausar';
+}
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('show'); }
 
-    // Auto-scroll to the active panel
-    const panelIds={segue:'checkinPanel',rocks:'rocksPanel_',headlines:'headlinesPanel_',todos:'todosPanel_',ids:'idsPanel_',conclude:'ratingPanel_'};
-    const panelParents={segue:'checkinPanel',rocks:'.rocks-panel',headlines:'.headlines-panel',todos:'.todos-panel',ids:'.ids-panel',conclude:'.rating-panel'};
-    const sel=panelParents[item.id];
-    if(sel){
-        const el=sel.startsWith('.')?document.querySelector(sel):document.getElementById(sel);
-        if(el) setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'start'}),150);
+function minimizeModal(){
+    closeModal();
+    if(meetingStarted && currentStep>=0 && currentStep<agenda.length){
+        isMinimized=true;
+        const ft=document.getElementById('floatingTimer');
+        const lbl=document.getElementById('floatingTimerLabel');
+        if(lbl) lbl.textContent=agenda[currentStep].name.split('/')[0].trim().substring(0,24);
+        updateFloatingTimer();
+        ft.classList.add('visible');
     }
 }
 
-function closeModal(){ document.getElementById('modalOverlay').classList.remove('show'); }
-function hideStepBar(){ document.getElementById('stepBar').classList.remove('visible'); }
-function pauseTimer(){ isPaused=!isPaused; const pb=document.getElementById('sbBtnPause'); if(pb) pb.textContent=isPaused?'Reanudar':'Pausar'; }
+function restoreMinimizedModal(){
+    isMinimized=false;
+    document.getElementById('floatingTimer').classList.remove('visible');
+    if(meetingStarted && currentStep>=0 && currentStep<agenda.length){
+        restoreModal();
+        showModal(agenda[currentStep]);
+    }
+}
+
+function updateFloatingTimer(){
+    const v=document.getElementById('floatingTimerValue');
+    if(!v) return;
+    const item=agenda[currentStep];
+    const str=formatTime(Math.abs(stepTimeRemaining));
+    v.textContent=stepTimeRemaining<0?`-${str}`:str;
+    v.className='floating-timer-value';
+    if(stepTimeRemaining<0) v.classList.add('danger');
+    else if(stepTimeRemaining/item.duration<0.2) v.classList.add('warning');
+}
+
+function pauseTimer(){ isPaused=!isPaused; const pb=document.getElementById('btnPause'); if(pb) pb.textContent=isPaused?'Reanudar':'Pausar'; }
 
 // === ROCKS ===
 async function addRock(){
