@@ -408,12 +408,13 @@ app.post('/api/scorecard/week', async (req, res) => {
     }
 });
 
-// Upsert a single cell
+// Upsert a single cell (auto-registers the week)
 app.put('/api/scorecard/cell', async (req, res) => {
     try {
         const { week_of, metric_key, value } = req.body;
         if (!week_of || !metric_key) return res.status(400).json({ error: 'week_of and metric_key required' });
         const numVal = (value === '' || value === null || value === undefined) ? null : Number(value);
+        await pool.query('INSERT INTO scorecard_weeks (week_of) VALUES ($1) ON CONFLICT DO NOTHING', [week_of]);
         await pool.query(
             `INSERT INTO scorecard (week_of, metric_key, value, updated_at) VALUES ($1, $2, $3, NOW())
              ON CONFLICT (week_of, metric_key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()`,

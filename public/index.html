@@ -46,38 +46,23 @@
         .btn-scorecard { background:rgba(6,182,212,0.12); border:1px solid rgba(6,182,212,0.3); color:var(--accent-cyan); }
         .btn-scorecard:hover { background:rgba(6,182,212,0.22); }
 
-        /* Scorecard table */
-        .sc-table { width:100%; border-collapse:separate; border-spacing:0; font-size:13px; margin-top:12px; }
-        .sc-table th, .sc-table td { padding:8px 10px; text-align:left; border-bottom:1px solid var(--border-subtle); white-space:nowrap; }
-        .sc-table thead th { background:var(--bg-card); font-size:11px; font-weight:700; color:var(--text-muted); letter-spacing:0.8px; text-transform:uppercase; position:sticky; top:0; z-index:2; }
-        .sc-table thead th.sc-week-col { color:var(--accent-cyan); text-align:center; min-width:120px; position:relative; }
-        .sc-table thead th.sc-week-col .sc-week-del { position:absolute; top:4px; right:6px; background:none; border:none; color:var(--accent-rose); cursor:pointer; font-size:14px; opacity:0.4; }
-        .sc-table thead th.sc-week-col .sc-week-del:hover { opacity:1; }
-        .sc-dept-row td { background:rgba(59,130,246,0.08); color:var(--accent-cyan); font-weight:700; font-size:12px; letter-spacing:0.8px; text-transform:uppercase; padding:10px; }
-        .sc-table td.sc-metric { color:var(--text-secondary); font-weight:500; min-width:280px; white-space:normal; }
-        .sc-table td.sc-cell { text-align:center; }
-        .sc-cell input { width:100px; padding:6px 8px; background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:6px; color:var(--text-primary); font-family:'JetBrains Mono',monospace; font-size:13px; text-align:right; transition:border-color 0.2s; }
-        .sc-cell input:focus { outline:none; border-color:var(--accent-cyan); background:var(--bg-card-hover); }
-        .sc-cell.sc-pass input { background:rgba(16,185,129,0.10); border-color:rgba(16,185,129,0.5); color:var(--accent-emerald); }
-        .sc-cell.sc-fail input { background:rgba(244,63,94,0.10); border-color:rgba(244,63,94,0.5); color:var(--accent-rose); }
-        .sc-target-col { color:var(--accent-amber) !important; min-width:140px; }
-        .sc-target-cell { padding:6px 8px; }
-        .sc-target-cell .sc-target-row { display:flex; gap:4px; align-items:center; justify-content:center; }
-        .sc-comp { padding:6px 4px; background:var(--bg-card); border:1px solid rgba(245,158,11,0.3); border-radius:6px; color:var(--accent-amber); font-size:13px; cursor:pointer; font-weight:700; }
-        .sc-comp:focus { outline:none; border-color:var(--accent-amber); }
-        .sc-target-cell input { width:80px; padding:6px 8px; background:var(--bg-card); border:1px solid rgba(245,158,11,0.3); border-radius:6px; color:var(--accent-amber); font-family:'JetBrains Mono',monospace; font-size:13px; text-align:right; font-weight:700; }
-        .sc-target-cell input:focus { outline:none; border-color:var(--accent-amber); }
-        .sc-empty { text-align:center; padding:40px; color:var(--text-muted); font-size:14px; }
-        /* Scorecard rows inside meeting modal */
-        .sc-modal-row { display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:6px; background:var(--bg-card); margin-bottom:4px; font-size:13px; border-left:3px solid transparent; }
-        .sc-modal-row.sc-pass { background:rgba(16,185,129,0.08); border-left-color:var(--accent-emerald); }
-        .sc-modal-row.sc-fail { background:rgba(244,63,94,0.08); border-left-color:var(--accent-rose); }
-        .sc-modal-metric { flex:1; color:var(--text-secondary); }
-        .sc-modal-target { color:var(--accent-amber); font-family:'JetBrains Mono',monospace; font-size:11px; min-width:70px; text-align:right; opacity:0.9; }
-        .sc-modal-val { font-family:'JetBrains Mono',monospace; font-weight:700; min-width:60px; text-align:right; color:var(--text-muted); }
-        .sc-modal-row.sc-pass .sc-modal-val { color:var(--accent-emerald); }
-        .sc-modal-row.sc-fail .sc-modal-val { color:var(--accent-rose); }
-        .sc-modal-dept { font-size:11px; font-weight:700; color:var(--accent-cyan); letter-spacing:0.8px; text-transform:uppercase; margin:12px 0 6px 0; }
+        /* Scorecard inside meeting modal */
+        .sc-modal-bar { display:flex; align-items:center; gap:10px; padding:8px 4px 14px; border-bottom:1px solid var(--border-subtle); margin-bottom:10px; }
+        .sc-modal-nav { background:var(--bg-card); border:1px solid var(--border-subtle); color:var(--accent-cyan); width:32px; height:32px; border-radius:8px; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; transition:background 0.2s; }
+        .sc-modal-nav:hover { background:var(--bg-card-hover); }
+        .sc-modal-month { font-weight:700; color:var(--accent-cyan); font-size:14px; min-width:140px; text-align:center; text-transform:capitalize; }
+        .sc-mini-wrap { overflow-x:auto; max-height:50vh; }
+        .sc-mini-table { width:100%; border-collapse:separate; border-spacing:0; font-size:12px; }
+        .sc-mini-table th, .sc-mini-table td { padding:6px 8px; text-align:left; border-bottom:1px solid var(--border-subtle); white-space:nowrap; }
+        .sc-mini-table thead th { background:var(--bg-card); font-size:10px; font-weight:700; color:var(--text-muted); letter-spacing:0.5px; text-transform:uppercase; position:sticky; top:0; z-index:2; }
+        .sc-mini-week { color:var(--accent-cyan) !important; text-align:center; min-width:130px; }
+        .sc-mini-target-col { color:var(--accent-amber) !important; text-align:center; min-width:80px; }
+        .sc-mini-dept td { background:rgba(59,130,246,0.08); color:var(--accent-cyan); font-weight:700; font-size:11px; letter-spacing:0.6px; text-transform:uppercase; padding:8px; }
+        .sc-mini-metric { color:var(--text-secondary); font-weight:500; min-width:220px; white-space:normal; }
+        .sc-mini-target { color:var(--accent-amber); font-family:'JetBrains Mono',monospace; font-weight:700; text-align:center; }
+        .sc-mini-cell { font-family:'JetBrains Mono',monospace; font-weight:700; text-align:center; color:var(--text-muted); }
+        .sc-mini-cell.sc-pass { background:rgba(16,185,129,0.10); color:var(--accent-emerald); }
+        .sc-mini-cell.sc-fail { background:rgba(244,63,94,0.10); color:var(--accent-rose); }
 
         /* Layout */
         .main { position:relative; z-index:5; display:grid; grid-template-columns:300px 1fr; gap:0; height:calc(100vh - 85px); }
@@ -349,7 +334,7 @@
     </div>
     <div class="header-right">
         <div class="meeting-date" id="meetingDate"></div>
-        <button class="btn-ctrl btn-scorecard visible" onclick="toggleScorecard()">Scorecard</button>
+        <button class="btn-ctrl btn-scorecard visible" onclick="window.open('/scorecard.html','_blank')">Scorecard &#8599;</button>
         <button class="btn-ctrl btn-history visible" onclick="toggleHistory()">Historial</button>
         <button class="btn-ctrl btn-prev" id="btnPrev" onclick="prevStep()">&#9664; Anterior</button>
         <button class="btn-ctrl btn-reset" id="btnReset" onclick="confirmReset()">&#8635; Reiniciar</button>
@@ -483,14 +468,6 @@
                 <div id="historyList"></div>
             </div>
 
-            <!-- Scorecard -->
-            <div class="history-panel" id="scorecardPanel" style="display:none">
-                <div class="panel-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-                    <span style="display:flex;align-items:center;gap:12px"><div class="panel-title-icon" style="background:rgba(6,182,212,0.15);color:#22d3ee;">S</div>Scorecard Semanal</span>
-                    <button class="add-btn" onclick="addScorecardWeek()" style="background:linear-gradient(135deg,var(--accent-cyan),var(--accent-blue));width:auto;padding:0 18px;height:36px;font-size:13px;font-weight:600">+ Nueva Semana</button>
-                </div>
-                <div id="scorecardContainer" style="overflow-x:auto"></div>
-            </div>
         </div>
     </main>
 </div>
@@ -985,34 +962,57 @@ function buildModalContent(stepId){
 }
 
 function buildModalScorecard(){
-    if(!scorecardWeeks.length){
-        return `<div style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">
-            Sin datos de scorecard cargados.<br>
-            <button class="modal-btn modal-btn-secondary" onclick="toggleScorecard()" style="margin-top:14px">Abrir Scorecard</button>
-        </div>`;
-    }
-    const w=scorecardWeeks[0];
-    let html=`<div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;text-align:center">
-        Semana del <strong style="color:var(--accent-cyan)">${formatWeekHeader(w.week_of)}</strong>
-        <button class="modal-btn modal-btn-secondary" onclick="toggleScorecard()" style="margin-left:12px;padding:4px 10px;font-size:11px">Editar</button>
-    </div>`;
+    if(!scorecardModalMonth) scorecardModalMonth=currentMonthYM();
+    const ym=scorecardModalMonth;
+    const mondays=generateMondaysOfMonth(ym);
+    const valsByWeek=Object.fromEntries(scorecardWeeks.map(w=>[w.week_of, w.values||{}]));
+
+    const headerCells=mondays.map(wk=>`<th class="sc-mini-week">${formatWeekRange(wk)}</th>`).join('');
+    const colCount=mondays.length+2;
+
+    let body='';
     for(const dept of SCORECARD_METRICS){
-        html+=`<div class="sc-modal-dept">${dept.dept}</div>`;
+        body+=`<tr class="sc-mini-dept"><td colspan="${colCount}">${dept.dept}</td></tr>`;
         for(const m of dept.items){
-            const val=w.values[m.key]!==undefined?w.values[m.key]:null;
             const t=scorecardTargets[m.key]||{value:'',comparator:'>='};
-            const pass=evalScorecardRule(val,t.value,t.comparator);
-            const cls=pass===true?'sc-pass':pass===false?'sc-fail':'';
-            const valDisp=(val===null||val==='')?'—':val;
             const targetDisp=(t.value!==''&&t.value!=null)?`${t.comparator||'>='} ${t.value}`:'—';
-            html+=`<div class="sc-modal-row ${cls}">
-                <span class="sc-modal-metric">${m.label}</span>
-                <span class="sc-modal-target">${targetDisp}</span>
-                <span class="sc-modal-val">${valDisp}</span>
-            </div>`;
+            body+=`<tr><td class="sc-mini-metric">${m.label}</td><td class="sc-mini-target">${targetDisp}</td>`;
+            for(const wk of mondays){
+                const wv=valsByWeek[wk]||{};
+                const val=wv[m.key];
+                const pass=evalScorecardRule(val,t.value,t.comparator);
+                const cls=pass===true?'sc-pass':pass===false?'sc-fail':'';
+                const disp=(val===undefined||val===null||val==='')?'—':val;
+                body+=`<td class="sc-mini-cell ${cls}">${disp}</td>`;
+            }
+            body+='</tr>';
         }
     }
-    return html;
+
+    return `<div class="sc-modal-bar">
+        <button class="sc-modal-nav" onclick="changeScorecardMonth(-1)" title="Mes anterior">&#9664;</button>
+        <span class="sc-modal-month">${monthLabel(ym)}</span>
+        <button class="sc-modal-nav" onclick="changeScorecardMonth(1)" title="Mes siguiente">&#9654;</button>
+        <button class="modal-btn modal-btn-secondary" onclick="window.open('/scorecard.html','_blank')" style="margin-left:auto;padding:6px 12px;font-size:11px">Editar &#8599;</button>
+    </div>
+    ${mondays.length===0?'<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Sin lunes en este mes</div>':
+    `<div class="sc-mini-wrap"><table class="sc-mini-table">
+        <thead><tr><th>Indicador</th><th class="sc-mini-target-col">Objetivo</th>${headerCells}</tr></thead>
+        <tbody>${body}</tbody>
+    </table></div>`}`;
+}
+
+function changeScorecardMonth(delta){
+    if(!scorecardModalMonth) scorecardModalMonth=currentMonthYM();
+    scorecardModalMonth=shiftMonth(scorecardModalMonth, delta);
+    syncModal();
+}
+
+function formatWeekRange(monday){
+    const days=['dom','lun','mar','mie','jue','vie','sab'];
+    const m=new Date(monday+'T00:00:00');
+    const f=new Date(m); f.setDate(f.getDate()+4);
+    return `${days[m.getDay()]} ${m.getDate()}/${m.getMonth()+1} a ${days[f.getDay()]} ${f.getDate()}/${f.getMonth()+1}`;
 }
 
 function buildModalSegue(){
@@ -1508,35 +1508,14 @@ const SCORECARD_METRICS = [
     ]},
 ];
 
-function getMostRecentMonday(){
-    const d=new Date();
-    const day=d.getDay(); // 0=Sun..6=Sat
-    const diff=day===0?-6:1-day; // back to Monday
-    d.setDate(d.getDate()+diff);
-    return d.toISOString().slice(0,10);
-}
-
-function formatWeekHeader(iso){
-    const d=new Date(iso+'T00:00:00');
-    return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getFullYear()).slice(2)}`;
-}
-
-let scorecardWeeks=[], scorecardTargets={};
-
-function toggleScorecard(){
-    const p=document.getElementById('scorecardPanel');
-    const vis=p.style.display==='none';
-    p.style.display=vis?'block':'none';
-    if(vis) loadScorecard();
-}
+let scorecardWeeks=[], scorecardTargets={}, scorecardModalMonth=null; // YYYY-MM
 
 async function loadScorecard(){
     try {
         const data=await api('GET','/api/scorecard');
         scorecardWeeks=data.weeks||[];
         scorecardTargets=data.targets||{};
-        renderScorecard();
-    } catch(e){ scorecardWeeks=[]; scorecardTargets={}; renderScorecard(); }
+    } catch(e){ scorecardWeeks=[]; scorecardTargets={}; }
 }
 
 function evalScorecardRule(value, target, comparator){
@@ -1553,80 +1532,37 @@ function evalScorecardRule(value, target, comparator){
     return null;
 }
 
-function renderScorecard(){
-    const c=document.getElementById('scorecardContainer');
-    const weeks=scorecardWeeks, targets=scorecardTargets;
-    const colCount=weeks.length+2;
-    const weekHeaders=weeks.map(w=>`<th class="sc-week-col">${formatWeekHeader(w.week_of)}<button class="sc-week-del" onclick="deleteScorecardWeek('${w.week_of}')" title="Eliminar semana">&times;</button></th>`).join('');
-    const header=`<thead><tr><th>Indicador</th><th class="sc-target-col">Objetivo</th>${weekHeaders}</tr></thead>`;
-    let body='<tbody>';
-    for(const dept of SCORECARD_METRICS){
-        body+=`<tr class="sc-dept-row"><td colspan="${colCount}">${dept.dept}</td></tr>`;
-        for(const m of dept.items){
-            const t=targets[m.key]||{value:'',comparator:'>='};
-            body+=`<tr><td class="sc-metric">${m.label}</td>`;
-            body+=`<td class="sc-target-cell"><div class="sc-target-row">
-                <select class="sc-comp" data-key="${m.key}" onchange="saveScorecardTarget('${m.key}')">
-                    <option value=">=" ${t.comparator==='>='?'selected':''}>&ge;</option>
-                    <option value="<=" ${t.comparator==='<='?'selected':''}>&le;</option>
-                    <option value=">"  ${t.comparator==='>'?'selected':''}>&gt;</option>
-                    <option value="<"  ${t.comparator==='<'?'selected':''}>&lt;</option>
-                    <option value="="  ${t.comparator==='='?'selected':''}>=</option>
-                </select>
-                <input type="number" step="any" value="${t.value}" data-key="${m.key}" data-field="target" placeholder="-" onblur="saveScorecardTarget('${m.key}')" onkeypress="if(event.key==='Enter')this.blur()">
-            </div></td>`;
-            for(const w of weeks){
-                const val=w.values[m.key]!==undefined?w.values[m.key]:'';
-                const pass=evalScorecardRule(val,t.value,t.comparator);
-                const cls=pass===true?'sc-pass':pass===false?'sc-fail':'';
-                body+=`<td class="sc-cell ${cls}"><input type="number" step="any" value="${val}" data-week="${w.week_of}" data-key="${m.key}" onblur="saveScorecardCell(this)" onkeypress="if(event.key==='Enter')this.blur()"></td>`;
-            }
-            body+='</tr>';
-        }
+function generateMondaysOfMonth(yearMonth){
+    // yearMonth: 'YYYY-MM' — returns array of ISO Monday strings whose Monday falls in that month
+    const [y,m]=yearMonth.split('-').map(Number);
+    const first=new Date(y,m-1,1);
+    let d=new Date(first);
+    while(d.getDay()!==1) d.setDate(d.getDate()+1);
+    const list=[];
+    while(d.getFullYear()===y && d.getMonth()===m-1){
+        list.push(d.toISOString().slice(0,10));
+        d.setDate(d.getDate()+7);
     }
-    body+='</tbody>';
-    c.innerHTML=`<table class="sc-table">${header}${body}</table>`;
+    return list;
 }
 
-async function saveScorecardCell(input){
-    const week_of=input.dataset.week, metric_key=input.dataset.key, value=input.value;
-    try {
-        await api('PUT','/api/scorecard/cell',{week_of, metric_key, value});
-        // Update local state and re-render to refresh colors
-        const wk=scorecardWeeks.find(w=>w.week_of===week_of);
-        if(wk) wk.values[metric_key]=value===''?'':Number(value);
-        renderScorecard();
-    } catch(e){
-        input.style.borderColor='var(--accent-rose)';
-    }
+function currentMonthYM(){
+    const d=new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 }
 
-async function saveScorecardTarget(key){
-    const compEl=document.querySelector(`select.sc-comp[data-key="${key}"]`);
-    const valEl=document.querySelector(`input[data-key="${key}"][data-field="target"]`);
-    if(!compEl||!valEl) return;
-    const target_value=valEl.value, comparator=compEl.value;
-    try {
-        await api('PUT',`/api/scorecard/targets/${encodeURIComponent(key)}`,{target_value, comparator});
-        scorecardTargets[key]={value:target_value===''?'':Number(target_value), comparator};
-        renderScorecard();
-    } catch(e){}
+function shiftMonth(ym, delta){
+    let [y,m]=ym.split('-').map(Number);
+    m+=delta;
+    if(m<1){ m=12; y--; }
+    if(m>12){ m=1; y++; }
+    return `${y}-${String(m).padStart(2,'0')}`;
 }
 
-async function addScorecardWeek(){
-    const wk=getMostRecentMonday();
-    try {
-        await api('POST','/api/scorecard/week',{week_of:wk});
-        loadScorecard();
-    } catch(e){ alert('Error al crear semana'); }
-}
-
-async function deleteScorecardWeek(week_of){
-    if(!confirm(`Eliminar semana del ${formatWeekHeader(week_of)} y todos sus datos?`)) return;
-    try {
-        await api('DELETE',`/api/scorecard/week/${week_of}`);
-        loadScorecard();
-    } catch(e){ alert('Error al eliminar semana'); }
+function monthLabel(ym){
+    const [y,m]=ym.split('-').map(Number);
+    const months=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    return `${months[m-1]} ${y}`;
 }
 
 init();

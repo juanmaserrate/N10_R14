@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scorecard Anual - Reunion N10</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+        :root {
+            --bg-primary: #0a0e1a; --bg-secondary: #111827; --bg-card: #1a2236; --bg-card-hover: #1f2a42;
+            --accent-blue: #3b82f6; --accent-cyan: #06b6d4; --accent-emerald: #10b981;
+            --accent-amber: #f59e0b; --accent-rose: #f43f5e; --accent-violet: #8b5cf6;
+            --text-primary: #f1f5f9; --text-secondary: #94a3b8; --text-muted: #64748b;
+            --border-subtle: rgba(255,255,255,0.06); --border-active: rgba(59,130,246,0.4);
+            --radius: 16px; --radius-sm: 10px;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg-primary); color:var(--text-primary); min-height:100vh; }
+        body::before { content:''; position:fixed; top:-50%; left:-50%; width:200%; height:200%;
+            background:radial-gradient(ellipse at 20% 50%,rgba(59,130,246,0.08) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(6,182,212,0.06) 0%,transparent 50%);
+            z-index:0; pointer-events:none; }
+
+        .header { position:relative; z-index:10; padding:20px 32px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border-subtle); backdrop-filter:blur(20px); background:rgba(10,14,26,0.8); flex-wrap:wrap; gap:12px; }
+        .header-left { display:flex; align-items:center; gap:16px; }
+        .logo-mark { width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg,var(--accent-cyan),var(--accent-blue)); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:18px; color:white; box-shadow:0 4px 20px rgba(6,182,212,0.3); }
+        .header-title { font-size:20px; font-weight:700; background:linear-gradient(135deg,var(--text-primary),var(--accent-cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .header-subtitle { font-size:12px; color:var(--text-muted); font-weight:500; letter-spacing:1px; text-transform:uppercase; }
+        .header-right { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+        .year-select { padding:10px 16px; background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-primary); font-size:14px; font-weight:600; cursor:pointer; }
+        .year-select:focus { outline:none; border-color:var(--accent-cyan); }
+        .btn-back { padding:10px 20px; background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.3); color:var(--accent-violet); border-radius:var(--radius-sm); font-weight:600; font-size:13px; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px; transition:background 0.2s; }
+        .btn-back:hover { background:rgba(139,92,246,0.22); }
+
+        .container { position:relative; z-index:5; padding:24px 32px; }
+        .panel-title { display:flex; align-items:center; gap:12px; margin-bottom:18px; font-size:18px; font-weight:700; }
+        .panel-title-icon { width:32px; height:32px; border-radius:8px; background:rgba(6,182,212,0.15); color:#22d3ee; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; }
+        .info-bar { font-size:12px; color:var(--text-muted); margin-bottom:14px; padding:10px 14px; background:var(--bg-card); border-radius:var(--radius-sm); border:1px solid var(--border-subtle); }
+        .info-bar strong { color:var(--accent-cyan); }
+
+        .sc-wrap { background:var(--bg-secondary); border:1px solid var(--border-subtle); border-radius:var(--radius); overflow:auto; max-height:calc(100vh - 220px); }
+        .sc-table { width:100%; border-collapse:separate; border-spacing:0; font-size:13px; }
+        .sc-table th, .sc-table td { padding:8px 10px; text-align:left; border-bottom:1px solid var(--border-subtle); white-space:nowrap; }
+        .sc-table thead th { background:var(--bg-card); font-size:11px; font-weight:700; color:var(--text-muted); letter-spacing:0.5px; text-transform:uppercase; position:sticky; top:0; z-index:3; }
+        .sc-table thead th.sc-week-col { color:var(--accent-cyan); text-align:center; min-width:170px; }
+        .sc-table thead th.sc-week-col.sc-current { background:rgba(6,182,212,0.18); color:white; }
+        .sc-table tbody td.sc-metric { color:var(--text-secondary); font-weight:500; min-width:280px; white-space:normal; position:sticky; left:0; background:var(--bg-secondary); z-index:1; }
+        .sc-table tbody tr:hover td.sc-metric { background:var(--bg-card-hover); }
+        .sc-dept-row td { background:rgba(59,130,246,0.10); color:var(--accent-cyan); font-weight:700; font-size:12px; letter-spacing:0.8px; text-transform:uppercase; padding:10px; position:sticky; left:0; }
+        .sc-table td.sc-cell { text-align:center; }
+        .sc-cell input { width:120px; padding:6px 8px; background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:6px; color:var(--text-primary); font-family:'JetBrains Mono',monospace; font-size:13px; text-align:right; transition:all 0.2s; }
+        .sc-cell input:focus { outline:none; border-color:var(--accent-cyan); background:var(--bg-card-hover); }
+        .sc-cell.sc-pass input { background:rgba(16,185,129,0.10); border-color:rgba(16,185,129,0.5); color:var(--accent-emerald); }
+        .sc-cell.sc-fail input { background:rgba(244,63,94,0.10); border-color:rgba(244,63,94,0.5); color:var(--accent-rose); }
+        .sc-target-col { color:var(--accent-amber) !important; min-width:160px; background:var(--bg-card) !important; position:sticky; left:280px; z-index:2; }
+        .sc-table tbody td.sc-target-cell { padding:6px 8px; position:sticky; left:280px; background:var(--bg-secondary); z-index:1; }
+        .sc-target-cell .sc-target-row { display:flex; gap:4px; align-items:center; justify-content:center; }
+        .sc-comp { padding:6px 4px; background:var(--bg-card); border:1px solid rgba(245,158,11,0.3); border-radius:6px; color:var(--accent-amber); font-size:13px; cursor:pointer; font-weight:700; }
+        .sc-comp:focus { outline:none; border-color:var(--accent-amber); }
+        .sc-target-cell input { width:80px; padding:6px 8px; background:var(--bg-card); border:1px solid rgba(245,158,11,0.3); border-radius:6px; color:var(--accent-amber); font-family:'JetBrains Mono',monospace; font-size:13px; text-align:right; font-weight:700; }
+        .sc-target-cell input:focus { outline:none; border-color:var(--accent-amber); }
+
+        .month-jump { display:flex; gap:4px; margin-bottom:12px; flex-wrap:wrap; }
+        .month-btn { padding:6px 12px; background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:6px; color:var(--text-secondary); font-size:11px; font-weight:600; cursor:pointer; text-transform:uppercase; letter-spacing:0.5px; transition:all 0.2s; }
+        .month-btn:hover { background:var(--bg-card-hover); color:var(--text-primary); }
+        .month-btn.current { background:var(--accent-cyan); color:white; border-color:var(--accent-cyan); }
+
+        @media (max-width:720px){ .sc-cell input{width:90px} .sc-target-cell input{width:70px} }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <div class="logo-mark">N10</div>
+            <div>
+                <div class="header-title">Scorecard Anual</div>
+                <div class="header-subtitle">KPIs Semanales por Departamento</div>
+            </div>
+        </div>
+        <div class="header-right">
+            <select class="year-select" id="yearSelect" onchange="changeYear()"></select>
+            <a class="btn-back" href="/">&#8592; Volver a Reunion</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="info-bar">
+            Cada columna representa una semana laboral (lunes a viernes). Los datos se cargan los lunes con la informacion de la semana anterior.
+            Ediciones se guardan automaticamente. Las celdas se colorean en <strong style="color:var(--accent-emerald)">verde</strong> si cumplen el objetivo, en <strong style="color:var(--accent-rose)">rojo</strong> si no.
+        </div>
+        <div class="month-jump" id="monthJump"></div>
+        <div class="sc-wrap">
+            <div id="scorecardContainer"></div>
+        </div>
+    </main>
+
+<script>
+const SCORECARD_METRICS = [
+    { dept:'Administracion', items:[
+        { key:'admin_dinero_entro',     label:'Dinero que entro en la semana' },
+        { key:'admin_cuentas_cobrar',   label:'Cuentas a cobrar totales' },
+        { key:'admin_cuentas_pagar',    label:'Cuentas a pagar totales' },
+        { key:'admin_saldo_caja',       label:'Saldo en caja / disponibilidades' },
+        { key:'admin_demora_cobranza',  label:'Demora en cobranza (dias)' },
+        { key:'admin_facturas_emitidas',label:'Facturas emitidas en la semana' },
+    ]},
+    { dept:'Operaciones', items:[
+        { key:'ops_pedidos_armados',   label:'Pedidos armados en la semana' },
+        { key:'ops_cupos_entregados',  label:'Cupos entregados' },
+        { key:'ops_viajes_realizados', label:'Viajes realizados' },
+        { key:'ops_faltantes_stock',   label:'Faltantes de stock' },
+        { key:'ops_reclamos_clientes', label:'Reclamos recibidos de clientes' },
+    ]},
+    { dept:'Comercial', items:[
+        { key:'com_licit_participamos',     label:'Licitaciones en las que participamos' },
+        { key:'com_licit_ganadas',          label:'Licitaciones / lineas ganadas en la semana' },
+        { key:'com_licit_perdidas_mes',     label:'Licitaciones / lineas perdidas acumuladas (mes)' },
+    ]},
+    { dept:'Recursos Humanos', items:[
+        { key:'rrhh_ausentes',         label:'Ausentes de cuantos' },
+        { key:'rrhh_llegadas_tarde',   label:'Llegadas tarde de cuantos' },
+        { key:'rrhh_accidentes',       label:'Accidentes o incidentes laborales' },
+        { key:'rrhh_ingresos_egresos', label:'Ingresos y egresos de personal en la semana' },
+    ]},
+];
+const MONTHS=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const DAYS_SHORT=['dom','lun','mar','mie','jue','vie','sab'];
+
+let valuesByWeek={}, targets={}, currentYear=new Date().getFullYear(), allMondays=[];
+
+async function api(method, url, body){
+    const opts={method, headers:{'Content-Type':'application/json'}};
+    if(body) opts.body=JSON.stringify(body);
+    const r=await fetch(url, opts);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    return r.json();
+}
+
+function isoMonday(date){
+    const d=new Date(date);
+    const day=d.getDay();
+    const diff=day===0?-6:1-day;
+    d.setDate(d.getDate()+diff);
+    return d.toISOString().slice(0,10);
+}
+
+function generateMondays(year){
+    // First Monday of the year
+    let d=new Date(year,0,1);
+    while(d.getDay()!==1) d.setDate(d.getDate()+1);
+    const list=[];
+    while(d.getFullYear()===year){
+        list.push(d.toISOString().slice(0,10));
+        d.setDate(d.getDate()+7);
+    }
+    return list;
+}
+
+function formatWeekRange(monday){
+    const m=new Date(monday+'T00:00:00');
+    const f=new Date(m); f.setDate(f.getDate()+4);
+    return `${DAYS_SHORT[m.getDay()]} ${m.getDate()}/${m.getMonth()+1} a ${DAYS_SHORT[f.getDay()]} ${f.getDate()}/${f.getMonth()+1}`;
+}
+
+function evalRule(value, target, comparator){
+    if(value===''||value==null||target===''||target==null) return null;
+    const v=Number(value), t=Number(target);
+    if(isNaN(v)||isNaN(t)) return null;
+    switch(comparator||'>='){
+        case '>=': return v>=t;
+        case '<=': return v<=t;
+        case '>':  return v>t;
+        case '<':  return v<t;
+        case '=':  return v===t;
+    }
+    return null;
+}
+
+function todayMonday(){
+    const d=new Date();
+    const day=d.getDay();
+    const diff=day===0?-6:1-day;
+    d.setDate(d.getDate()+diff);
+    return d.toISOString().slice(0,10);
+}
+
+async function load(){
+    try {
+        const data=await api('GET','/api/scorecard');
+        valuesByWeek={};
+        for(const w of (data.weeks||[])) valuesByWeek[w.week_of]=w.values||{};
+        targets=data.targets||{};
+    } catch(e){ valuesByWeek={}; targets={}; }
+    render();
+}
+
+function initYearSelect(){
+    const sel=document.getElementById('yearSelect');
+    const ny=new Date().getFullYear();
+    sel.innerHTML='';
+    for(let y=ny-2;y<=ny+1;y++){
+        const opt=document.createElement('option');
+        opt.value=y; opt.textContent=y;
+        if(y===currentYear) opt.selected=true;
+        sel.appendChild(opt);
+    }
+}
+
+function changeYear(){
+    currentYear=parseInt(document.getElementById('yearSelect').value);
+    render();
+}
+
+function renderMonthJump(){
+    const c=document.getElementById('monthJump');
+    const today=new Date();
+    const currentMonth=today.getFullYear()===currentYear?today.getMonth():-1;
+    c.innerHTML=MONTHS.map((m,i)=>{
+        const cls=i===currentMonth?'month-btn current':'month-btn';
+        return `<button class="${cls}" onclick="jumpToMonth(${i})">${m}</button>`;
+    }).join('');
+}
+
+function jumpToMonth(m){
+    const idx=allMondays.findIndex(mon=>{
+        const d=new Date(mon+'T00:00:00');
+        return d.getMonth()===m;
+    });
+    if(idx<0) return;
+    const headers=document.querySelectorAll('.sc-week-col');
+    if(headers[idx]) headers[idx].scrollIntoView({behavior:'smooth',inline:'start',block:'nearest'});
+}
+
+function render(){
+    initYearSelect();
+    renderMonthJump();
+    allMondays=generateMondays(currentYear);
+    const todayWk=todayMonday();
+    const c=document.getElementById('scorecardContainer');
+
+    const weekHeaders=allMondays.map(wk=>{
+        const cls=wk===todayWk?'sc-week-col sc-current':'sc-week-col';
+        return `<th class="${cls}" data-week="${wk}">${formatWeekRange(wk)}</th>`;
+    }).join('');
+    const header=`<thead><tr><th>Indicador</th><th class="sc-target-col">Objetivo</th>${weekHeaders}</tr></thead>`;
+
+    let body='<tbody>';
+    const colCount=allMondays.length+2;
+    for(const dept of SCORECARD_METRICS){
+        body+=`<tr class="sc-dept-row"><td colspan="${colCount}">${dept.dept}</td></tr>`;
+        for(const m of dept.items){
+            const t=targets[m.key]||{value:'',comparator:'>='};
+            body+=`<tr><td class="sc-metric">${m.label}</td>`;
+            body+=`<td class="sc-target-cell"><div class="sc-target-row">
+                <select class="sc-comp" data-key="${m.key}" onchange="saveTarget('${m.key}')">
+                    <option value=">=" ${t.comparator==='>='?'selected':''}>&ge;</option>
+                    <option value="<=" ${t.comparator==='<='?'selected':''}>&le;</option>
+                    <option value=">"  ${t.comparator==='>'?'selected':''}>&gt;</option>
+                    <option value="<"  ${t.comparator==='<'?'selected':''}>&lt;</option>
+                    <option value="="  ${t.comparator==='='?'selected':''}>=</option>
+                </select>
+                <input type="number" step="any" value="${t.value}" data-key="${m.key}" data-field="target" placeholder="-" onblur="saveTarget('${m.key}')" onkeypress="if(event.key==='Enter')this.blur()">
+            </div></td>`;
+            for(const wk of allMondays){
+                const wkVals=valuesByWeek[wk]||{};
+                const val=wkVals[m.key]!==undefined?wkVals[m.key]:'';
+                const pass=evalRule(val,t.value,t.comparator);
+                const cls=pass===true?'sc-pass':pass===false?'sc-fail':'';
+                body+=`<td class="sc-cell ${cls}"><input type="number" step="any" value="${val}" data-week="${wk}" data-key="${m.key}" onblur="saveCell(this)" onkeypress="if(event.key==='Enter')this.blur()"></td>`;
+            }
+            body+='</tr>';
+        }
+    }
+    body+='</tbody>';
+    c.innerHTML=`<table class="sc-table">${header}${body}</table>`;
+    // Auto-scroll to today's week
+    setTimeout(()=>{
+        const cur=document.querySelector('.sc-week-col.sc-current');
+        if(cur) cur.scrollIntoView({inline:'center',block:'nearest'});
+    },50);
+}
+
+async function saveCell(input){
+    const week_of=input.dataset.week, metric_key=input.dataset.key, value=input.value;
+    try {
+        await api('PUT','/api/scorecard/cell',{week_of, metric_key, value});
+        if(!valuesByWeek[week_of]) valuesByWeek[week_of]={};
+        valuesByWeek[week_of][metric_key]=value===''?'':Number(value);
+        // Update visual color of this cell only (no full re-render to keep focus)
+        const td=input.closest('td');
+        const t=targets[metric_key]||{};
+        const pass=evalRule(value, t.value, t.comparator);
+        td.classList.remove('sc-pass','sc-fail');
+        if(pass===true) td.classList.add('sc-pass');
+        else if(pass===false) td.classList.add('sc-fail');
+    } catch(e){
+        input.style.borderColor='var(--accent-rose)';
+    }
+}
+
+async function saveTarget(key){
+    const compEl=document.querySelector(`select.sc-comp[data-key="${key}"]`);
+    const valEl=document.querySelector(`input[data-key="${key}"][data-field="target"]`);
+    if(!compEl||!valEl) return;
+    const target_value=valEl.value, comparator=compEl.value;
+    try {
+        await api('PUT',`/api/scorecard/targets/${encodeURIComponent(key)}`,{target_value, comparator});
+        targets[key]={value:target_value===''?'':Number(target_value), comparator};
+        render();
+    } catch(e){}
+}
+
+load();
+</script>
+</body>
+</html>
