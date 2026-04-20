@@ -71,6 +71,22 @@ async function initDB() {
     await pool.query(`ALTER TABLE history ADD COLUMN IF NOT EXISTS rocks_data JSONB DEFAULT '[]'`);
     await pool.query(`ALTER TABLE history ADD COLUMN IF NOT EXISTS checkins_data JSONB DEFAULT '[]'`);
     await pool.query(`ALTER TABLE history ADD COLUMN IF NOT EXISTS ids_data JSONB DEFAULT '[]'`);
+    // Scorecard tables — weekly KPIs by department, columns = Mondays
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS scorecard_weeks (
+            week_of DATE PRIMARY KEY,
+            created_at TIMESTAMPTZ DEFAULT NOW()
+        )
+    `);
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS scorecard (
+            week_of DATE NOT NULL,
+            metric_key TEXT NOT NULL,
+            value NUMERIC,
+            updated_at TIMESTAMPTZ DEFAULT NOW(),
+            PRIMARY KEY (week_of, metric_key)
+        )
+    `);
     console.log('Database tables ready');
 }
 
@@ -320,6 +336,77 @@ app.delete('/api/history/:id', async (req, res) => {
     } catch (e) {
         console.error(e);
         res.status(500).json({ error: 'DB error' });
+    }
+});
+
+// --- SCORECARD ---
+// Get all scorecard data: weeks list + cell values
+app.get('/api/scorecard', async (req, res) => {
+    try {
+        const weeksRes = await pool.query('SELECT week_of FROM scorecard_weeks ORDER BY week_of DESC');
+        const cellsRes = await pool.query('SELECT week_of, metric_key, value FROM scorecard');
+        const weeks = weeksRes.rows.map(r => {
+            const wk = r.week_of instanceof Date ? r.week_of.toISOString().slice(0,10) : String(r.week_of).slice(0,10);
+            return { week_of: wk, values: {} };
+        });
+        const byWeek = Object.fromEntries(weeks.map(w => [w.week_of, w]));
+        for (const c of cellsRes.rows) {
+            const wk = c.week_of instanceof Date ? c.week_of.toISOString().slice(0,10) : String(c.week_of).slice(0,10);
+            if (byWeek[wk]) byWeek[wk].values[c.metric_key] = c.value === null ? '' : Number(c.value);
+        }
+        res.json({ weeks });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: 'DB error' });
+    }
+});
+
+// Register a new week column
+app.post('/api/scorecard/week', async (req, res) => {
+    try {
+        const { week_of } = req.body;
+        if (!week_of) return res.status(400).json({ error: 'week_of required' });
+        await pool.query('INSERT INTO scorecard_weeks (week_of) VALUES ($1) ON CONFLICT DO NOTHING', [week_of]);
+        res.json({ ok: true, week_of });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: 'DB error' });
+    }
+});
+
+// Upsert a single cell
+app.put('/api/scorecard/cell', async (req, res) => {
+    try {
+        const { week_of, metric_key, value } = req.body;
+        if (!week_of || !metric_key) return res.status(400).json({ error: 'week_of and metric_key required' });
+        const numVal = (value === '' || value === null || value === undefined) ? null : Number(value);
+        await pool.query(
+            `INSERT INTO scorecard (week_of, metric_key, value, updated_at) VALUES ($1, $2, $3, NOW())
+             ON CONFLICT (week_of, metric_key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()`,
+            [week_of, metric_key, numVal]
+        );
+        res.json({ ok: true });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: 'DB error' });
+    }
+});
+
+// Delete a whole week (and its cells)
+app.delete('/api/scorecard/week/:week_of', async (req, res) => {
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        await client.query('DELETE FROM scorecard WHERE week_of = $1', [req.params.week_of]);
+        await client.query('DELETE FROM scorecard_weeks WHERE week_of = $1', [req.params.week_of]);
+        await client.query('COMMIT');
+        res.json({ ok: true });
+    } catch (e) {
+        await client.query('ROLLBACK');
+        console.error(e);
+        res.status(500).json({ error: 'DB error' });
+    } finally {
+        client.release();
     }
 });
 

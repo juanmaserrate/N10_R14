@@ -43,6 +43,22 @@
         .btn-reset:hover { background:rgba(244,63,94,0.22); }
         .btn-history { background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.3); color:var(--accent-violet); }
         .btn-history:hover { background:rgba(139,92,246,0.22); }
+        .btn-scorecard { background:rgba(6,182,212,0.12); border:1px solid rgba(6,182,212,0.3); color:var(--accent-cyan); }
+        .btn-scorecard:hover { background:rgba(6,182,212,0.22); }
+
+        /* Scorecard table */
+        .sc-table { width:100%; border-collapse:separate; border-spacing:0; font-size:13px; margin-top:12px; }
+        .sc-table th, .sc-table td { padding:8px 10px; text-align:left; border-bottom:1px solid var(--border-subtle); white-space:nowrap; }
+        .sc-table thead th { background:var(--bg-card); font-size:11px; font-weight:700; color:var(--text-muted); letter-spacing:0.8px; text-transform:uppercase; position:sticky; top:0; z-index:2; }
+        .sc-table thead th.sc-week-col { color:var(--accent-cyan); text-align:center; min-width:120px; position:relative; }
+        .sc-table thead th.sc-week-col .sc-week-del { position:absolute; top:4px; right:6px; background:none; border:none; color:var(--accent-rose); cursor:pointer; font-size:14px; opacity:0.4; }
+        .sc-table thead th.sc-week-col .sc-week-del:hover { opacity:1; }
+        .sc-dept-row td { background:rgba(59,130,246,0.08); color:var(--accent-cyan); font-weight:700; font-size:12px; letter-spacing:0.8px; text-transform:uppercase; padding:10px; }
+        .sc-table td.sc-metric { color:var(--text-secondary); font-weight:500; min-width:280px; white-space:normal; }
+        .sc-table td.sc-cell { text-align:center; }
+        .sc-cell input { width:100px; padding:6px 8px; background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:6px; color:var(--text-primary); font-family:'JetBrains Mono',monospace; font-size:13px; text-align:right; transition:border-color 0.2s; }
+        .sc-cell input:focus { outline:none; border-color:var(--accent-cyan); background:var(--bg-card-hover); }
+        .sc-empty { text-align:center; padding:40px; color:var(--text-muted); font-size:14px; }
 
         /* Layout */
         .main { position:relative; z-index:5; display:grid; grid-template-columns:300px 1fr; gap:0; height:calc(100vh - 85px); }
@@ -314,6 +330,7 @@
     </div>
     <div class="header-right">
         <div class="meeting-date" id="meetingDate"></div>
+        <button class="btn-ctrl btn-scorecard visible" onclick="toggleScorecard()">Scorecard</button>
         <button class="btn-ctrl btn-history visible" onclick="toggleHistory()">Historial</button>
         <button class="btn-ctrl btn-prev" id="btnPrev" onclick="prevStep()">&#9664; Anterior</button>
         <button class="btn-ctrl btn-reset" id="btnReset" onclick="confirmReset()">&#8635; Reiniciar</button>
@@ -445,6 +462,15 @@
             <div class="history-panel" id="historyPanel" style="display:none">
                 <div class="panel-title"><div class="panel-title-icon" style="background:rgba(139,92,246,0.15);color:#a78bfa;">H</div>Historial de Reuniones</div>
                 <div id="historyList"></div>
+            </div>
+
+            <!-- Scorecard -->
+            <div class="history-panel" id="scorecardPanel" style="display:none">
+                <div class="panel-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+                    <span style="display:flex;align-items:center;gap:12px"><div class="panel-title-icon" style="background:rgba(6,182,212,0.15);color:#22d3ee;">S</div>Scorecard Semanal</span>
+                    <button class="add-btn" onclick="addScorecardWeek()" style="background:linear-gradient(135deg,var(--accent-cyan),var(--accent-blue));width:auto;padding:0 18px;height:36px;font-size:13px;font-weight:600">+ Nueva Semana</button>
+                </div>
+                <div id="scorecardContainer" style="overflow-x:auto"></div>
             </div>
         </div>
     </main>
@@ -1398,6 +1424,113 @@ function renderHistory(history){
 
 async function deleteHistory(id){
     try { await api('DELETE',`/api/history/${id}`); loadHistory(); } catch(e){}
+}
+
+// === SCORECARD ===
+const SCORECARD_METRICS = [
+    { dept:'Administracion', items:[
+        { key:'admin_dinero_entro',     label:'Dinero que entro en la semana' },
+        { key:'admin_cuentas_cobrar',   label:'Cuentas a cobrar totales' },
+        { key:'admin_cuentas_pagar',    label:'Cuentas a pagar totales' },
+        { key:'admin_saldo_caja',       label:'Saldo en caja / disponibilidades' },
+        { key:'admin_demora_cobranza',  label:'Demora en cobranza (dias)' },
+        { key:'admin_facturas_emitidas',label:'Facturas emitidas en la semana' },
+    ]},
+    { dept:'Operaciones', items:[
+        { key:'ops_pedidos_armados',   label:'Pedidos armados en la semana' },
+        { key:'ops_cupos_entregados',  label:'Cupos entregados' },
+        { key:'ops_viajes_realizados', label:'Viajes realizados' },
+        { key:'ops_faltantes_stock',   label:'Faltantes de stock' },
+        { key:'ops_reclamos_clientes', label:'Reclamos recibidos de clientes' },
+    ]},
+    { dept:'Comercial', items:[
+        { key:'com_licit_participamos',     label:'Licitaciones en las que participamos' },
+        { key:'com_licit_ganadas',          label:'Licitaciones / lineas ganadas en la semana' },
+        { key:'com_licit_perdidas_mes',     label:'Licitaciones / lineas perdidas acumuladas (mes)' },
+    ]},
+    { dept:'Recursos Humanos', items:[
+        { key:'rrhh_ausentes',         label:'Ausentes de cuantos' },
+        { key:'rrhh_llegadas_tarde',   label:'Llegadas tarde de cuantos' },
+        { key:'rrhh_accidentes',       label:'Accidentes o incidentes laborales' },
+        { key:'rrhh_ingresos_egresos', label:'Ingresos y egresos de personal en la semana' },
+    ]},
+];
+
+function getMostRecentMonday(){
+    const d=new Date();
+    const day=d.getDay(); // 0=Sun..6=Sat
+    const diff=day===0?-6:1-day; // back to Monday
+    d.setDate(d.getDate()+diff);
+    return d.toISOString().slice(0,10);
+}
+
+function formatWeekHeader(iso){
+    const d=new Date(iso+'T00:00:00');
+    return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getFullYear()).slice(2)}`;
+}
+
+function toggleScorecard(){
+    const p=document.getElementById('scorecardPanel');
+    const vis=p.style.display==='none';
+    p.style.display=vis?'block':'none';
+    if(vis) loadScorecard();
+}
+
+async function loadScorecard(){
+    try {
+        const data=await api('GET','/api/scorecard');
+        renderScorecard(data.weeks||[]);
+    } catch(e){ renderScorecard([]); }
+}
+
+function renderScorecard(weeks){
+    const c=document.getElementById('scorecardContainer');
+    if(!weeks.length){
+        c.innerHTML=`<div class="sc-empty">Sin semanas cargadas. Hace click en "+ Nueva Semana" para empezar.</div>`;
+        return;
+    }
+    const header=`<thead><tr><th>Indicador</th>${weeks.map(w=>`<th class="sc-week-col">${formatWeekHeader(w.week_of)}<button class="sc-week-del" onclick="deleteScorecardWeek('${w.week_of}')" title="Eliminar semana">&times;</button></th>`).join('')}</tr></thead>`;
+    let body='<tbody>';
+    for(const dept of SCORECARD_METRICS){
+        body+=`<tr class="sc-dept-row"><td colspan="${weeks.length+1}">${dept.dept}</td></tr>`;
+        for(const m of dept.items){
+            body+=`<tr><td class="sc-metric">${m.label}</td>`;
+            for(const w of weeks){
+                const val=w.values[m.key]!==undefined?w.values[m.key]:'';
+                body+=`<td class="sc-cell"><input type="number" step="any" value="${val}" data-week="${w.week_of}" data-key="${m.key}" onblur="saveScorecardCell(this)" onkeypress="if(event.key==='Enter')this.blur()"></td>`;
+            }
+            body+='</tr>';
+        }
+    }
+    body+='</tbody>';
+    c.innerHTML=`<table class="sc-table">${header}${body}</table>`;
+}
+
+async function saveScorecardCell(input){
+    const week_of=input.dataset.week, metric_key=input.dataset.key, value=input.value;
+    try {
+        await api('PUT','/api/scorecard/cell',{week_of, metric_key, value});
+        input.style.borderColor='var(--accent-emerald)';
+        setTimeout(()=>input.style.borderColor='',800);
+    } catch(e){
+        input.style.borderColor='var(--accent-rose)';
+    }
+}
+
+async function addScorecardWeek(){
+    const wk=getMostRecentMonday();
+    try {
+        await api('POST','/api/scorecard/week',{week_of:wk});
+        loadScorecard();
+    } catch(e){ alert('Error al crear semana'); }
+}
+
+async function deleteScorecardWeek(week_of){
+    if(!confirm(`Eliminar semana del ${formatWeekHeader(week_of)} y todos sus datos?`)) return;
+    try {
+        await api('DELETE',`/api/scorecard/week/${week_of}`);
+        loadScorecard();
+    } catch(e){ alert('Error al eliminar semana'); }
 }
 
 init();
