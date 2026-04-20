@@ -49,8 +49,8 @@
         .sc-table td.sc-cell { text-align:center; }
         .sc-cell input { width:120px; padding:6px 8px; background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:6px; color:var(--text-primary); font-family:'JetBrains Mono',monospace; font-size:13px; text-align:right; transition:all 0.2s; }
         .sc-cell input:focus { outline:none; border-color:var(--accent-cyan); background:var(--bg-card-hover); }
-        .sc-cell.sc-pass input { background:rgba(16,185,129,0.10); border-color:rgba(16,185,129,0.5); color:var(--accent-emerald); }
-        .sc-cell.sc-fail input { background:rgba(244,63,94,0.10); border-color:rgba(244,63,94,0.5); color:var(--accent-rose); }
+        .sc-cell.sc-pass input { background:rgba(16,185,129,0.22); border-color:var(--accent-emerald); color:var(--accent-emerald); font-weight:700; box-shadow:0 0 0 1px rgba(16,185,129,0.3); }
+        .sc-cell.sc-fail input { background:rgba(244,63,94,0.22); border-color:var(--accent-rose); color:var(--accent-rose); font-weight:700; box-shadow:0 0 0 1px rgba(244,63,94,0.3); }
         .sc-target-col { color:var(--accent-amber) !important; min-width:160px; background:var(--bg-card) !important; position:sticky; left:280px; z-index:2; }
         .sc-table tbody td.sc-target-cell { padding:6px 8px; position:sticky; left:280px; background:var(--bg-secondary); z-index:1; }
         .sc-target-cell .sc-target-row { display:flex; gap:4px; align-items:center; justify-content:center; }
@@ -119,7 +119,8 @@ const SCORECARD_METRICS = [
         { key:'rrhh_ausentes',         label:'Ausentes de cuantos' },
         { key:'rrhh_llegadas_tarde',   label:'Llegadas tarde de cuantos' },
         { key:'rrhh_accidentes',       label:'Accidentes o incidentes laborales' },
-        { key:'rrhh_ingresos_egresos', label:'Ingresos y egresos de personal en la semana' },
+        { key:'rrhh_ingresos_personal', label:'Ingresos de personal en la semana' },
+        { key:'rrhh_egresos_personal',  label:'Egresos de personal en la semana' },
     ]},
 ];
 const MONTHS=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
