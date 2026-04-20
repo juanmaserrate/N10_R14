@@ -84,8 +84,8 @@
 
     <main class="container">
         <div class="info-bar">
-            Cada columna representa una semana laboral (lunes a viernes). Los datos se cargan los lunes con la informacion de la semana anterior.
-            Ediciones se guardan automaticamente. Las celdas se colorean en <strong style="color:var(--accent-emerald)">verde</strong> si cumplen el objetivo, en <strong style="color:var(--accent-rose)">rojo</strong> si no.
+            Cada columna es una semana laboral (lunes a viernes). <strong>Los lunes se cargan los datos de la semana anterior</strong> — ejemplo: hoy lunes 20/4 se carga la columna <strong style="color:var(--accent-cyan)">lun 13/4 a vie 17/4</strong> (resaltada en celeste).
+            Auto-guardado al salir de cada celda. Verde = <strong style="color:var(--accent-emerald)">cumple objetivo</strong>, rojo = <strong style="color:var(--accent-rose)">no cumple</strong>.
         </div>
         <div class="month-jump" id="monthJump"></div>
         <div class="sc-wrap">
@@ -175,11 +175,14 @@ function evalRule(value, target, comparator){
     return null;
 }
 
-function todayMonday(){
+function activeWeekMonday(){
+    // Datos se cargan los lunes con los numeros de la semana anterior.
+    // La columna 'activa' es siempre el lunes de la semana pasada.
     const d=new Date();
     const day=d.getDay();
     const diff=day===0?-6:1-day;
-    d.setDate(d.getDate()+diff);
+    d.setDate(d.getDate()+diff); // lunes de esta semana
+    d.setDate(d.getDate()-7);    // lunes de la semana anterior
     return d.toISOString().slice(0,10);
 }
 
@@ -212,10 +215,10 @@ function changeYear(){
 
 function renderMonthJump(){
     const c=document.getElementById('monthJump');
-    const today=new Date();
-    const currentMonth=today.getFullYear()===currentYear?today.getMonth():-1;
+    const active=new Date(activeWeekMonday()+'T00:00:00');
+    const activeMonth=active.getFullYear()===currentYear?active.getMonth():-1;
     c.innerHTML=MONTHS.map((m,i)=>{
-        const cls=i===currentMonth?'month-btn current':'month-btn';
+        const cls=i===activeMonth?'month-btn current':'month-btn';
         return `<button class="${cls}" onclick="jumpToMonth(${i})">${m}</button>`;
     }).join('');
 }
@@ -234,11 +237,11 @@ function render(){
     initYearSelect();
     renderMonthJump();
     allMondays=generateMondays(currentYear);
-    const todayWk=todayMonday();
+    const activeWk=activeWeekMonday();
     const c=document.getElementById('scorecardContainer');
 
     const weekHeaders=allMondays.map(wk=>{
-        const cls=wk===todayWk?'sc-week-col sc-current':'sc-week-col';
+        const cls=wk===activeWk?'sc-week-col sc-current':'sc-week-col';
         return `<th class="${cls}" data-week="${wk}">${formatWeekRange(wk)}</th>`;
     }).join('');
     const header=`<thead><tr><th>Indicador</th><th class="sc-target-col">Objetivo</th>${weekHeaders}</tr></thead>`;

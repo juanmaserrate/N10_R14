@@ -56,6 +56,7 @@
         .sc-mini-table th, .sc-mini-table td { padding:6px 8px; text-align:left; border-bottom:1px solid var(--border-subtle); white-space:nowrap; }
         .sc-mini-table thead th { background:var(--bg-card); font-size:10px; font-weight:700; color:var(--text-muted); letter-spacing:0.5px; text-transform:uppercase; position:sticky; top:0; z-index:2; }
         .sc-mini-week { color:var(--accent-cyan) !important; text-align:center; min-width:130px; }
+        .sc-mini-week.sc-mini-current { background:rgba(6,182,212,0.18) !important; color:white !important; }
         .sc-mini-target-col { color:var(--accent-amber) !important; text-align:center; min-width:80px; }
         .sc-mini-dept td { background:rgba(59,130,246,0.08); color:var(--accent-cyan); font-weight:700; font-size:11px; letter-spacing:0.6px; text-transform:uppercase; padding:8px; }
         .sc-mini-metric { color:var(--text-secondary); font-weight:500; min-width:220px; white-space:normal; }
@@ -967,7 +968,8 @@ function buildModalScorecard(){
     const mondays=generateMondaysOfMonth(ym);
     const valsByWeek=Object.fromEntries(scorecardWeeks.map(w=>[w.week_of, w.values||{}]));
 
-    const headerCells=mondays.map(wk=>`<th class="sc-mini-week">${formatWeekRange(wk)}</th>`).join('');
+    const activeWk=activeWeekMonday();
+    const headerCells=mondays.map(wk=>`<th class="sc-mini-week${wk===activeWk?' sc-mini-current':''}">${formatWeekRange(wk)}</th>`).join('');
     const colCount=mondays.length+2;
 
     let body='';
@@ -1546,8 +1548,19 @@ function generateMondaysOfMonth(yearMonth){
     return list;
 }
 
-function currentMonthYM(){
+function activeWeekMonday(){
+    // Datos se cargan los lunes con los numeros de la semana anterior
     const d=new Date();
+    const day=d.getDay();
+    const diff=day===0?-6:1-day;
+    d.setDate(d.getDate()+diff);
+    d.setDate(d.getDate()-7);
+    return d.toISOString().slice(0,10);
+}
+
+function currentMonthYM(){
+    // Mes que contiene la semana activa (la que se esta cargando)
+    const d=new Date(activeWeekMonday()+'T00:00:00');
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 }
 
