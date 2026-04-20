@@ -969,6 +969,14 @@ function buildModalContent(stepId){
     }
 }
 
+function formatScorecardNum(n, metric){
+    if(n===''||n==null||n===undefined) return '';
+    const num=Number(n);
+    if(isNaN(num)) return '';
+    const str=num.toLocaleString('es-AR',{maximumFractionDigits:2});
+    return (metric && metric.money) ? '$ '+str : str;
+}
+
 function buildModalScorecard(){
     if(!scorecardModalMonth) scorecardModalMonth=currentMonthYM();
     const ym=scorecardModalMonth;
@@ -984,14 +992,14 @@ function buildModalScorecard(){
         body+=`<tr class="sc-mini-dept"><td colspan="${colCount}">${dept.dept}</td></tr>`;
         for(const m of dept.items){
             const t=scorecardTargets[m.key]||{value:'',comparator:'>='};
-            const targetDisp=(t.value!==''&&t.value!=null)?`${t.comparator||'>='} ${t.value}`:'—';
+            const targetDisp=(t.value!==''&&t.value!=null)?`${t.comparator||'>='} ${formatScorecardNum(t.value, m)}`:'—';
             body+=`<tr><td class="sc-mini-metric">${m.label}</td><td class="sc-mini-target">${targetDisp}</td>`;
             for(const wk of mondays){
                 const wv=valsByWeek[wk]||{};
                 const val=wv[m.key];
                 const pass=evalScorecardRule(val,t.value,t.comparator);
                 const cls=pass===true?'sc-pass':pass===false?'sc-fail':'';
-                const disp=(val===undefined||val===null||val==='')?'—':val;
+                const disp=(val===undefined||val===null||val==='')?'—':formatScorecardNum(val, m);
                 body+=`<td class="sc-mini-cell ${cls}">${disp}</td>`;
             }
             body+='</tr>';
@@ -1514,10 +1522,10 @@ async function deleteHistory(id){
 // === SCORECARD ===
 const SCORECARD_METRICS = [
     { dept:'Administracion', items:[
-        { key:'admin_dinero_entro',     label:'Dinero que entro en la semana' },
-        { key:'admin_cuentas_cobrar',   label:'Cuentas a cobrar totales' },
-        { key:'admin_cuentas_pagar',    label:'Cuentas a pagar totales' },
-        { key:'admin_saldo_caja',       label:'Saldo en caja / disponibilidades' },
+        { key:'admin_dinero_entro',     label:'Dinero que entro en la semana', money:true },
+        { key:'admin_cuentas_cobrar',   label:'Cuentas a cobrar totales', money:true },
+        { key:'admin_cuentas_pagar',    label:'Cuentas a pagar totales', money:true },
+        { key:'admin_saldo_caja',       label:'Saldo en caja / disponibilidades', money:true },
         { key:'admin_demora_cobranza',  label:'Demora en cobranza (dias)' },
         { key:'admin_facturas_emitidas',label:'Facturas emitidas en la semana' },
     ]},

@@ -47,7 +47,7 @@
         .sc-table tbody tr:hover td.sc-metric { background:var(--bg-card-hover); }
         .sc-dept-row td { background:rgba(59,130,246,0.10); color:var(--accent-cyan); font-weight:700; font-size:12px; letter-spacing:0.8px; text-transform:uppercase; padding:10px; position:sticky; left:0; }
         .sc-table td.sc-cell { text-align:center; }
-        .sc-cell input { width:120px; padding:6px 8px; background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:6px; color:var(--text-primary); font-family:'JetBrains Mono',monospace; font-size:13px; text-align:right; transition:all 0.2s; }
+        .sc-cell input { width:120px; padding:6px 8px; background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:6px; color:var(--text-primary); font-family:'JetBrains Mono',monospace; font-size:13px; text-align:center; transition:all 0.2s; }
         .sc-cell input:focus { outline:none; border-color:var(--accent-cyan); background:var(--bg-card-hover); }
         .sc-cell.sc-pass input { background:rgba(16,185,129,0.22); border-color:var(--accent-emerald); color:var(--accent-emerald); font-weight:700; box-shadow:0 0 0 1px rgba(16,185,129,0.3); }
         .sc-cell.sc-fail input { background:rgba(244,63,94,0.22); border-color:var(--accent-rose); color:var(--accent-rose); font-weight:700; box-shadow:0 0 0 1px rgba(244,63,94,0.3); }
@@ -56,7 +56,7 @@
         .sc-target-cell .sc-target-row { display:flex; gap:4px; align-items:center; justify-content:center; }
         .sc-comp { padding:6px 4px; background:var(--bg-card); border:1px solid rgba(245,158,11,0.3); border-radius:6px; color:var(--accent-amber); font-size:13px; cursor:pointer; font-weight:700; }
         .sc-comp:focus { outline:none; border-color:var(--accent-amber); }
-        .sc-target-cell input { width:80px; padding:6px 8px; background:var(--bg-card); border:1px solid rgba(245,158,11,0.3); border-radius:6px; color:var(--accent-amber); font-family:'JetBrains Mono',monospace; font-size:13px; text-align:right; font-weight:700; }
+        .sc-target-cell input { width:90px; padding:6px 8px; background:var(--bg-card); border:1px solid rgba(245,158,11,0.3); border-radius:6px; color:var(--accent-amber); font-family:'JetBrains Mono',monospace; font-size:13px; text-align:center; font-weight:700; }
         .sc-target-cell input:focus { outline:none; border-color:var(--accent-amber); }
 
         .month-jump { display:flex; gap:4px; margin-bottom:12px; flex-wrap:wrap; }
@@ -96,10 +96,10 @@
 <script>
 const SCORECARD_METRICS = [
     { dept:'Administracion', items:[
-        { key:'admin_dinero_entro',     label:'Dinero que entro en la semana' },
-        { key:'admin_cuentas_cobrar',   label:'Cuentas a cobrar totales' },
-        { key:'admin_cuentas_pagar',    label:'Cuentas a pagar totales' },
-        { key:'admin_saldo_caja',       label:'Saldo en caja / disponibilidades' },
+        { key:'admin_dinero_entro',     label:'Dinero que entro en la semana', money:true },
+        { key:'admin_cuentas_cobrar',   label:'Cuentas a cobrar totales', money:true },
+        { key:'admin_cuentas_pagar',    label:'Cuentas a pagar totales', money:true },
+        { key:'admin_saldo_caja',       label:'Saldo en caja / disponibilidades', money:true },
         { key:'admin_demora_cobranza',  label:'Demora en cobranza (dias)' },
         { key:'admin_facturas_emitidas',label:'Facturas emitidas en la semana' },
     ]},
@@ -127,6 +127,23 @@ const MONTHS=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov',
 const DAYS_SHORT=['dom','lun','mar','mie','jue','vie','sab'];
 
 let valuesByWeek={}, targets={}, currentYear=new Date().getFullYear(), allMondays=[];
+
+const METRIC_BY_KEY={};
+for(const d of SCORECARD_METRICS) for(const m of d.items) METRIC_BY_KEY[m.key]=m;
+
+function parseNum(str){
+    if(str===''||str==null) return '';
+    const cleaned=String(str).replace(/[$\s]/g,'').replace(/\./g,'').replace(',','.');
+    const n=Number(cleaned);
+    return isNaN(n)?'':n;
+}
+function formatNum(n, key){
+    if(n===''||n==null||n===undefined) return '';
+    const num=Number(n);
+    if(isNaN(num)) return '';
+    const str=num.toLocaleString('es-AR',{maximumFractionDigits:2});
+    return (key && METRIC_BY_KEY[key] && METRIC_BY_KEY[key].money) ? '$ '+str : str;
+}
 
 async function api(method, url, body){
     const opts={method, headers:{'Content-Type':'application/json'}};
@@ -262,14 +279,14 @@ function render(){
                     <option value="<"  ${t.comparator==='<'?'selected':''}>&lt;</option>
                     <option value="="  ${t.comparator==='='?'selected':''}>=</option>
                 </select>
-                <input type="number" step="any" value="${t.value}" data-key="${m.key}" data-field="target" placeholder="-" onblur="saveTarget('${m.key}')" onkeypress="if(event.key==='Enter')this.blur()">
+                <input type="text" inputmode="decimal" value="${formatNum(t.value, m.key)}" data-key="${m.key}" data-field="target" placeholder="-" onfocus="this.value=(this.value===''?'':String(targets['${m.key}']?.value??''))" onblur="saveTarget('${m.key}')" onkeypress="if(event.key==='Enter')this.blur()">
             </div></td>`;
             for(const wk of allMondays){
                 const wkVals=valuesByWeek[wk]||{};
                 const val=wkVals[m.key]!==undefined?wkVals[m.key]:'';
                 const pass=evalRule(val,t.value,t.comparator);
                 const cls=pass===true?'sc-pass':pass===false?'sc-fail':'';
-                body+=`<td class="sc-cell ${cls}"><input type="number" step="any" value="${val}" data-week="${wk}" data-key="${m.key}" onblur="saveCell(this)" onkeypress="if(event.key==='Enter')this.blur()"></td>`;
+                body+=`<td class="sc-cell ${cls}"><input type="text" inputmode="decimal" value="${formatNum(val, m.key)}" data-week="${wk}" data-key="${m.key}" onfocus="this.value=(valuesByWeek['${wk}']?.['${m.key}']??'')===''?'':String(valuesByWeek['${wk}']['${m.key}'])" onblur="saveCell(this)" onkeypress="if(event.key==='Enter')this.blur()"></td>`;
             }
             body+='</tr>';
         }
@@ -284,12 +301,14 @@ function render(){
 }
 
 async function saveCell(input){
-    const week_of=input.dataset.week, metric_key=input.dataset.key, value=input.value;
+    const week_of=input.dataset.week, metric_key=input.dataset.key;
+    const raw=parseNum(input.value);
+    const value=raw===''?'':raw;
     try {
         await api('PUT','/api/scorecard/cell',{week_of, metric_key, value});
         if(!valuesByWeek[week_of]) valuesByWeek[week_of]={};
-        valuesByWeek[week_of][metric_key]=value===''?'':Number(value);
-        // Update visual color of this cell only (no full re-render to keep focus)
+        valuesByWeek[week_of][metric_key]=value;
+        input.value=formatNum(value, metric_key);
         const td=input.closest('td');
         const t=targets[metric_key]||{};
         const pass=evalRule(value, t.value, t.comparator);
@@ -305,10 +324,12 @@ async function saveTarget(key){
     const compEl=document.querySelector(`select.sc-comp[data-key="${key}"]`);
     const valEl=document.querySelector(`input[data-key="${key}"][data-field="target"]`);
     if(!compEl||!valEl) return;
-    const target_value=valEl.value, comparator=compEl.value;
+    const raw=parseNum(valEl.value);
+    const target_value=raw===''?'':raw;
+    const comparator=compEl.value;
     try {
         await api('PUT',`/api/scorecard/targets/${encodeURIComponent(key)}`,{target_value, comparator});
-        targets[key]={value:target_value===''?'':Number(target_value), comparator};
+        targets[key]={value:target_value, comparator};
         render();
     } catch(e){}
 }
