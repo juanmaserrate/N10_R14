@@ -87,6 +87,13 @@ async function initDB() {
             PRIMARY KEY (week_of, metric_key)
         )
     `);
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS scorecard_targets (
+            metric_key TEXT PRIMARY KEY,
+            target_value NUMERIC,
+            comparator TEXT DEFAULT '>='
+        )
+    `);
     console.log('Database tables ready');
 }
 
@@ -340,11 +347,12 @@ app.delete('/api/history/:id', async (req, res) => {
 });
 
 // --- SCORECARD ---
-// Get all scorecard data: weeks list + cell values
+// Get all scorecard data: weeks list + cell values + targets
 app.get('/api/scorecard', async (req, res) => {
     try {
         const weeksRes = await pool.query('SELECT week_of FROM scorecard_weeks ORDER BY week_of DESC');
         const cellsRes = await pool.query('SELECT week_of, metric_key, value FROM scorecard');
+        const targetsRes = await pool.query('SELECT metric_key, target_value, comparator FROM scorecard_targets');
         const weeks = weeksRes.rows.map(r => {
             const wk = r.week_of instanceof Date ? r.week_of.toISOString().slice(0,10) : String(r.week_of).slice(0,10);
             return { week_of: wk, values: {} };
@@ -354,7 +362,33 @@ app.get('/api/scorecard', async (req, res) => {
             const wk = c.week_of instanceof Date ? c.week_of.toISOString().slice(0,10) : String(c.week_of).slice(0,10);
             if (byWeek[wk]) byWeek[wk].values[c.metric_key] = c.value === null ? '' : Number(c.value);
         }
-        res.json({ weeks });
+        const targets = {};
+        for (const t of targetsRes.rows) {
+            targets[t.metric_key] = {
+                value: t.target_value === null ? '' : Number(t.target_value),
+                comparator: t.comparator || '>='
+            };
+        }
+        res.json({ weeks, targets });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: 'DB error' });
+    }
+});
+
+// Upsert target value + comparator for a metric
+app.put('/api/scorecard/targets/:key', async (req, res) => {
+    try {
+        const { target_value, comparator } = req.body;
+        const numVal = (target_value === '' || target_value === null || target_value === undefined) ? null : Number(target_value);
+        const validComps = ['>=','<=','>','<','='];
+        const comp = validComps.includes(comparator) ? comparator : '>=';
+        await pool.query(
+            `INSERT INTO scorecard_targets (metric_key, target_value, comparator) VALUES ($1, $2, $3)
+             ON CONFLICT (metric_key) DO UPDATE SET target_value = EXCLUDED.target_value, comparator = EXCLUDED.comparator`,
+            [req.params.key, numVal, comp]
+        );
+        res.json({ ok: true });
     } catch (e) {
         console.error(e);
         res.status(500).json({ error: 'DB error' });
