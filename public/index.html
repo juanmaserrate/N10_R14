@@ -729,7 +729,7 @@ function goToStep(index) {
     document.getElementById(`timer-${agenda[index].id}`).textContent=formatTime(agenda[index].duration);
     const showPrev=currentStep>0;
     document.getElementById('btnPrev').classList.toggle('visible',showPrev);
-    document.getElementById('btnModalPrev').style.display=showPrev?'':'none';
+    const _bmp=document.getElementById('btnModalPrev'); if(_bmp) _bmp.style.display=showPrev?'':'none';
     updateProgress(); showModal(agenda[index]);
     // For segue step, auto-launch check-in popup for first pending participant
     if(agenda[index].id==='segue'){
