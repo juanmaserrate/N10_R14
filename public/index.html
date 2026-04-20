@@ -264,27 +264,36 @@
         .history-empty { font-size:13px; color:var(--text-muted); text-align:center; padding:20px; }
 
         /* Modal */
-        .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(8px); z-index:100; align-items:center; justify-content:center; }
+        .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); z-index:100; align-items:center; justify-content:center; }
         .modal-overlay.show { display:flex; animation:fadeIn 0.3s ease; }
-        .modal { background:var(--bg-secondary); border-radius:24px; padding:48px; max-width:520px; width:90%; border:1px solid var(--border-subtle); box-shadow:0 25px 80px rgba(0,0,0,0.5); text-align:center; animation:slideUp 0.3s ease; }
-        .modal-timer { font-family:'JetBrains Mono',monospace; font-size:72px; font-weight:800; background:linear-gradient(135deg,var(--accent-cyan),var(--accent-blue)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin:24px 0; }
+        .modal { background:var(--bg-secondary); border-radius:24px; padding:28px 36px; max-width:780px; max-height:90vh; width:94%; border:1px solid var(--border-subtle); box-shadow:0 25px 80px rgba(0,0,0,0.5); text-align:center; animation:slideUp 0.3s ease; display:flex; flex-direction:column; gap:0; }
+        .modal-head { display:flex; align-items:center; gap:20px; padding-bottom:16px; border-bottom:1px solid var(--border-subtle); flex-shrink:0; }
+        .modal-head-ring { flex-shrink:0; }
+        .modal-head-info { flex:1; text-align:left; }
+        .modal-step-name { font-size:20px; font-weight:800; margin-bottom:4px; }
+        .modal-step-desc { font-size:12px; color:var(--text-secondary); }
+        .modal-timer { font-family:'JetBrains Mono',monospace; font-size:40px; font-weight:800; background:linear-gradient(135deg,var(--accent-cyan),var(--accent-blue)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; flex-shrink:0; }
         .modal-timer.warning { background:linear-gradient(135deg,var(--accent-amber),#d97706); -webkit-background-clip:text; }
         .modal-timer.danger { background:linear-gradient(135deg,var(--accent-rose),#dc2626); -webkit-background-clip:text; animation:pulse 1s infinite; }
-        .modal-step-name { font-size:28px; font-weight:800; margin-bottom:8px; }
-        .modal-step-desc { font-size:14px; color:var(--text-secondary); margin-bottom:32px; }
-        .modal-buttons { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
-        .modal-btn { padding:12px 32px; border-radius:12px; border:none; font-weight:600; font-size:14px; cursor:pointer; transition:all 0.2s; }
+        .modal-interactive { flex:1; overflow-y:auto; text-align:left; padding:16px 0; min-height:80px; }
+        .modal-buttons { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; flex-shrink:0; padding-top:16px; border-top:1px solid var(--border-subtle); margin-top:8px; }
+        .modal-btn { padding:10px 24px; border-radius:12px; border:none; font-weight:600; font-size:13px; cursor:pointer; transition:all 0.2s; }
         .modal-btn-primary { background:linear-gradient(135deg,var(--accent-blue),var(--accent-cyan)); color:white; box-shadow:0 4px 20px rgba(59,130,246,0.3); }
         .modal-btn-primary:hover { transform:translateY(-1px); box-shadow:0 6px 30px rgba(59,130,246,0.4); }
         .modal-btn-secondary { background:rgba(255,255,255,0.05); color:var(--text-secondary); border:1px solid var(--border-subtle); }
         .modal-btn-secondary:hover { background:rgba(255,255,255,0.1); }
         .modal-btn-danger { background:rgba(244,63,94,0.15); color:var(--accent-rose); border:1px solid rgba(244,63,94,0.3); }
-        .timer-ring-container { position:relative; width:120px; height:120px; margin:0 auto 16px; }
+        .timer-ring-container { position:relative; width:72px; height:72px; }
         .timer-ring { transform:rotate(-90deg); }
-        .timer-ring-bg { fill:none; stroke:rgba(255,255,255,0.05); stroke-width:6; }
-        .timer-ring-progress { fill:none; stroke:var(--accent-cyan); stroke-width:6; stroke-linecap:round; transition:stroke-dashoffset 1s linear,stroke 0.3s; }
+        .timer-ring-bg { fill:none; stroke:rgba(255,255,255,0.05); stroke-width:5; }
+        .timer-ring-progress { fill:none; stroke:var(--accent-cyan); stroke-width:5; stroke-linecap:round; transition:stroke-dashoffset 1s linear,stroke 0.3s; }
         .timer-ring-progress.warning { stroke:var(--accent-amber); }
         .timer-ring-progress.danger { stroke:var(--accent-rose); }
+        /* Modal interactive sections */
+        .modal-section-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin:12px 0 8px; }
+        .modal-conclude-ratings { display:flex; flex-direction:column; gap:8px; }
+        .modal-conclude-todos { max-height:160px; overflow-y:auto; margin-top:8px; }
+        .modal-plain-desc { font-size:14px; color:var(--text-secondary); text-align:center; padding:24px 0; }
 
         ::-webkit-scrollbar { width:6px; }
         ::-webkit-scrollbar-track { background:transparent; }
@@ -858,10 +867,12 @@ function updateStepTimer(){
     const item=agenda[currentStep];
     const tEl=document.getElementById(`timer-${item.id}`), mEl=document.getElementById('modalTimer'), rEl=document.getElementById('timerRingProgress');
     const str=formatTime(Math.abs(stepTimeRemaining)), disp=stepTimeRemaining<0?`-${str}`:str;
-    tEl.textContent=disp; if(mEl) mEl.textContent=disp;
+    if(tEl) tEl.textContent=disp;
+    if(mEl) mEl.textContent=disp;
     let cls=''; if(stepTimeRemaining<0)cls='danger'; else if(stepTimeRemaining/item.duration<0.2)cls='warning';
-    tEl.className='agenda-timer '+cls; if(mEl) mEl.className='modal-timer '+cls;
-    if(rEl){ rEl.className.baseVal='timer-ring-progress '+cls; rEl.style.strokeDashoffset=2*Math.PI*54*(1-Math.max(0,stepTimeRemaining/item.duration)); }
+    if(tEl) tEl.className='agenda-timer '+cls;
+    if(mEl) mEl.className='modal-timer '+(cls||'');
+    if(rEl){ rEl.className.baseVal='timer-ring-progress '+(cls||''); rEl.style.strokeDashoffset=RING_CIRC*(1-Math.max(0,stepTimeRemaining/item.duration)); }
     if(isMinimized) updateFloatingTimer();
 }
 
@@ -878,69 +889,232 @@ function updateProgress(){
 }
 
 // === MODAL ===
-function showModal(item){
-    const n=document.getElementById('modalStepName'),t=document.getElementById('modalTimer'),d=document.getElementById('modalStepDesc'),r=document.getElementById('timerRingProgress');
-    if(n) n.textContent=item.name;
-    if(t) t.textContent=formatTime(item.duration);
-    if(d){
-        if(item.id==='conclude'){
-            let html='<div style="margin-bottom:12px">'+item.desc+'</div><div class="conclude-todos">';
-            if(todos.length===0){
-                html+='<div style="color:var(--text-muted);text-align:center;padding:8px">No hay To-Dos</div>';
-            } else {
-                todos.forEach(td=>{
-                    const chk=td.done?'<span style="color:var(--accent-emerald);font-weight:700">&#10003;</span>':'<span style="color:var(--accent-amber);font-weight:700">&#9675;</span>';
-                    html+=`<div class="conclude-todo-item">${chk}<span style="${td.done?'text-decoration:line-through;opacity:0.5':''}">${td.text}</span><span style="font-size:10px;color:var(--text-muted);margin-left:auto">${td.owner}</span></div>`;
-                });
-                const done=todos.filter(x=>x.done).length;
-                html+=`<div style="text-align:center;margin-top:8px;font-size:12px;color:var(--text-muted)">${done}/${todos.length} completados</div>`;
-            }
-            html+='</div>';
-            d.innerHTML=html;
-        } else {
-            d.textContent=item.desc;
-        }
-    }
-    if(r){ r.style.strokeDashoffset='0'; r.className.baseVal='timer-ring-progress'; }
-    const btnNext=document.getElementById('btnNext');
-    if(btnNext) btnNext.innerHTML=currentStep===agenda.length-1?'Finalizar &#10003;':'Siguiente &#9654;';
-    document.getElementById('modalOverlay').classList.add('show');
-    isPaused=false; const pb=document.getElementById('btnPause'); if(pb) pb.textContent='Pausar';
+const RING_R=30, RING_CIRC=2*Math.PI*RING_R;
+
+function modalButtons(){
+    const isLast=currentStep===agenda.length-1;
+    const showPrev=currentStep>0;
+    return `<div class="modal-buttons">
+        ${showPrev?`<button class="modal-btn modal-btn-danger" onclick="prevStep()">&#9664; Anterior</button>`:''}
+        <button class="modal-btn modal-btn-secondary" onclick="pauseTimer()" id="btnPause">Pausar</button>
+        <button class="modal-btn modal-btn-primary" onclick="nextStep()" id="btnNext">${isLast?'Finalizar &#10003;':'Siguiente &#9654;'}</button>
+        <button class="modal-btn modal-btn-secondary" onclick="minimizeModal()">Minimizar</button>
+    </div>`;
 }
+
+function modalHead(item){
+    return `<div class="modal-head">
+        <div class="modal-head-ring timer-ring-container" style="width:72px;height:72px">
+            <svg class="timer-ring" width="72" height="72">
+                <circle class="timer-ring-bg" cx="36" cy="36" r="${RING_R}"/>
+                <circle class="timer-ring-progress" id="timerRingProgress" cx="36" cy="36" r="${RING_R}" stroke-dasharray="${RING_CIRC.toFixed(2)}" stroke-dashoffset="0"/>
+            </svg>
+        </div>
+        <div class="modal-head-info">
+            <div class="modal-step-name" id="modalStepName">${item.name}</div>
+            <div class="modal-step-desc">${item.desc}</div>
+        </div>
+        <div class="modal-timer" id="modalTimer">${formatTime(stepTimeRemaining>0?stepTimeRemaining:item.duration)}</div>
+    </div>`;
+}
+
+function showModal(item){
+    const modal=document.getElementById('modalContent');
+    modal.innerHTML=modalHead(item)+`<div class="modal-interactive" id="modalInteractive">${buildModalContent(item.id)}</div>`+modalButtons();
+    document.getElementById('modalOverlay').classList.add('show');
+    isPaused=false;
+}
+
+function buildModalContent(stepId){
+    switch(stepId){
+        case 'rocks':     return buildModalRocks();
+        case 'headlines': return buildModalHeadlines();
+        case 'todos':     return buildModalTodos();
+        case 'ids':       return buildModalIDS();
+        case 'conclude':  return buildModalConclude();
+        default:          return '';
+    }
+}
+
+function syncModal(){
+    if(!meetingStarted||currentStep<0) return;
+    const el=document.getElementById('modalInteractive');
+    if(!el) return;
+    el.innerHTML=buildModalContent(agenda[currentStep].id);
+}
+
+// --- Modal content builders ---
+function ownerOpts(){ return participants.map(p=>`<option value="${p}">${p}</option>`).join(''); }
+
+function buildModalRocks(){
+    const grid=rocks.length===0
+        ?`<div style="color:var(--text-muted);font-size:12px;padding:12px;text-align:center">Sin rocas definidas</div>`
+        :rocks.map(r=>{
+            let dc='',dt='';
+            if(r.due_date){const d=getDaysLeft(r.due_date);if(d<0){dc='expired';dt=Math.abs(d)+'d vencida';}else if(d<=14){dc='expiring';dt=d+'d restantes';}else dt=d+'d restantes';}
+            return `<div class="rock-card ${r.on_track?'on-track':'off-track'}">
+                <div class="rock-header"><span class="todo-owner">${r.owner}</span><button class="rock-delete" onclick="deleteRock('${r.id}')">&times;</button></div>
+                <div class="rock-title">${r.title}</div>
+                <div class="rock-footer">${dt?`<span class="rock-due ${dc}">${dt}</span>`:'<span></span>'}
+                <button class="rock-toggle ${r.on_track?'on':'off'}" onclick="toggleRock('${r.id}')">${r.on_track?'On Track':'Off Track'}</button></div>
+            </div>`;
+        }).join('');
+    return `<div class="rocks-grid" style="margin-bottom:12px">${grid}</div>
+        <div class="add-row">
+            <input type="text" class="add-input" id="mRockInput" placeholder="Nueva Roca..." onkeypress="if(event.key==='Enter')addRockM()">
+            <select class="owner-select" id="mRockOwner">${ownerOpts()}</select>
+            <input type="date" class="add-input" id="mRockDueDate" style="flex:0 0 140px">
+            <button class="add-btn" onclick="addRockM()">+</button>
+        </div>`;
+}
+
+function buildModalHeadlines(){
+    const list=headlines.length===0
+        ?`<div style="color:var(--text-muted);font-size:12px;padding:12px;text-align:center">Sin novedades</div>`
+        :headlines.map(h=>`<div class="headline-item">
+            <span class="todo-owner">${h.owner}</span>
+            <span class="headline-text">${h.text}</span>
+            <button class="headline-delete" onclick="deleteHeadline('${h.id}')">&times;</button>
+        </div>`).join('');
+    return `<div id="mHeadlinesList" style="margin-bottom:12px">${list}</div>
+        <div class="add-row">
+            <input type="text" class="add-input" id="mHeadlineInput" placeholder="Novedad o noticia..." onkeypress="if(event.key==='Enter')addHeadlineM()">
+            <select class="owner-select" id="mHeadlineOwner">${ownerOpts()}</select>
+            <button class="add-btn" onclick="addHeadlineM()">+</button>
+        </div>`;
+}
+
+function buildModalTodos(){
+    const all=todos;
+    const pending=all.filter(t=>!t.done);
+    const done=all.filter(t=>t.done);
+    let html='';
+    if(pending.length>0){
+        html+=`<div class="modal-section-title">Pendientes (${pending.length})</div>`;
+        html+=pending.map(t=>`<div class="todo-item">
+            <div class="todo-checkbox" onclick="toggleTodo('${t.id}')"></div>
+            <span class="todo-text">${t.text}</span>
+            ${t.carried?'<span class="todo-carried">anterior</span>':''}
+            <span class="todo-owner">${t.owner}</span>
+            <button class="todo-delete" onclick="deleteTodo('${t.id}')">&times;</button>
+        </div>`).join('');
+    }
+    if(done.length>0){
+        html+=`<div class="modal-section-title" style="margin-top:12px">Completados (${done.length})</div>`;
+        html+=done.map(t=>`<div class="todo-item" style="opacity:0.5">
+            <div class="todo-checkbox checked"></div>
+            <span class="todo-text done">${t.text}</span>
+            <span class="todo-owner">${t.owner}</span>
+        </div>`).join('');
+    }
+    if(all.length===0) html='<div style="color:var(--text-muted);font-size:12px;padding:12px;text-align:center">Sin To-Dos</div>';
+    return `<div style="margin-bottom:12px">${html}</div>
+        <div class="add-row">
+            <input type="text" class="add-input" id="mTodoInput" placeholder="Nueva tarea..." onkeypress="if(event.key==='Enter')addTodoM()">
+            <select class="owner-select" id="mTodoOwner">${ownerOpts()}</select>
+            <button class="add-btn" onclick="addTodoM()">+</button>
+        </div>`;
+}
+
+function buildModalIDS(){
+    return idsIssues.map((iss,i)=>`
+        <div class="ids-issue" style="margin-bottom:10px">
+            <div class="ids-issue-title">Tema ${i+1}</div>
+            <div class="ids-issue-field">
+                <label class="ids-issue-label">Topico</label>
+                <input class="ids-issue-input" type="text" value="${iss.topic.replace(/"/g,'&quot;')}" oninput="updateIdsIssue(${i},'topic',this.value)" placeholder="Cual es el tema?">
+            </div>
+            <div class="ids-issue-field">
+                <label class="ids-issue-label" style="color:#ef4444">I - Identificar</label>
+                <textarea class="ids-issue-input" oninput="updateIdsIssue(${i},'identify',this.value)" placeholder="Identificar la raiz...">${iss.identify}</textarea>
+            </div>
+            <div class="ids-issue-field">
+                <label class="ids-issue-label" style="color:#f59e0b">D - Discutir</label>
+                <textarea class="ids-issue-input" oninput="updateIdsIssue(${i},'discuss',this.value)" placeholder="Discutir abiertamente...">${iss.discuss}</textarea>
+            </div>
+            <div class="ids-issue-field">
+                <label class="ids-issue-label" style="color:#10b981">S - Solucionar</label>
+                <textarea class="ids-issue-input" oninput="updateIdsIssue(${i},'solve',this.value)" placeholder="Solucion acordada...">${iss.solve}</textarea>
+            </div>
+        </div>`).join('');
+}
+
+function buildModalConclude(){
+    // Ratings
+    let ratingsHtml='<div class="modal-conclude-ratings">';
+    participants.forEach(p=>{
+        const val=ratings[p]||0;
+        let stars='';
+        for(let i=1;i<=10;i++) stars+=`<div class="star${val>=i?' selected':''}" onclick="setUserRating('${p}',${i})">${i}</div>`;
+        ratingsHtml+=`<div class="rating-row"><span class="rating-user-label">${p}</span><div class="rating-user-stars" id="stars-${p}" style="display:flex;gap:3px">${stars}</div></div>`;
+    });
+    ratingsHtml+=`</div><div class="rating-average" style="margin-top:12px"><span class="rating-avg-label">Promedio</span><span class="rating-avg-value" id="ratingAvg">${calculateAvgRating()}</span><span style="font-size:14px;color:var(--text-muted)">/10</span></div>`;
+    // To-Dos summary
+    const done=todos.filter(x=>x.done).length;
+    let todosHtml=`<div class="modal-section-title" style="margin-top:16px">To-Dos — ${done}/${todos.length} completados</div><div class="modal-conclude-todos">`;
+    if(todos.length===0) todosHtml+='<div style="color:var(--text-muted);font-size:12px;text-align:center;padding:8px">Sin To-Dos</div>';
+    else todos.forEach(t=>{
+        const chk=t.done?'&#10003;':'&#9675;';
+        const col=t.done?'var(--accent-emerald)':'var(--accent-amber)';
+        todosHtml+=`<div class="conclude-todo-item"><span style="color:${col};font-weight:700">${chk}</span><span style="${t.done?'text-decoration:line-through;opacity:0.5':''}">${t.text}</span><span style="font-size:10px;color:var(--text-muted);margin-left:auto">${t.owner}</span></div>`;
+    });
+    todosHtml+='</div>';
+    return ratingsHtml+todosHtml;
+}
+
+// --- Modal add functions (read from modal inputs) ---
+async function addRockM(){
+    const title=(document.getElementById('mRockInput')?.value||'').trim();
+    const owner=document.getElementById('mRockOwner')?.value||participants[0];
+    const due=document.getElementById('mRockDueDate')?.value||null;
+    if(!title) return;
+    try{ const r=await api('POST','/api/rocks',{title,owner,due_date:due}); rocks.push(r); }
+    catch(e){ rocks.push({id:Date.now().toString(),title,owner,on_track:true,due_date:due}); }
+    renderRocks(); updateCounters(); syncModal();
+}
+async function addHeadlineM(){
+    const text=(document.getElementById('mHeadlineInput')?.value||'').trim();
+    const owner=document.getElementById('mHeadlineOwner')?.value||participants[0];
+    if(!text) return;
+    try{ const h=await api('POST','/api/headlines',{text,owner}); headlines.push(h); }
+    catch(e){ headlines.push({id:Date.now().toString(),text,owner}); }
+    renderHeadlines(); updateCounters(); syncModal();
+}
+async function addTodoM(){
+    const text=(document.getElementById('mTodoInput')?.value||'').trim();
+    const owner=document.getElementById('mTodoOwner')?.value||participants[0];
+    if(!text) return;
+    try{ const t=await api('POST','/api/todos',{text,owner}); todos.push(t); }
+    catch(e){ todos.push({id:Date.now().toString(),text,owner,done:false,carried:false}); }
+    renderTodos(); updateCounters(); syncModal();
+}
+
 function closeModal(){ document.getElementById('modalOverlay').classList.remove('show'); }
+function restoreModal(){ /* showModal regenerates all HTML — no-op */ }
 
 function minimizeModal(){
     closeModal();
-    if(meetingStarted && currentStep>=0 && currentStep<agenda.length){
+    if(meetingStarted&&currentStep>=0&&currentStep<agenda.length){
         isMinimized=true;
         const ft=document.getElementById('floatingTimer');
         const lbl=document.getElementById('floatingTimerLabel');
-        if(lbl) lbl.textContent=agenda[currentStep].name.split('/')[0].trim().substring(0,24);
-        updateFloatingTimer();
-        ft.classList.add('visible');
+        if(lbl) lbl.textContent=agenda[currentStep].name.split('/')[0].trim().substring(0,22);
+        updateFloatingTimer(); ft.classList.add('visible');
     }
 }
-
 function restoreMinimizedModal(){
     isMinimized=false;
     document.getElementById('floatingTimer').classList.remove('visible');
-    if(meetingStarted && currentStep>=0 && currentStep<agenda.length){
-        restoreModal();
-        showModal(agenda[currentStep]);
-    }
+    if(meetingStarted&&currentStep>=0&&currentStep<agenda.length) showModal(agenda[currentStep]);
 }
-
 function updateFloatingTimer(){
-    const v=document.getElementById('floatingTimerValue');
-    if(!v) return;
-    const item=agenda[currentStep];
+    const v=document.getElementById('floatingTimerValue'); if(!v) return;
     const str=formatTime(Math.abs(stepTimeRemaining));
     v.textContent=stepTimeRemaining<0?`-${str}`:str;
     v.className='floating-timer-value';
     if(stepTimeRemaining<0) v.classList.add('danger');
-    else if(stepTimeRemaining/item.duration<0.2) v.classList.add('warning');
+    else if(stepTimeRemaining/agenda[currentStep].duration<0.2) v.classList.add('warning');
 }
-
 function pauseTimer(){ isPaused=!isPaused; const pb=document.getElementById('btnPause'); if(pb) pb.textContent=isPaused?'Reanudar':'Pausar'; }
 
 // === ROCKS ===
@@ -961,13 +1135,13 @@ async function toggleRock(id){
     const r=rocks.find(x=>x.id===id); if(!r)return;
     r.on_track=!r.on_track;
     try { await api('PATCH',`/api/rocks/${id}`); } catch(e){}
-    renderRocks(); updateCounters();
+    renderRocks(); updateCounters(); syncModal();
 }
 
 async function deleteRock(id){
     rocks=rocks.filter(x=>x.id!==id);
     try { await api('DELETE',`/api/rocks/${id}`); } catch(e){}
-    renderRocks(); updateCounters();
+    renderRocks(); updateCounters(); syncModal();
 }
 
 function getDaysLeft(dateStr){
@@ -1019,7 +1193,7 @@ async function addHeadline(){
 async function deleteHeadline(id){
     headlines=headlines.filter(x=>x.id!==id);
     try { await api('DELETE',`/api/headlines/${id}`); } catch(e){}
-    renderHeadlines(); updateCounters();
+    renderHeadlines(); updateCounters(); syncModal();
 }
 
 function renderHeadlines(){
@@ -1050,13 +1224,13 @@ async function toggleTodo(id){
     const t=todos.find(x=>x.id===id); if(!t)return;
     t.done=!t.done;
     try { await api('PATCH',`/api/todos/${id}`); } catch(e){}
-    renderTodos(); updateCounters();
+    renderTodos(); updateCounters(); syncModal();
 }
 
 async function deleteTodo(id){
     todos=todos.filter(x=>x.id!==id);
     try { await api('DELETE',`/api/todos/${id}`); } catch(e){}
-    renderTodos(); updateCounters();
+    renderTodos(); updateCounters(); syncModal();
 }
 
 function renderTodos(){
@@ -1111,6 +1285,7 @@ function setUserRating(user,n){
     const stars=document.getElementById(`stars-${user}`);
     if(stars) stars.querySelectorAll('.star').forEach((el,i)=>el.classList.toggle('selected',i<n));
     updateAvgRating();
+    syncModal();
 }
 
 function calculateAvgRating(){
