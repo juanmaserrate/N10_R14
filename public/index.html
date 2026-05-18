@@ -218,12 +218,28 @@
 
         /* IDS Issues (3 separated items) */
         .ids-issues { margin-top:16px; display:flex; flex-direction:column; gap:12px; }
-        .ids-issue { background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:12px; }
-        .ids-issue-title { font-size:12px; font-weight:700; color:var(--accent-violet); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+        .ids-issue { background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:12px; margin-bottom:10px; transition:border-color 0.2s; }
+        .ids-issue.ids-no-solve { border-color:rgba(244,63,94,0.5); box-shadow:inset 0 0 0 1px rgba(244,63,94,0.15); }
+        .ids-issue-header { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; }
+        .ids-issue-title { font-size:12px; font-weight:700; color:var(--accent-violet); text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:8px; }
+        .ids-issue-actions { display:flex; align-items:center; gap:6px; }
         .ids-issue-field { margin-bottom:8px; }
         .ids-issue-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-muted); margin-bottom:4px; display:block; }
         .ids-issue-input { width:100%; background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:8px; padding:8px 10px; color:var(--text-primary); font-size:12px; font-family:'Inter',sans-serif; outline:none; resize:vertical; min-height:36px; }
         .ids-issue-input:focus { border-color:var(--accent-violet); }
+        .ids-priority { background:rgba(255,255,255,0.04); border:1px solid var(--border-subtle); color:var(--text-primary); border-radius:6px; padding:4px 6px; font-size:11px; font-weight:700; cursor:pointer; }
+        .ids-priority.ids-prio-alta   { color:#f43f5e; border-color:rgba(244,63,94,0.5); background:rgba(244,63,94,0.10); }
+        .ids-priority.ids-prio-media  { color:#f59e0b; border-color:rgba(245,158,11,0.5); background:rgba(245,158,11,0.10); }
+        .ids-priority.ids-prio-baja   { color:#10b981; border-color:rgba(16,185,129,0.4); background:rgba(16,185,129,0.10); }
+        .ids-owner { background:rgba(255,255,255,0.04); border:1px solid var(--border-subtle); color:var(--text-primary); border-radius:6px; padding:4px 6px; font-size:11px; cursor:pointer; max-width:110px; }
+        .ids-del { background:rgba(244,63,94,0.10); border:1px solid rgba(244,63,94,0.3); color:#f43f5e; width:24px; height:24px; border-radius:6px; cursor:pointer; font-size:14px; line-height:1; display:flex; align-items:center; justify-content:center; }
+        .ids-del:hover { background:rgba(244,63,94,0.2); }
+        .ids-add { width:100%; padding:10px; background:rgba(139,92,246,0.10); border:1px dashed rgba(139,92,246,0.4); color:var(--accent-violet); border-radius:8px; cursor:pointer; font-size:12px; font-weight:700; margin-top:8px; transition:all 0.2s; }
+        .ids-add:hover { background:rgba(139,92,246,0.18); border-style:solid; }
+        .ids-convert { margin-top:6px; padding:6px 10px; background:rgba(16,185,129,0.10); border:1px solid rgba(16,185,129,0.4); color:#10b981; border-radius:6px; cursor:pointer; font-size:11px; font-weight:700; transition:all 0.2s; }
+        .ids-convert:hover:not(:disabled) { background:rgba(16,185,129,0.2); }
+        .ids-convert:disabled { opacity:0.4; cursor:not-allowed; }
+        .ids-carry { font-size:10px; color:#f59e0b; background:rgba(245,158,11,0.10); padding:2px 6px; border-radius:6px; border:1px solid rgba(245,158,11,0.3); text-transform:none; letter-spacing:0; }
 
         /* Check-in / Segue */
         .checkin-participants { display:flex; flex-direction:column; gap:8px; }
@@ -527,7 +543,7 @@ let meetingStarted=false, currentStep=-1, stepTimeRemaining=0, totalTimeRemainin
 let timerInterval=null, totalTimerInterval=null, isPaused=false;
 let todos=[], rocks=[], headlines=[];
 let ratings={}, notesTimeout=null;
-let checkins={}, idsIssues=[{topic:'',identify:'',discuss:'',solve:''},{topic:'',identify:'',discuss:'',solve:''},{topic:'',identify:'',discuss:'',solve:''}];
+let checkins={}, idsIssues=[], win='', improvement='', concerns={};
 let isMinimized=false;
 
 // === API ===
@@ -544,19 +560,27 @@ async function loadData() {
         todos = data.currentTodos || [];
         rocks = data.rocks || [];
         headlines = data.headlines || [];
+        idsIssues = data.ids || [];
         document.getElementById('notesArea').value = data.notes || '';
         renderTodos();
         renderRocks();
         renderHeadlines();
+        renderIdsIssues();
         updateCounters();
     } catch(e) { /* offline mode */ }
 }
 
+let historyData=[];
 async function loadHistory() {
     try {
-        const history = await api('GET','/api/history');
-        renderHistory(history);
+        historyData = await api('GET','/api/history');
+        renderHistory(historyData);
     } catch(e) {}
+}
+function historicalAvgRating(n){
+    const vals = (historyData||[]).slice(0,n).map(h=>Number(h.rating||0)).filter(v=>v>0);
+    if(vals.length===0) return null;
+    return (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);
 }
 
 // === INIT ===
@@ -571,6 +595,7 @@ function init() {
     renderIdsIssues();
     loadData();
     loadScorecard();
+    loadHistory();
 }
 
 // === CHECK-INS ===
@@ -665,33 +690,95 @@ function completeCheckin(idx){
 }
 
 // === IDS ISSUES ===
+function idsIssueHtml(iss, i, opts){
+    const noSolve = !iss.solve || !iss.solve.trim();
+    const created = iss.created_at ? new Date(iss.created_at) : null;
+    const weeksOpen = created ? Math.max(0, Math.floor((Date.now()-created.getTime())/(7*24*3600*1000))) : 0;
+    const carriedTag = weeksOpen>=1 ? `<span class="ids-carry">Pendiente hace ${weeksOpen} sem.</span>` : '';
+    const ownerOptsHtml = participants.map(p=>`<option value="${p}" ${iss.owner===p?'selected':''}>${p}</option>`).join('');
+    const prio = iss.priority || 'media';
+    return `<div class="ids-issue ${noSolve?'ids-no-solve':''}" data-id="${iss.id}">
+        <div class="ids-issue-header">
+            <div class="ids-issue-title">Tema ${i+1} ${carriedTag}</div>
+            <div class="ids-issue-actions">
+                <select class="ids-priority ids-prio-${prio}" onchange="updateIdsField('${iss.id}','priority',this.value)">
+                    <option value="alta" ${prio==='alta'?'selected':''}>Alta</option>
+                    <option value="media" ${prio==='media'?'selected':''}>Media</option>
+                    <option value="baja" ${prio==='baja'?'selected':''}>Baja</option>
+                </select>
+                <select class="ids-owner" onchange="updateIdsField('${iss.id}','owner',this.value)">
+                    <option value="">Owner...</option>${ownerOptsHtml}
+                </select>
+                <button class="ids-del" onclick="deleteIdsIssue('${iss.id}')" title="Eliminar">&times;</button>
+            </div>
+        </div>
+        <div class="ids-issue-field">
+            <label class="ids-issue-label">Topico</label>
+            <input class="ids-issue-input" type="text" value="${(iss.topic||'').replace(/"/g,'&quot;')}" onchange="updateIdsField('${iss.id}','topic',this.value)" placeholder="Cual es el tema?">
+        </div>
+        <div class="ids-issue-field">
+            <label class="ids-issue-label" style="color:#ef4444">I - Identificar</label>
+            <textarea class="ids-issue-input" onchange="updateIdsField('${iss.id}','identify',this.value)" placeholder="Identificar la raiz...">${iss.identify||''}</textarea>
+        </div>
+        <div class="ids-issue-field">
+            <label class="ids-issue-label" style="color:#f59e0b">D - Discutir</label>
+            <textarea class="ids-issue-input" onchange="updateIdsField('${iss.id}','discuss',this.value)" placeholder="Discutir abiertamente...">${iss.discuss||''}</textarea>
+        </div>
+        <div class="ids-issue-field">
+            <label class="ids-issue-label" style="color:#10b981">S - Solucionar</label>
+            <textarea class="ids-issue-input" onchange="updateIdsField('${iss.id}','solve',this.value)" placeholder="Solucion acordada...">${iss.solve||''}</textarea>
+            <button class="ids-convert" onclick="convertIdsToTodo('${iss.id}')" ${noSolve?'disabled':''}>Convertir S &rarr; To-Do</button>
+        </div>
+    </div>`;
+}
+
 function renderIdsIssues(){
     const c=document.getElementById('idsIssues');
     if(!c) return;
-    c.innerHTML=idsIssues.map((iss,i)=>`
-        <div class="ids-issue">
-            <div class="ids-issue-title">Tema ${i+1}</div>
-            <div class="ids-issue-field">
-                <label class="ids-issue-label">Topico</label>
-                <input class="ids-issue-input" type="text" value="${iss.topic.replace(/"/g,'&quot;')}" onchange="updateIdsIssue(${i},'topic',this.value)" placeholder="Cual es el tema?">
-            </div>
-            <div class="ids-issue-field">
-                <label class="ids-issue-label" style="color:#ef4444">I - Identificar</label>
-                <textarea class="ids-issue-input" onchange="updateIdsIssue(${i},'identify',this.value)" placeholder="Identificar la raiz...">${iss.identify}</textarea>
-            </div>
-            <div class="ids-issue-field">
-                <label class="ids-issue-label" style="color:#f59e0b">D - Discutir</label>
-                <textarea class="ids-issue-input" onchange="updateIdsIssue(${i},'discuss',this.value)" placeholder="Discutir abiertamente...">${iss.discuss}</textarea>
-            </div>
-            <div class="ids-issue-field">
-                <label class="ids-issue-label" style="color:#10b981">S - Solucionar</label>
-                <textarea class="ids-issue-input" onchange="updateIdsIssue(${i},'solve',this.value)" placeholder="Solucion acordada...">${iss.solve}</textarea>
-            </div>
-        </div>`).join('');
+    const body = idsIssues.length===0
+        ? '<div style="color:var(--text-muted);font-size:12px;padding:12px;text-align:center">Sin temas. Agrega uno abajo.</div>'
+        : idsIssues.map((iss,i)=>idsIssueHtml(iss,i)).join('');
+    c.innerHTML = body + `<button class="ids-add" onclick="addIdsIssue()">+ Tema</button>`;
 }
 
-function updateIdsIssue(i,field,value){
-    if(idsIssues[i]) idsIssues[i][field]=value;
+async function updateIdsField(id, field, value){
+    const iss=idsIssues.find(x=>x.id===id);
+    if(iss) iss[field]=value;
+    try { await api('PUT',`/api/ids/${id}`,{[field]:value}); }
+    catch(e){}
+    // Re-render only on solve change to update no-solve highlight, or priority for color
+    if(field==='solve'||field==='priority') syncIdsViews();
+}
+
+async function addIdsIssue(){
+    let item;
+    try { item = await api('POST','/api/ids',{}); }
+    catch(e){ item = {id:'tmp'+Date.now(),topic:'',identify:'',discuss:'',solve:'',priority:'media',owner:'',created_at:new Date().toISOString()}; }
+    idsIssues.push(item);
+    syncIdsViews();
+}
+
+async function deleteIdsIssue(id){
+    if(!confirm('Eliminar este tema?')) return;
+    try { await api('DELETE',`/api/ids/${id}`); } catch(e){}
+    idsIssues = idsIssues.filter(x=>x.id!==id);
+    syncIdsViews();
+}
+
+async function convertIdsToTodo(id){
+    const iss=idsIssues.find(x=>x.id===id);
+    if(!iss || !iss.solve || !iss.solve.trim()){ alert('Falta la Solución para convertir en To-Do.'); return; }
+    try {
+        const r=await api('POST',`/api/ids/${id}/convert-to-todo`,{fallbackOwner:iss.owner||participants[0]||'Equipo'});
+        if(r.todo){ todos.push(r.todo); renderTodos(); updateCounters(); }
+    } catch(e){}
+    idsIssues = idsIssues.filter(x=>x.id!==id);
+    syncIdsViews();
+}
+
+function syncIdsViews(){
+    renderIdsIssues();
+    if(meetingStarted && currentStep>=0 && agenda[currentStep] && agenda[currentStep].id==='ids') syncModal();
 }
 
 function renderAgenda() {
@@ -818,16 +905,16 @@ async function endMeeting() {
             user:p, name:participantNames[p],
             text:checkins[p]?.text||'', done:checkins[p]?.done||false
         }));
-        // Filter IDS issues that have at least a topic or any field filled
-        const idsPayload=idsIssues.filter(i=>i.topic.trim()||i.identify.trim()||i.discuss.trim()||i.solve.trim());
-        const result = await api('POST','/api/meeting/end',{ ratings, checkins:checkinsPayload, ids:idsPayload });
+        // IDS items live on the server now (carry over automatically). Server snapshots into history.
+        const result = await api('POST','/api/meeting/end',{ ratings, checkins:checkinsPayload, win, improvement, concerns });
         const data = await api('GET','/api/data');
         todos = data.currentTodos || [];
         rocks = data.rocks || [];
         headlines = data.headlines || [];
+        idsIssues = data.ids || [];
         // Reset transient state
         initCheckins();
-        idsIssues=[{topic:'',identify:'',discuss:'',solve:''},{topic:'',identify:'',discuss:'',solve:''},{topic:'',identify:'',discuss:'',solve:''}];
+        win=''; improvement=''; concerns={};
         renderIdsIssues();
         renderTodos(); renderRocks(); renderHeadlines();
         updateCounters();
@@ -884,7 +971,8 @@ function resetMeeting(){
     document.getElementById('progressFill').style.width='0%';
     initRatings();
     initCheckins();
-    idsIssues=[{topic:'',identify:'',discuss:'',solve:''},{topic:'',identify:'',discuss:'',solve:''},{topic:'',identify:'',discuss:'',solve:''}];
+    win=''; improvement=''; concerns={};
+    // Do NOT reset idsIssues — they live on the server and carry over
     renderIdsIssues();
     renderAgenda();
     updateCounters();
@@ -1150,26 +1238,10 @@ function buildModalTodos(){
 }
 
 function buildModalIDS(){
-    return idsIssues.map((iss,i)=>`
-        <div class="ids-issue" style="margin-bottom:10px">
-            <div class="ids-issue-title">Tema ${i+1}</div>
-            <div class="ids-issue-field">
-                <label class="ids-issue-label">Topico</label>
-                <input class="ids-issue-input" type="text" value="${iss.topic.replace(/"/g,'&quot;')}" oninput="updateIdsIssue(${i},'topic',this.value)" placeholder="Cual es el tema?">
-            </div>
-            <div class="ids-issue-field">
-                <label class="ids-issue-label" style="color:#ef4444">I - Identificar</label>
-                <textarea class="ids-issue-input" oninput="updateIdsIssue(${i},'identify',this.value)" placeholder="Identificar la raiz...">${iss.identify}</textarea>
-            </div>
-            <div class="ids-issue-field">
-                <label class="ids-issue-label" style="color:#f59e0b">D - Discutir</label>
-                <textarea class="ids-issue-input" oninput="updateIdsIssue(${i},'discuss',this.value)" placeholder="Discutir abiertamente...">${iss.discuss}</textarea>
-            </div>
-            <div class="ids-issue-field">
-                <label class="ids-issue-label" style="color:#10b981">S - Solucionar</label>
-                <textarea class="ids-issue-input" oninput="updateIdsIssue(${i},'solve',this.value)" placeholder="Solucion acordada...">${iss.solve}</textarea>
-            </div>
-        </div>`).join('');
+    const body = idsIssues.length===0
+        ? '<div style="color:var(--text-muted);font-size:12px;padding:12px;text-align:center">Sin temas abiertos. Agrega uno abajo.</div>'
+        : idsIssues.map((iss,i)=>idsIssueHtml(iss,i)).join('');
+    return body + `<button class="ids-add" onclick="addIdsIssue()">+ Tema</button>`;
 }
 
 function buildModalConclude(){
@@ -1181,7 +1253,20 @@ function buildModalConclude(){
         for(let i=1;i<=10;i++) stars+=`<div class="star${val>=i?' selected':''}" onclick="setUserRating('${p}',${i})">${i}</div>`;
         ratingsHtml+=`<div class="rating-row"><span class="rating-user-label">${p}</span><div class="rating-user-stars" id="stars-${p}" style="display:flex;gap:3px">${stars}</div></div>`;
     });
-    ratingsHtml+=`</div><div class="rating-average" style="margin-top:12px"><span class="rating-avg-label">Promedio</span><span class="rating-avg-value" id="ratingAvg">${calculateAvgRating()}</span><span style="font-size:14px;color:var(--text-muted)">/10</span></div>`;
+    const histAvg = historicalAvgRating(5);
+    const histHtml = histAvg!=null ? `<span style="font-size:11px;color:var(--text-muted);margin-left:14px">Ult. 5 reuniones: <strong style="color:var(--accent-cyan)">${histAvg}</strong>/10</span>` : '';
+    ratingsHtml+=`</div><div class="rating-average" style="margin-top:12px"><span class="rating-avg-label">Promedio</span><span class="rating-avg-value" id="ratingAvg">${calculateAvgRating()}</span><span style="font-size:14px;color:var(--text-muted)">/10</span>${histHtml}</div>`;
+    // Concerns for participants who rated <8
+    let concernsHtml='';
+    const lowRaters = participants.filter(p=>ratings[p]>0 && ratings[p]<8);
+    if(lowRaters.length>0){
+        concernsHtml=`<div class="modal-section-title" style="margin-top:14px;color:var(--accent-rose)">¿Qué faltó? (rating &lt;8)</div>`;
+        lowRaters.forEach(p=>{
+            const txt=(concerns[p]||'').replace(/"/g,'&quot;');
+            concernsHtml+=`<div style="margin-bottom:8px"><label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px"><strong>${p}</strong> calificó ${ratings[p]}/10</label>
+                <textarea class="ids-issue-input" style="min-height:50px" oninput="setConcern('${p}',this.value)" placeholder="Qué pudo mejorar para ser un 10?">${txt}</textarea></div>`;
+        });
+    }
     // To-Dos summary (existing)
     const done=todos.filter(x=>x.done).length;
     let todosHtml=`<div class="modal-section-title" style="margin-top:16px">To-Dos de esta semana — ${done}/${todos.length} completados</div><div class="modal-conclude-todos">`;
@@ -1206,7 +1291,67 @@ function buildModalConclude(){
             <select class="owner-select" id="mConcludeTodoOwner">${ownerOpts()}</select>
             <button class="add-btn" onclick="addConcludeTodoM()">+</button>
         </div>`;
-    return ratingsHtml+todosHtml+newTodosHtml;
+    // Retro: Win + Improvement
+    const wEsc=(win||'').replace(/</g,'&lt;');
+    const iEsc=(improvement||'').replace(/</g,'&lt;');
+    const retroHtml=`
+        <div class="modal-section-title" style="margin-top:18px">🏆 Lo mejor de la semana</div>
+        <textarea class="ids-issue-input" style="min-height:55px" oninput="win=this.value" placeholder="Qué salió bien? Cerramos cliente X, lanzamos feature Y...">${wEsc}</textarea>
+        <div class="modal-section-title" style="margin-top:14px">⚠️ Qué mejorar la próxima</div>
+        <textarea class="ids-issue-input" style="min-height:55px" oninput="improvement=this.value" placeholder="Qué hacer distinto la próxima vez?">${iEsc}</textarea>
+        <div style="margin-top:14px;display:flex;justify-content:flex-end">
+            <button class="ids-convert" style="padding:8px 14px;font-size:12px" onclick="copyRecap(event)">📋 Copiar recap</button>
+        </div>`;
+    return ratingsHtml + concernsHtml + todosHtml + newTodosHtml + retroHtml;
+}
+
+function setConcern(user, text){ concerns[user]=text; }
+
+function copyRecap(ev){
+    const date=new Date();
+    const monthNames=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    const dateStr=`${String(date.getDate()).padStart(2,'0')} ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+    const avg=calculateAvgRating();
+    const histAvg=historicalAvgRating(5);
+    const newOnes=todos.filter(t=>t.newThisMeeting);
+    const doneCount=todos.filter(t=>t.done).length;
+    let out=`📋 RECAP N10 — ${dateStr}\n`;
+    out+=`Rating: ${avg}/10`;
+    if(histAvg!=null) out+= ` (últ. 5: ${histAvg}/10)`;
+    out+='\n\n';
+    if(win) out+=`🏆 Win: ${win}\n`;
+    if(improvement) out+=`⚠️ Mejorar: ${improvement}\n`;
+    if(win||improvement) out+='\n';
+    out+=`✅ To-Dos: ${doneCount}/${todos.length} completados\n`;
+    if(newOnes.length>0){
+        out+=`\n📝 Nuevos To-Dos para la próxima semana:\n`;
+        newOnes.forEach(t=>{ out+=` • [${t.owner}] ${t.text}\n`; });
+    }
+    const openIds=idsIssues.filter(x=>(x.topic||x.identify||x.discuss||x.solve||'').trim());
+    if(openIds.length>0){
+        out+=`\n🔥 IDS abiertos:\n`;
+        openIds.forEach(x=>{
+            const prio=(x.priority||'media').toUpperCase();
+            const own=x.owner?` (${x.owner})`:'';
+            out+=` • [${prio}] ${x.topic||'(sin titulo)'}${own}\n`;
+        });
+    }
+    const lowRaters=participants.filter(p=>ratings[p]>0 && ratings[p]<8 && concerns[p]);
+    if(lowRaters.length>0){
+        out+=`\n💬 Qué faltó:\n`;
+        lowRaters.forEach(p=>{ out+=` • ${p} (${ratings[p]}/10): ${concerns[p]}\n`; });
+    }
+    if(navigator.clipboard){
+        navigator.clipboard.writeText(out).then(()=>{
+            const btn=ev?.target;
+            if(btn){ const orig=btn.textContent; btn.textContent='✓ Copiado!'; setTimeout(()=>{btn.textContent=orig},1500); }
+            else alert('Recap copiado');
+        });
+    } else {
+        const ta=document.createElement('textarea');
+        ta.value=out; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+        alert('Recap copiado al portapapeles');
+    }
 }
 
 // --- Modal add functions (read from modal inputs) ---

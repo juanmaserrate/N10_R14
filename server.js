@@ -71,6 +71,22 @@ async function initDB() {
     await pool.query(`ALTER TABLE history ADD COLUMN IF NOT EXISTS rocks_data JSONB DEFAULT '[]'`);
     await pool.query(`ALTER TABLE history ADD COLUMN IF NOT EXISTS checkins_data JSONB DEFAULT '[]'`);
     await pool.query(`ALTER TABLE history ADD COLUMN IF NOT EXISTS ids_data JSONB DEFAULT '[]'`);
+    await pool.query(`ALTER TABLE history ADD COLUMN IF NOT EXISTS win TEXT DEFAULT ''`);
+    await pool.query(`ALTER TABLE history ADD COLUMN IF NOT EXISTS improvement TEXT DEFAULT ''`);
+    await pool.query(`ALTER TABLE history ADD COLUMN IF NOT EXISTS concerns JSONB DEFAULT '{}'`);
+    // IDS items - persisten entre reuniones para carry-over
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS ids_items (
+            id TEXT PRIMARY KEY,
+            topic TEXT DEFAULT '',
+            identify TEXT DEFAULT '',
+            discuss TEXT DEFAULT '',
+            solve TEXT DEFAULT '',
+            priority TEXT DEFAULT 'media',
+            owner TEXT DEFAULT '',
+            created_at TIMESTAMPTZ DEFAULT NOW()
+        )
+    `);
     // Scorecard tables — weekly KPIs by department, columns = Mondays
     await pool.query(`
         CREATE TABLE IF NOT EXISTS scorecard_weeks (
@@ -106,6 +122,7 @@ app.get('/api/data', async (req, res) => {
         const notes = await pool.query('SELECT content FROM notes WHERE id = 1');
         const rocks = await pool.query('SELECT * FROM rocks ORDER BY created_at ASC');
         const headlines = await pool.query('SELECT * FROM headlines ORDER BY created_at ASC');
+        const ids = await pool.query('SELECT * FROM ids_items ORDER BY created_at ASC');
         res.json({
             currentTodos: todos.rows.map(r => ({
                 id: r.id, text: r.text, owner: r.owner,
@@ -118,6 +135,10 @@ app.get('/api/data', async (req, res) => {
             })),
             headlines: headlines.rows.map(r => ({
                 id: r.id, text: r.text, owner: r.owner
+            })),
+            ids: ids.rows.map(r => ({
+                id: r.id, topic: r.topic, identify: r.identify, discuss: r.discuss, solve: r.solve,
+                priority: r.priority || 'media', owner: r.owner || '', created_at: r.created_at
             })),
             history: []
         });
@@ -237,6 +258,67 @@ app.delete('/api/headlines/:id', async (req, res) => {
     }
 });
 
+// --- IDS ITEMS CRUD ---
+app.get('/api/ids', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM ids_items ORDER BY created_at ASC');
+        res.json(result.rows.map(r => ({
+            id: r.id, topic: r.topic, identify: r.identify, discuss: r.discuss, solve: r.solve,
+            priority: r.priority || 'media', owner: r.owner || '', created_at: r.created_at
+        })));
+    } catch (e) { console.error(e); res.status(500).json({ error: 'DB error' }); }
+});
+app.post('/api/ids', async (req, res) => {
+    try {
+        const id = Date.now().toString() + Math.random().toString(36).slice(2,5);
+        const { topic='', identify='', discuss='', solve='', priority='media', owner='' } = req.body || {};
+        await pool.query(
+            'INSERT INTO ids_items (id, topic, identify, discuss, solve, priority, owner) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+            [id, topic, identify, discuss, solve, priority, owner]
+        );
+        res.json({ id, topic, identify, discuss, solve, priority, owner, created_at: new Date().toISOString() });
+    } catch (e) { console.error(e); res.status(500).json({ error: 'DB error' }); }
+});
+app.put('/api/ids/:id', async (req, res) => {
+    try {
+        const allowed = ['topic','identify','discuss','solve','priority','owner'];
+        const fields = [], values = [];
+        for (const k of allowed) {
+            if (k in (req.body || {})) { fields.push(`${k} = $${fields.length+1}`); values.push(req.body[k]); }
+        }
+        if (!fields.length) return res.json({ ok: true });
+        values.push(req.params.id);
+        await pool.query(`UPDATE ids_items SET ${fields.join(', ')} WHERE id = $${values.length}`, values);
+        res.json({ ok: true });
+    } catch (e) { console.error(e); res.status(500).json({ error: 'DB error' }); }
+});
+app.delete('/api/ids/:id', async (req, res) => {
+    try {
+        await pool.query('DELETE FROM ids_items WHERE id = $1', [req.params.id]);
+        res.json({ ok: true });
+    } catch (e) { console.error(e); res.status(500).json({ error: 'DB error' }); }
+});
+// Convert IDS solve into a To-Do + delete the IDS item
+app.post('/api/ids/:id/convert-to-todo', async (req, res) => {
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        const r = await client.query('SELECT * FROM ids_items WHERE id = $1', [req.params.id]);
+        if (r.rows.length === 0) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Not found' }); }
+        const iss = r.rows[0];
+        const todoText = (iss.solve && iss.solve.trim()) || (iss.topic && iss.topic.trim()) || 'IDS sin texto';
+        const todoOwner = iss.owner && iss.owner.trim() ? iss.owner : (req.body?.fallbackOwner || 'Equipo');
+        const todoId = Date.now().toString() + Math.random().toString(36).slice(2,5);
+        await client.query('INSERT INTO todos (id, text, owner, done, carried) VALUES ($1,$2,$3,FALSE,FALSE)', [todoId, todoText, todoOwner]);
+        await client.query('DELETE FROM ids_items WHERE id = $1', [req.params.id]);
+        await client.query('COMMIT');
+        res.json({ ok: true, todo: { id: todoId, text: todoText, owner: todoOwner, done: false, carried: false } });
+    } catch (e) {
+        await client.query('ROLLBACK');
+        console.error(e); res.status(500).json({ error: 'DB error' });
+    } finally { client.release(); }
+});
+
 // Save notes
 app.put('/api/notes', async (req, res) => {
     try {
@@ -278,15 +360,24 @@ app.post('/api/meeting/end', async (req, res) => {
             ? Math.round(ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length)
             : (req.body.rating || 0);
 
-        // Check-ins and IDS data from client
+        // Check-ins from client (transient)
         const checkinsData = req.body.checkins || [];
-        const idsData = req.body.ids || [];
+        // IDS: snapshot from DB (persistent across meetings; carries over automatically)
+        const idsResult = await client.query('SELECT * FROM ids_items ORDER BY created_at ASC');
+        const idsData = idsResult.rows.map(r => ({
+            id: r.id, topic: r.topic, identify: r.identify, discuss: r.discuss, solve: r.solve,
+            priority: r.priority || 'media', owner: r.owner || ''
+        }));
+        // Win / Improvement / Concerns for retro
+        const win = (req.body.win || '').trim();
+        const improvement = (req.body.improvement || '').trim();
+        const concerns = req.body.concerns || {};
 
         // Save to history with all fields (date auto-set to NOW by server)
         const historyId = Date.now().toString();
         await client.query(
-            'INSERT INTO history (id, date, todos, notes, rating, ratings, headlines_data, rocks_data, checkins_data, ids_data) VALUES ($1, NOW(), $2, $3, $4, $5, $6, $7, $8, $9)',
-            [historyId, JSON.stringify(currentTodos), currentNotes, avgRating, JSON.stringify(ratings), JSON.stringify(currentHeadlines), JSON.stringify(currentRocks), JSON.stringify(checkinsData), JSON.stringify(idsData)]
+            'INSERT INTO history (id, date, todos, notes, rating, ratings, headlines_data, rocks_data, checkins_data, ids_data, win, improvement, concerns) VALUES ($1, NOW(), $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)',
+            [historyId, JSON.stringify(currentTodos), currentNotes, avgRating, JSON.stringify(ratings), JSON.stringify(currentHeadlines), JSON.stringify(currentRocks), JSON.stringify(checkinsData), JSON.stringify(idsData), win, improvement, JSON.stringify(concerns)]
         );
 
         // Delete all current todos
@@ -327,7 +418,10 @@ app.get('/api/history', async (req, res) => {
             headlines_data: r.headlines_data || [],
             rocks_data: r.rocks_data || [],
             checkins_data: r.checkins_data || [],
-            ids_data: r.ids_data || []
+            ids_data: r.ids_data || [],
+            win: r.win || '',
+            improvement: r.improvement || '',
+            concerns: r.concerns || {}
         })));
     } catch (e) {
         console.error(e);
