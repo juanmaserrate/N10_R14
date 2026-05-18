@@ -978,9 +978,10 @@ function formatScorecardNum(n, metric){
 }
 
 function buildModalScorecard(){
-    if(!scorecardModalMonth) scorecardModalMonth=currentMonthYM();
-    const ym=scorecardModalMonth;
-    const mondays=generateMondaysOfMonth(ym);
+    if(!scorecardModalEndWeek) scorecardModalEndWeek=activeWeekMonday();
+    const endWk=scorecardModalEndWeek;
+    // Mostrar la semana "fin de ventana" + las 2 anteriores
+    const mondays=[shiftMondayBy(endWk,-14), shiftMondayBy(endWk,-7), endWk];
     const valsByWeek=Object.fromEntries(scorecardWeeks.map(w=>[w.week_of, w.values||{}]));
 
     const activeWk=activeWeekMonday();
@@ -1006,23 +1007,41 @@ function buildModalScorecard(){
         }
     }
 
+    const rangeLabel=`${formatShortDate(mondays[0])} - ${formatShortDate(addDays(mondays[2],4))}`;
     return `<div class="sc-modal-bar">
-        <button class="sc-modal-nav" onclick="changeScorecardMonth(-1)" title="Mes anterior">&#9664;</button>
-        <span class="sc-modal-month">${monthLabel(ym)}</span>
-        <button class="sc-modal-nav" onclick="changeScorecardMonth(1)" title="Mes siguiente">&#9654;</button>
+        <button class="sc-modal-nav" onclick="changeScorecardWeek(-1)" title="Semana anterior">&#9664;</button>
+        <span class="sc-modal-month">${rangeLabel}</span>
+        <button class="sc-modal-nav" onclick="changeScorecardWeek(1)" title="Semana siguiente">&#9654;</button>
+        <button class="sc-modal-nav" onclick="resetScorecardWeek()" title="Volver a la semana activa" style="width:auto;padding:0 10px;font-size:11px">Hoy</button>
         <button class="modal-btn modal-btn-secondary" onclick="window.open('/scorecard.html','_blank')" style="margin-left:auto;padding:6px 12px;font-size:11px">Editar &#8599;</button>
     </div>
-    ${mondays.length===0?'<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Sin lunes en este mes</div>':
-    `<div class="sc-mini-wrap"><table class="sc-mini-table">
+    <div class="sc-mini-wrap"><table class="sc-mini-table">
         <thead><tr><th class="sc-mini-sticky-1">Indicador</th><th class="sc-mini-target-col sc-mini-sticky-2">Objetivo</th>${headerCells}</tr></thead>
         <tbody>${body}</tbody>
-    </table></div>`}`;
+    </table></div>`;
 }
 
-function changeScorecardMonth(delta){
-    if(!scorecardModalMonth) scorecardModalMonth=currentMonthYM();
-    scorecardModalMonth=shiftMonth(scorecardModalMonth, delta);
+function changeScorecardWeek(delta){
+    if(!scorecardModalEndWeek) scorecardModalEndWeek=activeWeekMonday();
+    scorecardModalEndWeek=shiftMondayBy(scorecardModalEndWeek, delta*7);
     syncModal();
+}
+
+function resetScorecardWeek(){
+    scorecardModalEndWeek=activeWeekMonday();
+    syncModal();
+}
+
+function addDays(isoDate, days){
+    const d=new Date(isoDate+'T00:00:00');
+    d.setDate(d.getDate()+days);
+    return d.toISOString().slice(0,10);
+}
+function shiftMondayBy(monday, days){ return addDays(monday, days); }
+function formatShortDate(isoDate){
+    const d=new Date(isoDate+'T00:00:00');
+    const days=['dom','lun','mar','mie','jue','vie','sab'];
+    return `${days[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}`;
 }
 
 function formatWeekRange(monday){
@@ -1550,7 +1569,7 @@ const SCORECARD_METRICS = [
     ]},
 ];
 
-let scorecardWeeks=[], scorecardTargets={}, scorecardModalMonth=null; // YYYY-MM
+let scorecardWeeks=[], scorecardTargets={}, scorecardModalEndWeek=null; // YYYY-MM-DD (Monday)
 
 async function loadScorecard(){
     try {
