@@ -261,6 +261,37 @@
         .ids-recurrent { font-size:10px; color:var(--accent-cyan); background:rgba(6,182,212,0.10); padding:2px 7px; border-radius:6px; border:1px solid rgba(6,182,212,0.4); font-weight:700; flex-shrink:0; cursor:help; }
         .ids-empty { color:var(--text-muted); font-size:12px; padding:14px; text-align:center; font-style:italic; }
 
+        /* Toast notifications */
+        .toast-stack { position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:8px; pointer-events:none; }
+        .toast { background:var(--bg-card); border:1px solid var(--border-subtle); padding:12px 16px; border-radius:8px; color:var(--text-primary); font-size:13px; font-weight:500; box-shadow:0 10px 30px rgba(0,0,0,0.5); display:flex; align-items:center; gap:8px; pointer-events:auto; animation:toastIn 0.2s ease; max-width:380px; }
+        .toast.toast-error { border-color:rgba(244,63,94,0.5); background:rgba(244,63,94,0.10); color:#fda4af; }
+        .toast.toast-success { border-color:rgba(16,185,129,0.5); background:rgba(16,185,129,0.10); color:#6ee7b7; }
+        .toast.toast-warn { border-color:rgba(245,158,11,0.5); background:rgba(245,158,11,0.10); color:#fcd34d; }
+        @keyframes toastIn { from { transform:translateX(100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
+
+        /* Done todos collapsible in sidebar */
+        .todo-done-section { margin-top:10px; padding-top:10px; border-top:1px dashed var(--border-subtle); }
+        .todo-done-toggle { background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25); color:var(--accent-emerald); width:100%; padding:6px 10px; border-radius:6px; cursor:pointer; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:space-between; }
+        .todo-done-toggle:hover { background:rgba(16,185,129,0.12); }
+        .todo-done-list { margin-top:6px; }
+        .todo-done-list .todo-item { padding:4px 0; opacity:0.6; }
+        .todo-done-list .todo-text { text-decoration:line-through; }
+        .todo-done-list .todo-checkbox { background:var(--accent-emerald); border-color:var(--accent-emerald); }
+        .todo-done-list .todo-checkbox::after { content:'\2713'; color:white; font-size:11px; font-weight:700; }
+
+        /* Segue dashboard */
+        .segue-dashboard { background:linear-gradient(135deg,rgba(6,182,212,0.08),rgba(139,92,246,0.08)); border:1px solid rgba(6,182,212,0.3); border-radius:12px; padding:14px 16px; margin-bottom:14px; text-align:left; }
+        .segue-dashboard-title { font-size:10px; font-weight:800; color:var(--accent-cyan); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+        .segue-dash-row { font-size:12px; color:var(--text-secondary); margin:4px 0; display:flex; align-items:flex-start; gap:6px; }
+        .segue-dash-row strong { color:var(--text-primary); }
+        .segue-dash-icon { flex-shrink:0; }
+        .segue-dash-stats { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+        .segue-dash-stat { font-size:11px; padding:4px 10px; border-radius:14px; background:rgba(255,255,255,0.05); border:1px solid var(--border-subtle); color:var(--text-secondary); font-weight:600; }
+        .segue-dash-stat.dash-good { color:var(--accent-emerald); border-color:rgba(16,185,129,0.4); background:rgba(16,185,129,0.10); }
+        .segue-dash-stat.dash-warn { color:var(--accent-amber); border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.10); }
+        .segue-dash-stat.dash-alert { color:var(--accent-rose); border-color:rgba(244,63,94,0.4); background:rgba(244,63,94,0.10); }
+        .segue-dash-stat.dash-recur { color:var(--accent-cyan); border-color:rgba(6,182,212,0.4); background:rgba(6,182,212,0.10); }
+
         /* Check-in / Segue */
         .checkin-participants { display:flex; flex-direction:column; gap:8px; }
         .checkin-participant-row { display:flex; align-items:center; gap:10px; padding:10px 12px; background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); transition:all 0.2s; }
@@ -525,6 +556,8 @@
 </button>
 
 <!-- MODAL -->
+<div class="toast-stack" id="toastStack"></div>
+
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal" id="modalContent">
         <div class="timer-ring-container">
@@ -571,7 +604,18 @@ async function api(method, url, body) {
     const opts = { method, headers:{'Content-Type':'application/json'} };
     if (body) opts.body = JSON.stringify(body);
     const r = await fetch(url, opts);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
     return r.json();
+}
+
+function showToast(message, variant='info', durationMs=3500){
+    const stack = document.getElementById('toastStack');
+    if(!stack) return;
+    const el = document.createElement('div');
+    el.className = `toast toast-${variant}`;
+    el.textContent = message;
+    stack.appendChild(el);
+    setTimeout(()=>{ el.style.transition='opacity 0.25s'; el.style.opacity='0'; setTimeout(()=>el.remove(),250); }, durationMs);
 }
 
 async function loadData() {
@@ -595,6 +639,11 @@ async function loadHistory() {
     try {
         historyData = await api('GET','/api/history');
         renderHistory(historyData);
+        // Si el modal esta abierto en Segue o IDS, refrescar para que aparezcan dashboard/chips
+        if(meetingStarted && currentStep>=0 && agenda[currentStep]){
+            const sid = agenda[currentStep].id;
+            if(sid==='segue' || sid==='ids' || sid==='conclude') syncModal();
+        }
     } catch(e) {}
 }
 function historicalAvgRating(n){
@@ -867,11 +916,30 @@ async function deleteIdsIssue(id){
 
 async function convertIdsToTodo(id){
     const iss=idsIssues.find(x=>x.id===id);
-    if(!iss || !iss.solve || !iss.solve.trim()){ alert('Falta la Solución para convertir en To-Do.'); return; }
+    if(!iss || !iss.solve || !iss.solve.trim()){ showToast('Falta la Solución para convertir en To-Do.', 'warn'); return; }
+    // Si el tema es recurrente, exigir causa raíz antes de cerrar
+    const recur = computeIdsRecurrence(iss.topic);
+    if(recur >= 2){
+        const rootCause = prompt(
+            `🔥 Este tema apareció en ${recur} reuniones anteriores.\n\n` +
+            `Antes de cerrarlo, escribí la CAUSA RAÍZ que estás atacando esta vez ` +
+            `(qué está realmente generando el problema, no el síntoma):`
+        );
+        if(rootCause===null) return; // cancel
+        if(!rootCause.trim()){
+            showToast('Sin causa raíz no se puede cerrar un tema recurrente.', 'error');
+            return;
+        }
+        // Guardar causa raíz en Identify para que quede en history
+        const tag = '\n\n[Causa raíz ' + new Date().toLocaleDateString('es-AR') + ']: ' + rootCause.trim();
+        const newIdentify = (iss.identify||'').trim() + tag;
+        try { await api('PUT',`/api/ids/${id}`,{identify:newIdentify}); } catch(e){}
+        iss.identify = newIdentify;
+    }
     try {
         const r=await api('POST',`/api/ids/${id}/convert-to-todo`,{fallbackOwner:iss.owner||participants[0]||'Equipo'});
-        if(r.todo){ todos.push(r.todo); renderTodos(); updateCounters(); }
-    } catch(e){}
+        if(r.todo){ todos.push(r.todo); renderTodos(); updateCounters(); showToast('Convertido en To-Do', 'success'); }
+    } catch(e){ showToast('Error al convertir. Probá de nuevo.', 'error'); return; }
     idsIssues = idsIssues.filter(x=>x.id!==id);
     expandedIdsItems.delete(id);
     syncIdsViews();
@@ -1240,7 +1308,44 @@ function formatWeekRange(monday){
     return `${days[m.getDay()]} ${m.getDate()}/${m.getMonth()+1} a ${days[f.getDay()]} ${f.getDate()}/${f.getMonth()+1}`;
 }
 
+function buildSegueDashboard(){
+    if(!historyData || historyData.length===0) return '';
+    const last = historyData[0];
+    const lastDate = last.date ? new Date(last.date).toLocaleDateString('es-AR',{day:'numeric',month:'short'}) : '';
+    const lastWin = (last.win||'').trim();
+    const lastImp = (last.improvement||'').trim();
+    const prevTodos = Array.isArray(last.todos)?last.todos:[];
+    const prevDone = prevTodos.filter(t=>t.done).length;
+    // Current state
+    const carried = todos.filter(t=>t.carried).length;
+    const totalPending = todos.filter(t=>!t.done).length;
+    const recurrentIds = idsIssues.filter(iss=>computeIdsRecurrence(iss.topic)>=2).length;
+    const oldIds = idsIssues.filter(iss=>{
+        if(!iss.created_at) return false;
+        const w = Math.floor((Date.now()-new Date(iss.created_at).getTime())/(7*24*3600*1000));
+        return w>=2;
+    }).length;
+    let rows='';
+    if(lastWin) rows+=`<div class="segue-dash-row"><span class="segue-dash-icon">🏆</span><div><strong>Win previo:</strong> ${lastWin}</div></div>`;
+    if(lastImp) rows+=`<div class="segue-dash-row"><span class="segue-dash-icon">⚠️</span><div><strong>Mejora prometida:</strong> ${lastImp}</div></div>`;
+    let stats='<div class="segue-dash-stats">';
+    if(prevTodos.length>0){
+        const cls = prevDone/prevTodos.length>=0.7?'dash-good':(prevDone/prevTodos.length>=0.4?'dash-warn':'dash-alert');
+        stats+=`<span class="segue-dash-stat ${cls}">📋 ${prevDone}/${prevTodos.length} cerrados últ. sem.</span>`;
+    }
+    if(totalPending>0) stats+=`<span class="segue-dash-stat ${carried>0?'dash-warn':''}">📌 ${totalPending} pendientes hoy${carried>0?` (${carried} de antes)`:''}</span>`;
+    if(recurrentIds>0) stats+=`<span class="segue-dash-stat dash-recur">↻ ${recurrentIds} IDS recurrente${recurrentIds!==1?'s':''}</span>`;
+    if(oldIds>0) stats+=`<span class="segue-dash-stat dash-alert">🔥 ${oldIds} IDS abierto${oldIds!==1?'s':''} +2 sem</span>`;
+    stats+='</div>';
+    return `<div class="segue-dashboard">
+        <div class="segue-dashboard-title">Resumen — última reunión ${lastDate}</div>
+        ${rows}
+        ${stats}
+    </div>`;
+}
+
 function buildModalSegue(){
+    const dashboard = buildSegueDashboard();
     const doneCount=participants.filter(p=>checkins[p]?.done).length;
     const list=participants.map(p=>{
         const ck=checkins[p]||{text:'',done:false};
@@ -1257,7 +1362,7 @@ function buildModalSegue(){
     const actionBtn=nextPending!==-1
         ?`<button class="modal-btn modal-btn-primary" onclick="showCheckinPopup(${nextPending})" style="margin-top:14px">Continuar Check-in (${doneCount}/${participants.length})</button>`
         :`<div style="text-align:center;color:var(--accent-emerald);font-weight:700;font-size:14px;margin-top:14px">✓ Check-in Completo — ${participants.length}/${participants.length}</div>`;
-    return `<div style="padding:4px 0">${list}</div>${actionBtn}`;
+    return `${dashboard}<div style="padding:4px 0">${list}</div>${actionBtn}`;
 }
 
 function syncModal(){
@@ -1627,38 +1732,69 @@ async function addTodo(){
 
 async function toggleTodo(id){
     const t=todos.find(x=>x.id===id); if(!t)return;
-    t.done=!t.done;
-    try { await api('PATCH',`/api/todos/${id}`); } catch(e){}
+    const newDone = !t.done;
+    t.done = newDone; // optimistic
     renderTodos(); updateCounters(); syncModal();
+    try {
+        await api('PATCH',`/api/todos/${id}`,{done:newDone});
+    } catch(e){
+        t.done = !newDone; // revert
+        renderTodos(); updateCounters(); syncModal();
+        showToast('No se pudo guardar. Probá de nuevo.', 'error');
+    }
 }
 
 async function deleteTodo(id){
-    todos=todos.filter(x=>x.id!==id);
-    try { await api('DELETE',`/api/todos/${id}`); } catch(e){}
+    const snapshot = todos.slice();
+    todos = todos.filter(x=>x.id!==id);
     renderTodos(); updateCounters(); syncModal();
+    try { await api('DELETE',`/api/todos/${id}`); }
+    catch(e){
+        todos = snapshot; // revert
+        renderTodos(); updateCounters(); syncModal();
+        showToast('No se pudo eliminar. Probá de nuevo.', 'error');
+    }
 }
 
+let _todoDonePanelOpen = false;
+function toggleDonePanel(){ _todoDonePanelOpen = !_todoDonePanelOpen; renderTodos(); }
+
 function renderTodos(){
-    // Show only pending (not done) - completed ones disappear from card but are saved to history on meeting end
-    const visible=todos.filter(t=>!t.done);
+    const pending = todos.filter(t=>!t.done);
+    const done = todos.filter(t=>t.done);
     const c=document.getElementById('todoList');
-    if(visible.length===0 && todos.length===0){
+    if(todos.length===0){
         c.innerHTML='<div style="color:var(--text-muted);font-size:12px;padding:8px;text-align:center">Sin to-dos</div>';
         return;
     }
-    if(visible.length===0){
-        const doneCount=todos.filter(t=>t.done).length;
-        c.innerHTML=`<div style="color:var(--accent-emerald);font-size:12px;padding:8px;text-align:center">&#10003; ${doneCount} completado${doneCount!==1?'s':''} - listos para archivar</div>`;
-        return;
-    }
-    c.innerHTML=visible.map(t=>`
-        <div class="todo-item">
-            <div class="todo-checkbox ${t.done?'checked':''}" onclick="toggleTodo('${t.id}')"></div>
-            <span class="todo-text ${t.done?'done':''}">${t.text}</span>
+    const pendingHtml = pending.length===0
+        ? `<div style="color:var(--accent-emerald);font-size:12px;padding:8px;text-align:center">&#10003; Sin pendientes</div>`
+        : pending.map(t=>`<div class="todo-item">
+            <div class="todo-checkbox" onclick="toggleTodo('${t.id}')"></div>
+            <span class="todo-text">${t.text}</span>
             ${t.carried?'<span class="todo-carried">anterior</span>':''}
             <span class="todo-owner">${t.owner}</span>
             <button class="todo-delete" onclick="deleteTodo('${t.id}')" title="Eliminar">&times;</button>
         </div>`).join('');
+    let doneHtml = '';
+    if(done.length>0){
+        const arrow = _todoDonePanelOpen ? '▾' : '▸';
+        doneHtml = `<div class="todo-done-section">
+            <button class="todo-done-toggle" onclick="toggleDonePanel()">
+                <span>&#10003; ${done.length} completado${done.length!==1?'s':''}</span>
+                <span>${arrow}</span>
+            </button>`;
+        if(_todoDonePanelOpen){
+            doneHtml += `<div class="todo-done-list">` + done.map(t=>`<div class="todo-item">
+                <div class="todo-checkbox checked" onclick="toggleTodo('${t.id}')" title="Destachar"></div>
+                <span class="todo-text">${t.text}</span>
+                <span class="todo-owner">${t.owner}</span>
+                <button class="todo-delete" onclick="deleteTodo('${t.id}')" title="Eliminar">&times;</button>
+            </div>`).join('') + `</div>`;
+        }
+        doneHtml += `</div>`;
+    }
+    c.innerHTML = pendingHtml + doneHtml;
 }
 
 // === NOTES (auto-save) ===

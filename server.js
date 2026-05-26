@@ -164,13 +164,22 @@ app.post('/api/todos', async (req, res) => {
     }
 });
 
-// Toggle todo
+// Toggle todo (or SET if body.done is a boolean)
 app.patch('/api/todos/:id', async (req, res) => {
     try {
-        const result = await pool.query(
-            'UPDATE todos SET done = NOT done WHERE id = $1 RETURNING *',
-            [req.params.id]
-        );
+        let result;
+        if (req.body && typeof req.body.done === 'boolean') {
+            result = await pool.query(
+                'UPDATE todos SET done = $1 WHERE id = $2 RETURNING *',
+                [req.body.done, req.params.id]
+            );
+        } else {
+            // Backwards-compat: toggle if no explicit value given
+            result = await pool.query(
+                'UPDATE todos SET done = NOT done WHERE id = $1 RETURNING *',
+                [req.params.id]
+            );
+        }
         if (result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
         const r = result.rows[0];
         res.json({ id: r.id, text: r.text, owner: r.owner, done: r.done, carried: r.carried });
