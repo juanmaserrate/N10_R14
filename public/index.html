@@ -218,28 +218,48 @@
 
         /* IDS Issues (3 separated items) */
         .ids-issues { margin-top:16px; display:flex; flex-direction:column; gap:12px; }
-        .ids-issue { background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:12px; margin-bottom:10px; transition:border-color 0.2s; }
-        .ids-issue.ids-no-solve { border-color:rgba(244,63,94,0.5); box-shadow:inset 0 0 0 1px rgba(244,63,94,0.15); }
-        .ids-issue-header { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; }
-        .ids-issue-title { font-size:12px; font-weight:700; color:var(--accent-violet); text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:8px; }
-        .ids-issue-actions { display:flex; align-items:center; gap:6px; }
+        .ids-quick-bar { display:flex; gap:6px; margin-bottom:10px; }
+        .ids-quick-bar input { flex:1; background:rgba(139,92,246,0.06); border:1px solid rgba(139,92,246,0.4); border-radius:8px; padding:10px 12px; color:var(--text-primary); font-size:13px; font-family:'Inter',sans-serif; outline:none; }
+        .ids-quick-bar input:focus { border-color:var(--accent-violet); background:rgba(139,92,246,0.10); }
+        .ids-quick-bar input::placeholder { color:rgba(139,92,246,0.6); }
+        .ids-quick-bar button { background:var(--accent-violet); color:white; border:none; border-radius:8px; padding:0 14px; font-weight:800; font-size:16px; cursor:pointer; min-width:42px; transition:filter 0.2s; }
+        .ids-quick-bar button:hover { filter:brightness(1.15); }
+        .ids-issue { background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:10px 12px; margin-bottom:8px; transition:border-color 0.2s; }
+        .ids-issue.ids-no-solve.expanded { border-color:rgba(244,63,94,0.45); box-shadow:inset 0 0 0 1px rgba(244,63,94,0.12); }
+        .ids-issue-header { display:flex; align-items:center; gap:8px; }
+        .ids-expand-toggle { background:transparent; border:none; color:var(--accent-violet); cursor:pointer; font-size:12px; padding:0 4px; flex-shrink:0; transition:transform 0.2s; }
+        .ids-issue.expanded .ids-expand-toggle { transform:rotate(90deg); }
+        .ids-issue-topic { flex:1; font-size:13px; font-weight:600; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .ids-issue-topic.untitled { color:var(--text-muted); font-style:italic; font-weight:500; }
+        .ids-status-dots { display:flex; gap:3px; flex-shrink:0; }
+        .ids-status-dot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.12); }
+        .ids-status-dot.filled-i { background:#ef4444; box-shadow:0 0 4px rgba(239,68,68,0.5); }
+        .ids-status-dot.filled-d { background:#f59e0b; box-shadow:0 0 4px rgba(245,158,11,0.5); }
+        .ids-status-dot.filled-s { background:#10b981; box-shadow:0 0 4px rgba(16,185,129,0.5); }
+        .ids-issue-actions { display:flex; align-items:center; gap:6px; flex-shrink:0; }
+        .ids-issue-body { margin-top:12px; padding-top:10px; border-top:1px solid var(--border-subtle); display:none; }
+        .ids-issue.expanded .ids-issue-body { display:block; }
+        .ids-meta-row { display:flex; align-items:center; gap:8px; margin-top:10px; padding-top:8px; border-top:1px dashed var(--border-subtle); }
+        .ids-meta-label { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.6px; font-weight:700; }
         .ids-issue-field { margin-bottom:8px; }
         .ids-issue-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-muted); margin-bottom:4px; display:block; }
         .ids-issue-input { width:100%; background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:8px; padding:8px 10px; color:var(--text-primary); font-size:12px; font-family:'Inter',sans-serif; outline:none; resize:vertical; min-height:36px; }
         .ids-issue-input:focus { border-color:var(--accent-violet); }
-        .ids-priority { background:rgba(255,255,255,0.04); border:1px solid var(--border-subtle); color:var(--text-primary); border-radius:6px; padding:4px 6px; font-size:11px; font-weight:700; cursor:pointer; }
+        .ids-issue-topic-input { width:100%; background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:8px; padding:8px 10px; color:var(--text-primary); font-size:13px; font-weight:600; font-family:'Inter',sans-serif; outline:none; }
+        .ids-issue-topic-input:focus { border-color:var(--accent-violet); }
+        .ids-priority { background:rgba(255,255,255,0.04); border:1px solid var(--border-subtle); color:var(--text-primary); border-radius:6px; padding:4px 8px; font-size:11px; font-weight:700; cursor:pointer; }
         .ids-priority.ids-prio-alta   { color:#f43f5e; border-color:rgba(244,63,94,0.5); background:rgba(244,63,94,0.10); }
         .ids-priority.ids-prio-media  { color:#f59e0b; border-color:rgba(245,158,11,0.5); background:rgba(245,158,11,0.10); }
         .ids-priority.ids-prio-baja   { color:#10b981; border-color:rgba(16,185,129,0.4); background:rgba(16,185,129,0.10); }
-        .ids-owner { background:rgba(255,255,255,0.04); border:1px solid var(--border-subtle); color:var(--text-primary); border-radius:6px; padding:4px 6px; font-size:11px; cursor:pointer; max-width:110px; }
-        .ids-del { background:rgba(244,63,94,0.10); border:1px solid rgba(244,63,94,0.3); color:#f43f5e; width:24px; height:24px; border-radius:6px; cursor:pointer; font-size:14px; line-height:1; display:flex; align-items:center; justify-content:center; }
+        .ids-owner { background:rgba(255,255,255,0.04); border:1px solid var(--border-subtle); color:var(--text-primary); border-radius:6px; padding:4px 8px; font-size:11px; cursor:pointer; max-width:130px; }
+        .ids-del { background:rgba(244,63,94,0.10); border:1px solid rgba(244,63,94,0.3); color:#f43f5e; width:24px; height:24px; border-radius:6px; cursor:pointer; font-size:14px; line-height:1; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
         .ids-del:hover { background:rgba(244,63,94,0.2); }
-        .ids-add { width:100%; padding:10px; background:rgba(139,92,246,0.10); border:1px dashed rgba(139,92,246,0.4); color:var(--accent-violet); border-radius:8px; cursor:pointer; font-size:12px; font-weight:700; margin-top:8px; transition:all 0.2s; }
-        .ids-add:hover { background:rgba(139,92,246,0.18); border-style:solid; }
         .ids-convert { margin-top:6px; padding:6px 10px; background:rgba(16,185,129,0.10); border:1px solid rgba(16,185,129,0.4); color:#10b981; border-radius:6px; cursor:pointer; font-size:11px; font-weight:700; transition:all 0.2s; }
         .ids-convert:hover:not(:disabled) { background:rgba(16,185,129,0.2); }
         .ids-convert:disabled { opacity:0.4; cursor:not-allowed; }
-        .ids-carry { font-size:10px; color:#f59e0b; background:rgba(245,158,11,0.10); padding:2px 6px; border-radius:6px; border:1px solid rgba(245,158,11,0.3); text-transform:none; letter-spacing:0; }
+        .ids-carry { font-size:10px; color:#f59e0b; background:rgba(245,158,11,0.10); padding:2px 6px; border-radius:6px; border:1px solid rgba(245,158,11,0.3); text-transform:none; letter-spacing:0; font-weight:600; flex-shrink:0; }
+        .ids-recurrent { font-size:10px; color:var(--accent-cyan); background:rgba(6,182,212,0.10); padding:2px 7px; border-radius:6px; border:1px solid rgba(6,182,212,0.4); font-weight:700; flex-shrink:0; cursor:help; }
+        .ids-empty { color:var(--text-muted); font-size:12px; padding:14px; text-align:center; font-style:italic; }
 
         /* Check-in / Segue */
         .checkin-participants { display:flex; flex-direction:column; gap:8px; }
@@ -690,55 +710,109 @@ function completeCheckin(idx){
 }
 
 // === IDS ISSUES ===
-function idsIssueHtml(iss, i, opts){
+let expandedIdsItems = new Set();
+
+function normalizeIdsTopic(t){
+    return String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+}
+function computeIdsRecurrence(topic){
+    const norm=normalizeIdsTopic(topic);
+    if(norm.length<3) return 0;
+    const sigWords=norm.split(' ').filter(w=>w.length>3);
+    let count=0;
+    for(const hist of (historyData||[])){
+        const prevIds=hist.ids_data||[];
+        let matched=false;
+        for(const prev of prevIds){
+            const pn=normalizeIdsTopic(prev.topic);
+            if(!pn) continue;
+            if(pn===norm || pn.includes(norm) || norm.includes(pn)) { matched=true; break; }
+            if(sigWords.length>0 && sigWords.some(w=>pn.includes(w))) { matched=true; break; }
+        }
+        if(matched) count++;
+    }
+    return count;
+}
+
+function idsIssueHtml(iss, i){
     const noSolve = !iss.solve || !iss.solve.trim();
+    const expanded = expandedIdsItems.has(iss.id);
     const created = iss.created_at ? new Date(iss.created_at) : null;
     const weeksOpen = created ? Math.max(0, Math.floor((Date.now()-created.getTime())/(7*24*3600*1000))) : 0;
-    const carriedTag = weeksOpen>=1 ? `<span class="ids-carry">Pendiente hace ${weeksOpen} sem.</span>` : '';
+    const carriedTag = weeksOpen>=1 ? `<span class="ids-carry" title="Sigue abierto desde hace ${weeksOpen} semana(s)">Pendiente ${weeksOpen} sem.</span>` : '';
+    const recurCount = computeIdsRecurrence(iss.topic);
+    const recurTag = recurCount>=1 ? `<span class="ids-recurrent" title="Apareció en ${recurCount} reunión(es) anteriores">↻ Recurrente · ${recurCount}x</span>` : '';
     const ownerOptsHtml = participants.map(p=>`<option value="${p}" ${iss.owner===p?'selected':''}>${p}</option>`).join('');
     const prio = iss.priority || 'media';
-    return `<div class="ids-issue ${noSolve?'ids-no-solve':''}" data-id="${iss.id}">
+    const hasI = !!(iss.identify||'').trim();
+    const hasD = !!(iss.discuss||'').trim();
+    const hasS = !!(iss.solve||'').trim();
+    const statusDots = `<div class="ids-status-dots" title="I/D/S: ${hasI?'sí':'no'}/${hasD?'sí':'no'}/${hasS?'sí':'no'}">
+        <div class="ids-status-dot ${hasI?'filled-i':''}"></div>
+        <div class="ids-status-dot ${hasD?'filled-d':''}"></div>
+        <div class="ids-status-dot ${hasS?'filled-s':''}"></div>
+    </div>`;
+    const topicEsc=(iss.topic||'').replace(/</g,'&lt;');
+    const topicDisplay = iss.topic ? topicEsc : '(sin título)';
+    const topicClass = iss.topic ? '' : 'untitled';
+    return `<div class="ids-issue ${noSolve?'ids-no-solve':''} ${expanded?'expanded':''}" data-id="${iss.id}">
         <div class="ids-issue-header">
-            <div class="ids-issue-title">Tema ${i+1} ${carriedTag}</div>
+            <button class="ids-expand-toggle" onclick="toggleIdsExpand('${iss.id}')" title="${expanded?'Cerrar':'Abrir'}">&#9654;</button>
+            <span class="ids-issue-topic ${topicClass}" onclick="toggleIdsExpand('${iss.id}')">${topicDisplay}</span>
+            ${recurTag}
+            ${carriedTag}
+            ${statusDots}
             <div class="ids-issue-actions">
-                <select class="ids-priority ids-prio-${prio}" onchange="updateIdsField('${iss.id}','priority',this.value)">
+                <button class="ids-del" onclick="deleteIdsIssue('${iss.id}')" title="Eliminar">&times;</button>
+            </div>
+        </div>
+        <div class="ids-issue-body">
+            <div class="ids-issue-field">
+                <label class="ids-issue-label">Topico</label>
+                <input class="ids-issue-topic-input" type="text" value="${(iss.topic||'').replace(/"/g,'&quot;')}" onchange="updateIdsField('${iss.id}','topic',this.value)" placeholder="Cual es el tema?">
+            </div>
+            <div class="ids-issue-field">
+                <label class="ids-issue-label" style="color:#ef4444">I - Identificar</label>
+                <textarea class="ids-issue-input" onchange="updateIdsField('${iss.id}','identify',this.value)" placeholder="Identificar la raiz...">${iss.identify||''}</textarea>
+            </div>
+            <div class="ids-issue-field">
+                <label class="ids-issue-label" style="color:#f59e0b">D - Discutir</label>
+                <textarea class="ids-issue-input" onchange="updateIdsField('${iss.id}','discuss',this.value)" placeholder="Discutir abiertamente...">${iss.discuss||''}</textarea>
+            </div>
+            <div class="ids-issue-field">
+                <label class="ids-issue-label" style="color:#10b981">S - Solucionar</label>
+                <textarea class="ids-issue-input" onchange="updateIdsField('${iss.id}','solve',this.value)" placeholder="Solucion acordada...">${iss.solve||''}</textarea>
+                <button class="ids-convert" onclick="convertIdsToTodo('${iss.id}')" ${noSolve?'disabled':''}>Convertir S &rarr; To-Do</button>
+            </div>
+            <div class="ids-meta-row">
+                <span class="ids-meta-label">Opcional:</span>
+                <select class="ids-priority ids-prio-${prio}" onchange="updateIdsField('${iss.id}','priority',this.value)" title="Prioridad">
                     <option value="alta" ${prio==='alta'?'selected':''}>Alta</option>
                     <option value="media" ${prio==='media'?'selected':''}>Media</option>
                     <option value="baja" ${prio==='baja'?'selected':''}>Baja</option>
                 </select>
-                <select class="ids-owner" onchange="updateIdsField('${iss.id}','owner',this.value)">
-                    <option value="">Owner...</option>${ownerOptsHtml}
+                <select class="ids-owner" onchange="updateIdsField('${iss.id}','owner',this.value)" title="Owner">
+                    <option value="">Sin owner</option>${ownerOptsHtml}
                 </select>
-                <button class="ids-del" onclick="deleteIdsIssue('${iss.id}')" title="Eliminar">&times;</button>
             </div>
         </div>
-        <div class="ids-issue-field">
-            <label class="ids-issue-label">Topico</label>
-            <input class="ids-issue-input" type="text" value="${(iss.topic||'').replace(/"/g,'&quot;')}" onchange="updateIdsField('${iss.id}','topic',this.value)" placeholder="Cual es el tema?">
-        </div>
-        <div class="ids-issue-field">
-            <label class="ids-issue-label" style="color:#ef4444">I - Identificar</label>
-            <textarea class="ids-issue-input" onchange="updateIdsField('${iss.id}','identify',this.value)" placeholder="Identificar la raiz...">${iss.identify||''}</textarea>
-        </div>
-        <div class="ids-issue-field">
-            <label class="ids-issue-label" style="color:#f59e0b">D - Discutir</label>
-            <textarea class="ids-issue-input" onchange="updateIdsField('${iss.id}','discuss',this.value)" placeholder="Discutir abiertamente...">${iss.discuss||''}</textarea>
-        </div>
-        <div class="ids-issue-field">
-            <label class="ids-issue-label" style="color:#10b981">S - Solucionar</label>
-            <textarea class="ids-issue-input" onchange="updateIdsField('${iss.id}','solve',this.value)" placeholder="Solucion acordada...">${iss.solve||''}</textarea>
-            <button class="ids-convert" onclick="convertIdsToTodo('${iss.id}')" ${noSolve?'disabled':''}>Convertir S &rarr; To-Do</button>
-        </div>
+    </div>`;
+}
+
+function idsQuickBarHtml(idSuffix){
+    return `<div class="ids-quick-bar">
+        <input id="idsQuickInput-${idSuffix}" type="text" placeholder="Nuevo tema rápido... (Enter para agregar)" onkeypress="if(event.key==='Enter'){event.preventDefault();addIdsIssueQuick(this);}">
+        <button onclick="addIdsIssueQuick(document.getElementById('idsQuickInput-${idSuffix}'))" title="Agregar tema">+</button>
     </div>`;
 }
 
 function renderIdsIssues(){
     const c=document.getElementById('idsIssues');
     if(!c) return;
-    const body = idsIssues.length===0
-        ? '<div style="color:var(--text-muted);font-size:12px;padding:12px;text-align:center">Sin temas. Agrega uno abajo.</div>'
+    const list = idsIssues.length===0
+        ? '<div class="ids-empty">Sin temas. Tipea uno arriba y Enter.</div>'
         : idsIssues.map((iss,i)=>idsIssueHtml(iss,i)).join('');
-    c.innerHTML = body + `<button class="ids-add" onclick="addIdsIssue()">+ Tema</button>`;
+    c.innerHTML = idsQuickBarHtml('panel') + list;
 }
 
 async function updateIdsField(id, field, value){
@@ -746,15 +820,40 @@ async function updateIdsField(id, field, value){
     if(iss) iss[field]=value;
     try { await api('PUT',`/api/ids/${id}`,{[field]:value}); }
     catch(e){}
-    // Re-render only on solve change to update no-solve highlight, or priority for color
-    if(field==='solve'||field==='priority') syncIdsViews();
+    // Re-render on changes that affect visuals (status dots, recurrence chip, etc.)
+    if(field==='topic'||field==='identify'||field==='discuss'||field==='solve'||field==='priority') syncIdsViews();
 }
 
+async function addIdsIssueQuick(inp){
+    if(!inp) return;
+    const topic = (inp.value||'').trim();
+    if(!topic) { inp.focus(); return; }
+    const inpId = inp.id;
+    let item;
+    try { item = await api('POST','/api/ids',{topic}); }
+    catch(e){ item = {id:'tmp'+Date.now(),topic,identify:'',discuss:'',solve:'',priority:'media',owner:'',created_at:new Date().toISOString()}; }
+    idsIssues.push(item);
+    syncIdsViews();
+    // Refocus the (newly re-rendered) input so the user can rapid-fire more temas
+    setTimeout(()=>{
+        const ni=document.getElementById(inpId);
+        if(ni){ ni.value=''; ni.focus(); }
+    },0);
+}
+
+// Kept for backwards compat (creates an empty IDS, e.g., for legacy callers)
 async function addIdsIssue(){
     let item;
     try { item = await api('POST','/api/ids',{}); }
     catch(e){ item = {id:'tmp'+Date.now(),topic:'',identify:'',discuss:'',solve:'',priority:'media',owner:'',created_at:new Date().toISOString()}; }
     idsIssues.push(item);
+    expandedIdsItems.add(item.id); // empty items must be expanded so user can type
+    syncIdsViews();
+}
+
+function toggleIdsExpand(id){
+    if(expandedIdsItems.has(id)) expandedIdsItems.delete(id);
+    else expandedIdsItems.add(id);
     syncIdsViews();
 }
 
@@ -762,6 +861,7 @@ async function deleteIdsIssue(id){
     if(!confirm('Eliminar este tema?')) return;
     try { await api('DELETE',`/api/ids/${id}`); } catch(e){}
     idsIssues = idsIssues.filter(x=>x.id!==id);
+    expandedIdsItems.delete(id);
     syncIdsViews();
 }
 
@@ -773,6 +873,7 @@ async function convertIdsToTodo(id){
         if(r.todo){ todos.push(r.todo); renderTodos(); updateCounters(); }
     } catch(e){}
     idsIssues = idsIssues.filter(x=>x.id!==id);
+    expandedIdsItems.delete(id);
     syncIdsViews();
 }
 
@@ -1238,10 +1339,10 @@ function buildModalTodos(){
 }
 
 function buildModalIDS(){
-    const body = idsIssues.length===0
-        ? '<div style="color:var(--text-muted);font-size:12px;padding:12px;text-align:center">Sin temas abiertos. Agrega uno abajo.</div>'
+    const list = idsIssues.length===0
+        ? '<div class="ids-empty">Sin temas. Tipea uno arriba y Enter.</div>'
         : idsIssues.map((iss,i)=>idsIssueHtml(iss,i)).join('');
-    return body + `<button class="ids-add" onclick="addIdsIssue()">+ Tema</button>`;
+    return idsQuickBarHtml('modal') + list;
 }
 
 function buildModalConclude(){
