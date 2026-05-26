@@ -261,14 +261,6 @@
         .ids-recurrent { font-size:10px; color:var(--accent-cyan); background:rgba(6,182,212,0.10); padding:2px 7px; border-radius:6px; border:1px solid rgba(6,182,212,0.4); font-weight:700; flex-shrink:0; cursor:help; }
         .ids-empty { color:var(--text-muted); font-size:12px; padding:14px; text-align:center; font-style:italic; }
 
-        /* Toast notifications */
-        .toast-stack { position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:8px; pointer-events:none; }
-        .toast { background:var(--bg-card); border:1px solid var(--border-subtle); padding:12px 16px; border-radius:8px; color:var(--text-primary); font-size:13px; font-weight:500; box-shadow:0 10px 30px rgba(0,0,0,0.5); display:flex; align-items:center; gap:8px; pointer-events:auto; animation:toastIn 0.2s ease; max-width:380px; }
-        .toast.toast-error { border-color:rgba(244,63,94,0.5); background:rgba(244,63,94,0.10); color:#fda4af; }
-        .toast.toast-success { border-color:rgba(16,185,129,0.5); background:rgba(16,185,129,0.10); color:#6ee7b7; }
-        .toast.toast-warn { border-color:rgba(245,158,11,0.5); background:rgba(245,158,11,0.10); color:#fcd34d; }
-        @keyframes toastIn { from { transform:translateX(100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
-
         /* Done todos collapsible in sidebar */
         .todo-done-section { margin-top:10px; padding-top:10px; border-top:1px dashed var(--border-subtle); }
         .todo-done-toggle { background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25); color:var(--accent-emerald); width:100%; padding:6px 10px; border-radius:6px; cursor:pointer; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:space-between; }
@@ -556,8 +548,6 @@
 </button>
 
 <!-- MODAL -->
-<div class="toast-stack" id="toastStack"></div>
-
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal" id="modalContent">
         <div class="timer-ring-container">
@@ -608,15 +598,6 @@ async function api(method, url, body) {
     return r.json();
 }
 
-function showToast(message, variant='info', durationMs=3500){
-    const stack = document.getElementById('toastStack');
-    if(!stack) return;
-    const el = document.createElement('div');
-    el.className = `toast toast-${variant}`;
-    el.textContent = message;
-    stack.appendChild(el);
-    setTimeout(()=>{ el.style.transition='opacity 0.25s'; el.style.opacity='0'; setTimeout(()=>el.remove(),250); }, durationMs);
-}
 
 async function loadData() {
     try {
@@ -916,7 +897,7 @@ async function deleteIdsIssue(id){
 
 async function convertIdsToTodo(id){
     const iss=idsIssues.find(x=>x.id===id);
-    if(!iss || !iss.solve || !iss.solve.trim()){ showToast('Falta la Solución para convertir en To-Do.', 'warn'); return; }
+    if(!iss || !iss.solve || !iss.solve.trim()){ alert('Falta la Solución para convertir en To-Do.'); return; }
     // Si el tema es recurrente, exigir causa raíz antes de cerrar
     const recur = computeIdsRecurrence(iss.topic);
     if(recur >= 2){
@@ -927,7 +908,7 @@ async function convertIdsToTodo(id){
         );
         if(rootCause===null) return; // cancel
         if(!rootCause.trim()){
-            showToast('Sin causa raíz no se puede cerrar un tema recurrente.', 'error');
+            alert('Sin causa raíz no se puede cerrar un tema recurrente.');
             return;
         }
         // Guardar causa raíz en Identify para que quede en history
@@ -938,8 +919,8 @@ async function convertIdsToTodo(id){
     }
     try {
         const r=await api('POST',`/api/ids/${id}/convert-to-todo`,{fallbackOwner:iss.owner||participants[0]||'Equipo'});
-        if(r.todo){ todos.push(r.todo); renderTodos(); updateCounters(); showToast('Convertido en To-Do', 'success'); }
-    } catch(e){ showToast('Error al convertir. Probá de nuevo.', 'error'); return; }
+        if(r.todo){ todos.push(r.todo); renderTodos(); updateCounters(); }
+    } catch(e){ return; }
     idsIssues = idsIssues.filter(x=>x.id!==id);
     expandedIdsItems.delete(id);
     syncIdsViews();
@@ -1738,9 +1719,8 @@ async function toggleTodo(id){
     try {
         await api('PATCH',`/api/todos/${id}`,{done:newDone});
     } catch(e){
-        t.done = !newDone; // revert
+        t.done = !newDone; // revert si falla
         renderTodos(); updateCounters(); syncModal();
-        showToast('No se pudo guardar. Probá de nuevo.', 'error');
     }
 }
 
@@ -1750,9 +1730,8 @@ async function deleteTodo(id){
     renderTodos(); updateCounters(); syncModal();
     try { await api('DELETE',`/api/todos/${id}`); }
     catch(e){
-        todos = snapshot; // revert
+        todos = snapshot; // revert si falla
         renderTodos(); updateCounters(); syncModal();
-        showToast('No se pudo eliminar. Probá de nuevo.', 'error');
     }
 }
 
