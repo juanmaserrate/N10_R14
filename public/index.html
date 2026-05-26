@@ -251,7 +251,11 @@
         .ids-priority.ids-prio-alta   { color:#f43f5e; border-color:rgba(244,63,94,0.5); background:rgba(244,63,94,0.10); }
         .ids-priority.ids-prio-media  { color:#f59e0b; border-color:rgba(245,158,11,0.5); background:rgba(245,158,11,0.10); }
         .ids-priority.ids-prio-baja   { color:#10b981; border-color:rgba(16,185,129,0.4); background:rgba(16,185,129,0.10); }
-        .ids-owner { background:rgba(255,255,255,0.04); border:1px solid var(--border-subtle); color:var(--text-primary); border-radius:6px; padding:4px 8px; font-size:11px; cursor:pointer; max-width:130px; }
+        .ids-owner { background:rgba(255,255,255,0.04); border:1px solid var(--border-subtle); color:var(--text-primary); border-radius:6px; padding:4px 10px; font-size:12px; cursor:pointer; min-width:140px; appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%2364748b' d='M0 0l5 6 5-6z'/></svg>"); background-repeat:no-repeat; background-position:right 8px center; padding-right:22px; }
+        .ids-owner:hover { border-color:var(--accent-violet); }
+        .ids-owner:focus { outline:none; border-color:var(--accent-violet); }
+        .ids-owner option { background:var(--bg-card); color:var(--text-primary); padding:8px; }
+        .ids-owner option:checked { background:var(--accent-violet); color:white; }
         .ids-del { background:rgba(244,63,94,0.10); border:1px solid rgba(244,63,94,0.3); color:#f43f5e; width:24px; height:24px; border-radius:6px; cursor:pointer; font-size:14px; line-height:1; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
         .ids-del:hover { background:rgba(244,63,94,0.2); }
         .ids-convert { margin-top:6px; padding:6px 10px; background:rgba(16,185,129,0.10); border:1px solid rgba(16,185,129,0.4); color:#10b981; border-radius:6px; cursor:pointer; font-size:11px; font-weight:700; transition:all 0.2s; }
@@ -815,14 +819,9 @@ function idsIssueHtml(iss, i){
                 <button class="ids-convert" onclick="convertIdsToTodo('${iss.id}')" ${noSolve?'disabled':''}>Convertir S &rarr; To-Do</button>
             </div>
             <div class="ids-meta-row">
-                <span class="ids-meta-label">Opcional:</span>
-                <select class="ids-priority ids-prio-${prio}" onchange="updateIdsField('${iss.id}','priority',this.value)" title="Prioridad">
-                    <option value="alta" ${prio==='alta'?'selected':''}>Alta</option>
-                    <option value="media" ${prio==='media'?'selected':''}>Media</option>
-                    <option value="baja" ${prio==='baja'?'selected':''}>Baja</option>
-                </select>
-                <select class="ids-owner" onchange="updateIdsField('${iss.id}','owner',this.value)" title="Owner">
-                    <option value="">Sin owner</option>${ownerOptsHtml}
+                <span class="ids-meta-label">Asignar a:</span>
+                <select class="ids-owner" onchange="updateIdsField('${iss.id}','owner',this.value)" title="Asignar a">
+                    <option value="">Sin asignar</option>${ownerOptsHtml}
                 </select>
             </div>
         </div>
@@ -1518,9 +1517,8 @@ function copyRecap(ev){
     if(openIds.length>0){
         out+=`\n🔥 IDS abiertos:\n`;
         openIds.forEach(x=>{
-            const prio=(x.priority||'media').toUpperCase();
             const own=x.owner?` (${x.owner})`:'';
-            out+=` • [${prio}] ${x.topic||'(sin titulo)'}${own}\n`;
+            out+=` • ${x.topic||'(sin titulo)'}${own}\n`;
         });
     }
     const lowRaters=participants.filter(p=>ratings[p]>0 && ratings[p]<8 && concerns[p]);
