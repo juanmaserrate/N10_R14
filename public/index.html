@@ -1477,18 +1477,23 @@ function buildModalConclude(){
             <select class="owner-select" id="mConcludeTodoOwner">${ownerOpts()}</select>
             <button class="add-btn" onclick="addConcludeTodoM()">+</button>
         </div>`;
-    // Retro: Win + Improvement
+    // Mensajes a comunicar (Win + Improvement)
     const wEsc=(win||'').replace(/</g,'&lt;');
     const iEsc=(improvement||'').replace(/</g,'&lt;');
     const retroHtml=`
         <div class="modal-section-title" style="margin-top:18px">🏆 Lo mejor de la semana</div>
         <textarea class="ids-issue-input" style="min-height:55px" oninput="win=this.value" placeholder="Qué salió bien? Cerramos cliente X, lanzamos feature Y...">${wEsc}</textarea>
         <div class="modal-section-title" style="margin-top:14px">⚠️ Qué mejorar la próxima</div>
-        <textarea class="ids-issue-input" style="min-height:55px" oninput="improvement=this.value" placeholder="Qué hacer distinto la próxima vez?">${iEsc}</textarea>
-        <div style="margin-top:14px;display:flex;justify-content:flex-end">
-            <button class="ids-convert" style="padding:8px 14px;font-size:12px" onclick="copyRecap(event)">📋 Copiar recap</button>
-        </div>`;
-    return ratingsHtml + concernsHtml + todosHtml + newTodosHtml + retroHtml;
+        <textarea class="ids-issue-input" style="min-height:55px" oninput="improvement=this.value" placeholder="Qué hacer distinto la próxima vez?">${iEsc}</textarea>`;
+    // Orden segun leyenda: "Confirmar To-Dos, mensajes a comunicar y calificar la reunion"
+    // 1) To-Dos (review + nuevos para la proxima)
+    // 2) Mensajes a comunicar (Win + Improvement)
+    // 3) Calificar la reunion (ratings + promedio + concerns)
+    // Boton copiar recap al final
+    const copyBtn = `<div style="margin-top:18px;display:flex;justify-content:flex-end">
+        <button class="ids-convert" style="padding:8px 14px;font-size:12px" onclick="copyRecap(event)">📋 Copiar recap</button>
+    </div>`;
+    return todosHtml + newTodosHtml + retroHtml + ratingsHtml + concernsHtml + copyBtn;
 }
 
 function setConcern(user, text){ concerns[user]=text; }
