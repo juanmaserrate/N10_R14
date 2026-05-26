@@ -157,6 +157,8 @@
         .todo-carried { font-size:9px; font-weight:600; color:var(--accent-amber); background:rgba(245,158,11,0.12); padding:2px 6px; border-radius:4px; }
         .todo-delete { width:24px; height:24px; border-radius:6px; border:none; background:rgba(244,63,94,0.1); color:var(--accent-rose); cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; transition:all 0.2s; flex-shrink:0; }
         .todo-delete:hover { background:rgba(244,63,94,0.25); }
+        .todo-undo { width:24px; height:24px; border-radius:6px; border:none; background:rgba(245,158,11,0.10); color:var(--accent-amber); cursor:pointer; font-size:15px; line-height:1; display:flex; align-items:center; justify-content:center; transition:all 0.2s; flex-shrink:0; }
+        .todo-undo:hover { background:rgba(245,158,11,0.22); }
         .add-row { display:flex; gap:8px; margin-top:8px; }
         .add-input { flex:1; background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:8px; padding:8px 12px; color:var(--text-primary); font-size:12px; font-family:'Inter',sans-serif; outline:none; }
         .add-input:focus { border-color:var(--accent-blue); }
@@ -1410,10 +1412,11 @@ function buildModalTodos(){
     }
     if(done.length>0){
         html+=`<div class="modal-section-title" style="margin-top:12px">Completados (${done.length})</div>`;
-        html+=done.map(t=>`<div class="todo-item" style="opacity:0.5">
+        html+=done.map(t=>`<div class="todo-item" style="opacity:0.6">
             <div class="todo-checkbox checked"></div>
             <span class="todo-text done">${t.text}</span>
             <span class="todo-owner">${t.owner}</span>
+            <button class="todo-undo" onclick="toggleTodo('${t.id}')" title="Marqué por error - destachar">&#8634;</button>
         </div>`).join('');
     }
     if(all.length===0) html='<div style="color:var(--text-muted);font-size:12px;padding:12px;text-align:center">Sin To-Dos</div>';
@@ -1771,6 +1774,7 @@ function renderTodos(){
                 <div class="todo-checkbox checked"></div>
                 <span class="todo-text">${t.text}</span>
                 <span class="todo-owner">${t.owner}</span>
+                <button class="todo-undo" onclick="toggleTodo('${t.id}')" title="Marqué por error - destachar">&#8634;</button>
                 <button class="todo-delete" onclick="deleteTodo('${t.id}')" title="Eliminar">&times;</button>
             </div>`).join('') + `</div>`;
         }
