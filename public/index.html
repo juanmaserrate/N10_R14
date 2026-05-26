@@ -1765,7 +1765,7 @@ function renderTodos(){
             </button>`;
         if(_todoDonePanelOpen){
             doneHtml += `<div class="todo-done-list">` + done.map(t=>`<div class="todo-item">
-                <div class="todo-checkbox checked" onclick="toggleTodo('${t.id}')" title="Destachar"></div>
+                <div class="todo-checkbox checked"></div>
                 <span class="todo-text">${t.text}</span>
                 <span class="todo-owner">${t.owner}</span>
                 <button class="todo-delete" onclick="deleteTodo('${t.id}')" title="Eliminar">&times;</button>
