@@ -946,10 +946,11 @@ function addSolveAction(id){
     iss.solve_actions.push({text:'',owner:''});
     persistSolveActions(iss);
     syncIdsViews();
-    // Auto-focus en el nuevo input (en el contenedor visible)
+    // Auto-focus en el nuevo input (modal primero si esta visible, sino panel)
     setTimeout(()=>{
         const containers = document.querySelectorAll(`.ids-issue[data-id="${id}"]`);
-        for(const c of containers){
+        for(let i=containers.length-1; i>=0; i--){
+            const c = containers[i];
             if(c.offsetParent===null) continue; // hidden
             const input = c.querySelector('.ids-action-row:last-child .ids-action-text');
             if(input){ input.focus(); break; }
