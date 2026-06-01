@@ -270,6 +270,10 @@
         .ids-carry { font-size:10px; color:#f59e0b; background:rgba(245,158,11,0.10); padding:2px 6px; border-radius:6px; border:1px solid rgba(245,158,11,0.3); text-transform:none; letter-spacing:0; font-weight:600; flex-shrink:0; }
         .ids-recurrent { font-size:10px; color:var(--accent-cyan); background:rgba(6,182,212,0.10); padding:2px 7px; border-radius:6px; border:1px solid rgba(6,182,212,0.4); font-weight:700; flex-shrink:0; cursor:help; }
         .ids-empty { color:var(--text-muted); font-size:12px; padding:14px; text-align:center; font-style:italic; }
+        .ids-mode-toggle { display:flex; align-items:center; gap:8px; padding:8px 10px; margin-top:6px; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary); font-weight:600; transition:all 0.2s; }
+        .ids-mode-toggle:hover { background:rgba(16,185,129,0.10); }
+        .ids-mode-toggle input[type="checkbox"] { width:16px; height:16px; accent-color:#10b981; cursor:pointer; flex-shrink:0; }
+        .ids-mode-toggle:has(input:checked) { background:rgba(16,185,129,0.12); border-color:rgba(16,185,129,0.5); color:#10b981; }
         .ids-actions-list { display:flex; flex-direction:column; gap:6px; margin-top:4px; }
         .ids-action-row { display:flex; gap:6px; align-items:center; }
         .ids-action-text { flex:1; background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:6px; padding:7px 10px; color:var(--text-primary); font-size:12px; font-family:'Inter',sans-serif; outline:none; }
@@ -789,8 +793,10 @@ function computeIdsRecurrence(topic){
 }
 
 function idsIssueHtml(iss, i){
-    const validActions = Array.isArray(iss.solve_actions) ? iss.solve_actions.filter(a=>a&&a.text&&String(a.text).trim()) : [];
+    const allActions = Array.isArray(iss.solve_actions) ? iss.solve_actions : [];
+    const validActions = allActions.filter(a=>a&&a.text&&String(a.text).trim());
     const hasValidActions = validActions.length>0;
+    const inMultiMode = allActions.length>0;
     const noSolve = (!iss.solve || !iss.solve.trim()) && !hasValidActions;
     const expanded = expandedIdsItems.has(iss.id);
     const created = iss.created_at ? new Date(iss.created_at) : null;
@@ -839,14 +845,20 @@ function idsIssueHtml(iss, i){
                 <label class="ids-issue-label" style="color:#10b981">S - Solucionar</label>
                 <textarea class="ids-issue-input" onchange="updateIdsField('${iss.id}','solve',this.value)" placeholder="Solucion acordada (descripcion general)...">${iss.solve||''}</textarea>
             </div>
-            <div class="ids-issue-field">
+            <label class="ids-mode-toggle">
+                <input type="checkbox" ${inMultiMode?'checked':''} onchange="toggleMultiMode('${iss.id}', this.checked)">
+                <span>Solución dividida en acciones para varias personas</span>
+            </label>
+            ${inMultiMode ? `
+            <div class="ids-issue-field" style="margin-top:8px">
                 <label class="ids-issue-label" style="color:#10b981">Acciones a tomar (cada una se convierte en un To-Do)</label>
                 <div class="ids-actions-list">${(iss.solve_actions||[]).map((a,ai)=>idsActionRowHtml(iss.id, a, ai, ownerOptsHtml)).join('')}</div>
                 <button class="ids-action-add" onclick="addSolveAction('${iss.id}')">+ Acción</button>
-                ${hasValidActions
-                    ? `<button class="ids-convert" onclick="convertSolveActions('${iss.id}')" style="margin-top:8px">Crear To-Dos de las acciones (${validActions.length})</button>`
-                    : `<button class="ids-convert" onclick="convertIdsToTodo('${iss.id}')" ${(!iss.solve||!iss.solve.trim())?'disabled':''} style="margin-top:8px">Convertir S &rarr; To-Do (1 sola)</button>`}
-            </div>
+                <button class="ids-convert" onclick="convertSolveActions('${iss.id}')" ${validActions.length===0?'disabled':''} style="margin-top:8px">Crear To-Dos de las acciones (${validActions.length})</button>
+            </div>` : `
+            <div class="ids-issue-field" style="margin-top:8px">
+                <button class="ids-convert" onclick="convertIdsToTodo('${iss.id}')" ${(!iss.solve||!iss.solve.trim())?'disabled':''}>Convertir S &rarr; To-Do</button>
+            </div>`}
             <div class="ids-meta-row">
                 <span class="ids-meta-label">Asignar a:</span>
                 <select class="ids-owner" onchange="updateIdsField('${iss.id}','owner',this.value)" title="Asignar a">
@@ -938,6 +950,37 @@ async function deleteIdsIssue(id){
     idsIssues = idsIssues.filter(x=>x.id!==id);
     expandedIdsItems.delete(id);
     syncIdsViews();
+}
+
+function toggleMultiMode(id, on){
+    const iss=idsIssues.find(x=>x.id===id);
+    if(!iss) return;
+    if(!Array.isArray(iss.solve_actions)) iss.solve_actions=[];
+    if(on){
+        // Encender modo multi: agregar 1 accion vacia si no hay ninguna
+        if(iss.solve_actions.length===0) iss.solve_actions.push({text:'',owner:''});
+    } else {
+        // Apagar: si hay acciones con texto, confirmar
+        const hasData = iss.solve_actions.some(a=>a&&a.text&&String(a.text).trim());
+        if(hasData){
+            if(!confirm('Tenés acciones cargadas. ¿Borrarlas y volver a modo simple?')) return;
+        }
+        iss.solve_actions = [];
+    }
+    persistSolveActions(iss);
+    syncIdsViews();
+    // Si encendimos modo multi, auto-focus la primera accion
+    if(on){
+        setTimeout(()=>{
+            const containers = document.querySelectorAll(`.ids-issue[data-id="${id}"]`);
+            for(let i=containers.length-1; i>=0; i--){
+                const c = containers[i];
+                if(c.offsetParent===null) continue;
+                const input = c.querySelector('.ids-action-row .ids-action-text');
+                if(input){ input.focus(); break; }
+            }
+        }, 10);
+    }
 }
 
 function addSolveAction(id){
