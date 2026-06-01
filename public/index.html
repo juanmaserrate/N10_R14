@@ -788,7 +788,9 @@ function computeIdsRecurrence(topic){
 }
 
 function idsIssueHtml(iss, i){
-    const noSolve = !iss.solve || !iss.solve.trim();
+    const validActions = Array.isArray(iss.solve_actions) ? iss.solve_actions.filter(a=>a&&a.text&&String(a.text).trim()) : [];
+    const hasValidActions = validActions.length>0;
+    const noSolve = (!iss.solve || !iss.solve.trim()) && !hasValidActions;
     const expanded = expandedIdsItems.has(iss.id);
     const created = iss.created_at ? new Date(iss.created_at) : null;
     const weeksOpen = created ? Math.max(0, Math.floor((Date.now()-created.getTime())/(7*24*3600*1000))) : 0;
@@ -799,7 +801,7 @@ function idsIssueHtml(iss, i){
     const prio = iss.priority || 'media';
     const hasI = !!(iss.identify||'').trim();
     const hasD = !!(iss.discuss||'').trim();
-    const hasS = !!(iss.solve||'').trim();
+    const hasS = !!(iss.solve||'').trim() || hasValidActions;
     const statusDots = `<div class="ids-status-dots" title="I/D/S: ${hasI?'sí':'no'}/${hasD?'sí':'no'}/${hasS?'sí':'no'}">
         <div class="ids-status-dot ${hasI?'filled-i':''}"></div>
         <div class="ids-status-dot ${hasD?'filled-d':''}"></div>
@@ -840,9 +842,9 @@ function idsIssueHtml(iss, i){
                 <label class="ids-issue-label" style="color:#10b981">Acciones a tomar (cada una se convierte en un To-Do)</label>
                 <div class="ids-actions-list">${(iss.solve_actions||[]).map((a,ai)=>idsActionRowHtml(iss.id, a, ai, ownerOptsHtml)).join('')}</div>
                 <button class="ids-action-add" onclick="addSolveAction('${iss.id}')">+ Acción</button>
-                ${(iss.solve_actions||[]).filter(a=>a&&a.text&&a.text.trim()).length>0
-                    ? `<button class="ids-convert" onclick="convertSolveActions('${iss.id}')" style="margin-top:8px">Crear To-Dos de las acciones (${(iss.solve_actions||[]).filter(a=>a&&a.text&&a.text.trim()).length})</button>`
-                    : `<button class="ids-convert" onclick="convertIdsToTodo('${iss.id}')" ${noSolve?'disabled':''} style="margin-top:8px">Convertir S &rarr; To-Do (1 sola)</button>`}
+                ${hasValidActions
+                    ? `<button class="ids-convert" onclick="convertSolveActions('${iss.id}')" style="margin-top:8px">Crear To-Dos de las acciones (${validActions.length})</button>`
+                    : `<button class="ids-convert" onclick="convertIdsToTodo('${iss.id}')" ${(!iss.solve||!iss.solve.trim())?'disabled':''} style="margin-top:8px">Convertir S &rarr; To-Do (1 sola)</button>`}
             </div>
             <div class="ids-meta-row">
                 <span class="ids-meta-label">Asignar a:</span>
@@ -944,6 +946,15 @@ function addSolveAction(id){
     iss.solve_actions.push({text:'',owner:''});
     persistSolveActions(iss);
     syncIdsViews();
+    // Auto-focus en el nuevo input (en el contenedor visible)
+    setTimeout(()=>{
+        const containers = document.querySelectorAll(`.ids-issue[data-id="${id}"]`);
+        for(const c of containers){
+            if(c.offsetParent===null) continue; // hidden
+            const input = c.querySelector('.ids-action-row:last-child .ids-action-text');
+            if(input){ input.focus(); break; }
+        }
+    }, 10);
 }
 function updateSolveAction(id, ai, field, value){
     const iss=idsIssues.find(x=>x.id===id);
@@ -1632,12 +1643,17 @@ function copyRecap(ev){
         out+=`\n📝 Nuevos To-Dos para la próxima semana:\n`;
         newOnes.forEach(t=>{ out+=` • [${t.owner}] ${t.text}\n`; });
     }
-    const openIds=idsIssues.filter(x=>(x.topic||x.identify||x.discuss||x.solve||'').trim());
+    const openIds=idsIssues.filter(x=>(x.topic||x.identify||x.discuss||x.solve||'').trim() || (Array.isArray(x.solve_actions)&&x.solve_actions.some(a=>a&&a.text&&a.text.trim())));
     if(openIds.length>0){
         out+=`\n🔥 IDS abiertos:\n`;
         openIds.forEach(x=>{
             const own=x.owner?` (${x.owner})`:'';
             out+=` • ${x.topic||'(sin titulo)'}${own}\n`;
+            const acts=Array.isArray(x.solve_actions)?x.solve_actions.filter(a=>a&&a.text&&a.text.trim()):[];
+            acts.forEach(a=>{
+                const ao=a.owner?` [${a.owner}]`:'';
+                out+=`   - ${a.text.trim()}${ao}\n`;
+            });
         });
     }
     const lowRaters=participants.filter(p=>ratings[p]>0 && ratings[p]<8 && concerns[p]);
