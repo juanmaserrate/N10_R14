@@ -348,25 +348,26 @@
         .star:hover,.star.selected { background:rgba(245,158,11,0.15); border-color:rgba(245,158,11,0.4); color:#fbbf24; }
 
         /* History */
-        .history-entry { background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:14px; margin-bottom:10px; }
-        .history-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
-        .history-date { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent-cyan); }
-        .history-rating { font-size:11px; font-weight:600; color:#fbbf24; background:rgba(245,158,11,0.12); padding:2px 8px; border-radius:4px; }
-        .history-section { margin:6px 0; }
-        .history-section-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:4px; margin-top:8px; }
+        .history-entry { background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:18px; margin-bottom:12px; }
+        .history-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+        .history-date { font-family:'JetBrains Mono',monospace; font-size:15px; font-weight:700; color:var(--accent-cyan); }
+        .history-rating { font-size:14px; font-weight:700; color:#fbbf24; background:rgba(245,158,11,0.14); padding:4px 12px; border-radius:6px; }
+        .history-section { margin:10px 0; }
+        .history-section-title { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-muted); margin-bottom:6px; margin-top:12px; }
         .history-ratings-row { display:flex; gap:8px; flex-wrap:wrap; }
-        .history-rating-item { font-size:11px; color:var(--text-secondary); background:rgba(255,255,255,0.03); padding:2px 8px; border-radius:4px; }
-        .history-rock-item { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:4px; font-size:11px; margin:2px; }
-        .history-rock-on { background:rgba(16,185,129,0.1); color:var(--accent-emerald); }
-        .history-rock-off { background:rgba(244,63,94,0.1); color:var(--accent-rose); }
-        .history-headline-item { font-size:11px; color:var(--text-secondary); padding:2px 0; }
-        .history-todos { font-size:12px; color:var(--text-secondary); }
-        .history-todos li { padding:2px 0; list-style:none; }
+        .history-rating-item { font-size:13px; color:var(--text-secondary); background:rgba(255,255,255,0.04); padding:4px 10px; border-radius:6px; font-weight:600; }
+        .history-rock-item { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:6px; font-size:13px; margin:3px; font-weight:600; }
+        .history-rock-on { background:rgba(16,185,129,0.12); color:var(--accent-emerald); }
+        .history-rock-off { background:rgba(244,63,94,0.12); color:var(--accent-rose); }
+        .history-headline-item { font-size:14px; color:var(--text-secondary); padding:4px 0; line-height:1.4; }
+        .history-headline-item small { font-size:12px; }
+        .history-todos { font-size:14px; color:var(--text-secondary); line-height:1.5; }
+        .history-todos li { padding:3px 0; list-style:none; }
         .history-todos li::before { content:'- '; color:var(--text-muted); }
-        .history-notes-preview { font-size:11px; color:var(--text-muted); margin-top:4px; font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .history-delete { background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:12px; padding:4px; transition:color 0.2s; }
+        .history-notes-preview { font-size:13px; color:var(--text-muted); margin-top:6px; font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .history-delete { background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:16px; padding:6px 8px; transition:color 0.2s; }
         .history-delete:hover { color:var(--accent-rose); }
-        .history-empty { font-size:13px; color:var(--text-muted); text-align:center; padding:20px; }
+        .history-empty { font-size:14px; color:var(--text-muted); text-align:center; padding:22px; }
 
         /* Modal */
         .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); z-index:100; align-items:center; justify-content:center; }
