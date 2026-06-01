@@ -87,6 +87,7 @@ async function initDB() {
             created_at TIMESTAMPTZ DEFAULT NOW()
         )
     `);
+    await pool.query(`ALTER TABLE ids_items ADD COLUMN IF NOT EXISTS solve_actions JSONB DEFAULT '[]'`);
     // Scorecard tables — weekly KPIs by department, columns = Mondays
     await pool.query(`
         CREATE TABLE IF NOT EXISTS scorecard_weeks (
@@ -126,7 +127,7 @@ app.get('/api/data', async (req, res) => {
         res.json({
             currentTodos: todos.rows.map(r => ({
                 id: r.id, text: r.text, owner: r.owner,
-                done: r.done, carried: r.carried
+                done: r.done, carried: r.carried, created_at: r.created_at
             })),
             notes: notes.rows[0]?.content || '',
             rocks: rocks.rows.map(r => ({
@@ -138,7 +139,8 @@ app.get('/api/data', async (req, res) => {
             })),
             ids: ids.rows.map(r => ({
                 id: r.id, topic: r.topic, identify: r.identify, discuss: r.discuss, solve: r.solve,
-                priority: r.priority || 'media', owner: r.owner || '', created_at: r.created_at
+                priority: r.priority || 'media', owner: r.owner || '', solve_actions: r.solve_actions || [],
+                created_at: r.created_at
             })),
             history: []
         });
@@ -153,11 +155,11 @@ app.post('/api/todos', async (req, res) => {
     try {
         const id = Date.now().toString();
         const { text, owner } = req.body;
-        await pool.query(
-            'INSERT INTO todos (id, text, owner, done, carried) VALUES ($1, $2, $3, FALSE, FALSE)',
+        const r = await pool.query(
+            'INSERT INTO todos (id, text, owner, done, carried) VALUES ($1, $2, $3, FALSE, FALSE) RETURNING created_at',
             [id, text, owner]
         );
-        res.json({ id, text, owner, done: false, carried: false });
+        res.json({ id, text, owner, done: false, carried: false, created_at: r.rows[0].created_at });
     } catch (e) {
         console.error(e);
         res.status(500).json({ error: 'DB error' });
@@ -267,13 +269,38 @@ app.delete('/api/headlines/:id', async (req, res) => {
     }
 });
 
+// Convert a headline into an IDS item and delete the headline
+app.post('/api/headlines/:id/convert-to-ids', async (req, res) => {
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        const r = await client.query('SELECT * FROM headlines WHERE id = $1', [req.params.id]);
+        if (r.rows.length === 0) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Not found' }); }
+        const h = r.rows[0];
+        const idsId = Date.now().toString() + Math.random().toString(36).slice(2, 5);
+        const topic = h.text || '(sin titulo)';
+        const owner = h.owner || '';
+        await client.query(
+            'INSERT INTO ids_items (id, topic, identify, discuss, solve, priority, owner) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+            [idsId, topic, '', '', '', 'media', owner]
+        );
+        await client.query('DELETE FROM headlines WHERE id = $1', [req.params.id]);
+        await client.query('COMMIT');
+        res.json({ ok: true, ids: { id: idsId, topic, identify: '', discuss: '', solve: '', priority: 'media', owner, created_at: new Date().toISOString() } });
+    } catch (e) {
+        await client.query('ROLLBACK');
+        console.error(e); res.status(500).json({ error: 'DB error' });
+    } finally { client.release(); }
+});
+
 // --- IDS ITEMS CRUD ---
 app.get('/api/ids', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM ids_items ORDER BY created_at ASC');
         res.json(result.rows.map(r => ({
             id: r.id, topic: r.topic, identify: r.identify, discuss: r.discuss, solve: r.solve,
-            priority: r.priority || 'media', owner: r.owner || '', created_at: r.created_at
+            priority: r.priority || 'media', owner: r.owner || '', solve_actions: r.solve_actions || [],
+            created_at: r.created_at
         })));
     } catch (e) { console.error(e); res.status(500).json({ error: 'DB error' }); }
 });
@@ -290,10 +317,13 @@ app.post('/api/ids', async (req, res) => {
 });
 app.put('/api/ids/:id', async (req, res) => {
     try {
-        const allowed = ['topic','identify','discuss','solve','priority','owner'];
+        const allowed = ['topic','identify','discuss','solve','priority','owner','solve_actions'];
         const fields = [], values = [];
         for (const k of allowed) {
-            if (k in (req.body || {})) { fields.push(`${k} = $${fields.length+1}`); values.push(req.body[k]); }
+            if (k in (req.body || {})) {
+                fields.push(`${k} = $${fields.length+1}`);
+                values.push(k === 'solve_actions' ? JSON.stringify(req.body[k]) : req.body[k]);
+            }
         }
         if (!fields.length) return res.json({ ok: true });
         values.push(req.params.id);
@@ -322,6 +352,35 @@ app.post('/api/ids/:id/convert-to-todo', async (req, res) => {
         await client.query('DELETE FROM ids_items WHERE id = $1', [req.params.id]);
         await client.query('COMMIT');
         res.json({ ok: true, todo: { id: todoId, text: todoText, owner: todoOwner, done: false, carried: false } });
+    } catch (e) {
+        await client.query('ROLLBACK');
+        console.error(e); res.status(500).json({ error: 'DB error' });
+    } finally { client.release(); }
+});
+
+// Convert each solve_action of an IDS into a separate To-Do (one per action+owner)
+app.post('/api/ids/:id/convert-actions-to-todos', async (req, res) => {
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        const r = await client.query('SELECT * FROM ids_items WHERE id = $1', [req.params.id]);
+        if (r.rows.length === 0) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Not found' }); }
+        const iss = r.rows[0];
+        const actions = Array.isArray(iss.solve_actions) ? iss.solve_actions : [];
+        const valid = actions.filter(a => a && a.text && String(a.text).trim());
+        if (valid.length === 0) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Sin acciones' }); }
+        const fallbackOwner = req.body?.fallbackOwner || iss.owner || 'Equipo';
+        const createdTodos = [];
+        for (const a of valid) {
+            const todoId = Date.now().toString() + Math.random().toString(36).slice(2,5);
+            const owner = (a.owner && String(a.owner).trim()) || fallbackOwner;
+            const text = String(a.text).trim();
+            await client.query('INSERT INTO todos (id, text, owner, done, carried) VALUES ($1,$2,$3,FALSE,FALSE)', [todoId, text, owner]);
+            createdTodos.push({ id: todoId, text, owner, done: false, carried: false });
+        }
+        await client.query('DELETE FROM ids_items WHERE id = $1', [req.params.id]);
+        await client.query('COMMIT');
+        res.json({ ok: true, todos: createdTodos });
     } catch (e) {
         await client.query('ROLLBACK');
         console.error(e); res.status(500).json({ error: 'DB error' });

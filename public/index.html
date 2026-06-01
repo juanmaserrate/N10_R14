@@ -54,7 +54,7 @@
         .sc-mini-wrap { overflow:auto; max-height:75vh; }
         .sc-mini-table { width:100%; border-collapse:separate; border-spacing:0; font-size:13px; }
         .sc-mini-table th, .sc-mini-table td { padding:9px 12px; text-align:left; border-bottom:1px solid var(--border-subtle); white-space:nowrap; }
-        .sc-mini-table thead th { background:var(--bg-card); font-size:11px; font-weight:700; color:var(--text-muted); letter-spacing:0.5px; text-transform:uppercase; position:sticky; top:0; z-index:3; }
+        .sc-mini-table thead th { background:var(--bg-card); font-size:11px; font-weight:700; color:var(--text-muted); letter-spacing:0.5px; text-transform:uppercase; position:sticky; top:0; z-index:6; box-shadow:0 1px 0 var(--border-subtle); }
         .sc-mini-table thead th.sc-mini-sticky-1 { left:0; z-index:4; }
         .sc-mini-table thead th.sc-mini-sticky-2 { left:260px; z-index:4; }
         .sc-mini-table tbody td.sc-mini-metric { position:sticky; left:0; background:var(--bg-secondary); z-index:2; }
@@ -193,6 +193,8 @@
         .headline-text { font-size:13px; color:var(--text-secondary); flex:1; }
         .headline-delete { width:24px; height:24px; border-radius:6px; border:none; background:rgba(244,63,94,0.1); color:var(--accent-rose); cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; transition:all 0.2s; flex-shrink:0; }
         .headline-delete:hover { background:rgba(244,63,94,0.25); }
+        .headline-to-ids { padding:4px 8px; border-radius:6px; border:1px solid rgba(139,92,246,0.4); background:rgba(139,92,246,0.10); color:var(--accent-violet); cursor:pointer; font-size:10px; font-weight:800; letter-spacing:0.4px; transition:all 0.2s; flex-shrink:0; }
+        .headline-to-ids:hover { background:rgba(139,92,246,0.22); }
 
         /* Per-user Rating */
         .rating-row { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
@@ -207,7 +209,8 @@
         .conclude-todos { text-align:left; max-height:200px; overflow-y:auto; margin:12px auto; padding:12px 16px; background:rgba(255,255,255,0.03); border-radius:var(--radius-sm); border:1px solid var(--border-subtle); max-width:420px; }
         .conclude-todo-item { display:flex; align-items:center; gap:10px; padding:10px 4px; font-size:15px; color:var(--text-primary); border-bottom:1px solid rgba(255,255,255,0.05); line-height:1.4; }
         .conclude-todo-item:last-child { border-bottom:none; }
-        .conclude-todo-item .conclude-todo-owner { font-size:12px; font-weight:600; color:var(--text-muted); margin-left:auto; padding:3px 8px; border-radius:6px; background:rgba(255,255,255,0.04); }
+        .conclude-todo-item .conclude-todo-owner { font-size:12px; font-weight:600; color:var(--text-muted); padding:3px 8px; border-radius:6px; background:rgba(255,255,255,0.04); }
+        .conclude-todo-item .conclude-todo-date { font-size:11px; font-weight:600; color:var(--accent-cyan); padding:2px 8px; border-radius:6px; background:rgba(6,182,212,0.10); border:1px solid rgba(6,182,212,0.25); font-family:'JetBrains Mono',monospace; margin-left:auto; flex-shrink:0; cursor:help; }
 
         /* IDS */
         .ids-step { display:flex; align-items:center; gap:10px; padding:10px; border-radius:var(--radius-sm); margin-bottom:6px; cursor:pointer; transition:all 0.2s; border:1px solid transparent; }
@@ -267,6 +270,16 @@
         .ids-carry { font-size:10px; color:#f59e0b; background:rgba(245,158,11,0.10); padding:2px 6px; border-radius:6px; border:1px solid rgba(245,158,11,0.3); text-transform:none; letter-spacing:0; font-weight:600; flex-shrink:0; }
         .ids-recurrent { font-size:10px; color:var(--accent-cyan); background:rgba(6,182,212,0.10); padding:2px 7px; border-radius:6px; border:1px solid rgba(6,182,212,0.4); font-weight:700; flex-shrink:0; cursor:help; }
         .ids-empty { color:var(--text-muted); font-size:12px; padding:14px; text-align:center; font-style:italic; }
+        .ids-actions-list { display:flex; flex-direction:column; gap:6px; margin-top:4px; }
+        .ids-action-row { display:flex; gap:6px; align-items:center; }
+        .ids-action-text { flex:1; background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:6px; padding:7px 10px; color:var(--text-primary); font-size:12px; font-family:'Inter',sans-serif; outline:none; }
+        .ids-action-text:focus { border-color:#10b981; }
+        .ids-action-owner { background:rgba(255,255,255,0.04); border:1px solid var(--border-subtle); color:var(--text-primary); border-radius:6px; padding:7px 8px; font-size:11px; cursor:pointer; min-width:120px; appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%2364748b' d='M0 0l5 6 5-6z'/></svg>"); background-repeat:no-repeat; background-position:right 8px center; padding-right:22px; }
+        .ids-action-owner option { background:var(--bg-card); color:var(--text-primary); padding:8px; }
+        .ids-action-del { background:rgba(244,63,94,0.10); border:1px solid rgba(244,63,94,0.3); color:#f43f5e; width:28px; height:28px; border-radius:6px; cursor:pointer; font-size:13px; line-height:1; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .ids-action-del:hover { background:rgba(244,63,94,0.2); }
+        .ids-action-add { width:100%; padding:6px 10px; background:rgba(16,185,129,0.08); border:1px dashed rgba(16,185,129,0.4); color:#10b981; border-radius:6px; cursor:pointer; font-size:11px; font-weight:700; margin-top:6px; transition:all 0.2s; }
+        .ids-action-add:hover { background:rgba(16,185,129,0.15); }
 
         /* Done todos collapsible in sidebar */
         .todo-done-section { margin-top:10px; padding-top:10px; border-top:1px dashed var(--border-subtle); }
@@ -358,9 +371,11 @@
         /* Modal */
         .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); z-index:100; align-items:center; justify-content:center; }
         .modal-overlay.show { display:flex; animation:fadeIn 0.3s ease; }
-        .modal { background:var(--bg-secondary); border-radius:24px; padding:28px 36px; max-width:780px; max-height:90vh; width:94%; border:1px solid var(--border-subtle); box-shadow:0 25px 80px rgba(0,0,0,0.5); text-align:center; animation:slideUp 0.3s ease; display:flex; flex-direction:column; gap:0; transition:max-width 0.25s ease, padding 0.25s ease; }
+        .modal { background:var(--bg-secondary); border-radius:24px; padding:28px 36px; max-width:780px; max-height:90vh; width:94%; border:1px solid var(--border-subtle); box-shadow:0 25px 80px rgba(0,0,0,0.5); text-align:center; animation:slideUp 0.3s ease; display:flex; flex-direction:column; gap:0; transition:max-width 0.25s ease, padding 0.25s ease; overflow:hidden; }
         .modal.modal-wide { max-width:min(1400px, 95vw); padding:24px 28px; }
-        .modal-head { display:flex; align-items:center; gap:20px; padding-bottom:16px; border-bottom:1px solid var(--border-subtle); flex-shrink:0; }
+        .modal.modal-wide .modal-interactive { display:flex; flex-direction:column; overflow:hidden; }
+        .modal.modal-wide .sc-mini-wrap { flex:1; max-height:none; min-height:0; }
+        .modal-head { display:flex; align-items:center; gap:20px; padding-bottom:16px; border-bottom:1px solid var(--border-subtle); flex-shrink:0; background:var(--bg-secondary); position:relative; z-index:10; }
         .modal-head-ring { flex-shrink:0; }
         .modal-head-info { flex:1; text-align:left; }
         .modal-step-name { font-size:20px; font-weight:800; margin-bottom:4px; }
@@ -587,7 +602,7 @@ const agenda = [
     { id:'conclude', step:7, name:'Cierre y Conclusion', desc:'Confirmar To-Dos, mensajes a comunicar y calificar la reunion', duration:5*60 }
 ];
 
-const participants = ['GV','JP','SR','IS','GR'];
+const participants = ['JP','SR','IS','GR','GV'];
 const participantNames = {GV:'German Veiga',JP:'Juan Paz Biar',SR:'Santiago Rivera',IS:'Ignacio Spera',GR:'Gabriel Rivara'};
 const participantColors = {GV:'avatar-gv',JP:'avatar-jp',SR:'avatar-sr',IS:'avatar-is',GR:'avatar-gr'};
 let meetingStarted=false, currentStep=-1, stepTimeRemaining=0, totalTimeRemaining=90*60;
@@ -819,8 +834,15 @@ function idsIssueHtml(iss, i){
             </div>
             <div class="ids-issue-field">
                 <label class="ids-issue-label" style="color:#10b981">S - Solucionar</label>
-                <textarea class="ids-issue-input" onchange="updateIdsField('${iss.id}','solve',this.value)" placeholder="Solucion acordada...">${iss.solve||''}</textarea>
-                <button class="ids-convert" onclick="convertIdsToTodo('${iss.id}')" ${noSolve?'disabled':''}>Convertir S &rarr; To-Do</button>
+                <textarea class="ids-issue-input" onchange="updateIdsField('${iss.id}','solve',this.value)" placeholder="Solucion acordada (descripcion general)...">${iss.solve||''}</textarea>
+            </div>
+            <div class="ids-issue-field">
+                <label class="ids-issue-label" style="color:#10b981">Acciones a tomar (cada una se convierte en un To-Do)</label>
+                <div class="ids-actions-list">${(iss.solve_actions||[]).map((a,ai)=>idsActionRowHtml(iss.id, a, ai, ownerOptsHtml)).join('')}</div>
+                <button class="ids-action-add" onclick="addSolveAction('${iss.id}')">+ Acción</button>
+                ${(iss.solve_actions||[]).filter(a=>a&&a.text&&a.text.trim()).length>0
+                    ? `<button class="ids-convert" onclick="convertSolveActions('${iss.id}')" style="margin-top:8px">Crear To-Dos de las acciones (${(iss.solve_actions||[]).filter(a=>a&&a.text&&a.text.trim()).length})</button>`
+                    : `<button class="ids-convert" onclick="convertIdsToTodo('${iss.id}')" ${noSolve?'disabled':''} style="margin-top:8px">Convertir S &rarr; To-Do (1 sola)</button>`}
             </div>
             <div class="ids-meta-row">
                 <span class="ids-meta-label">Asignar a:</span>
@@ -829,6 +851,23 @@ function idsIssueHtml(iss, i){
                 </select>
             </div>
         </div>
+    </div>`;
+}
+
+function idsActionRowHtml(issueId, action, ai, ownerOptsHtml){
+    const txt=(action&&action.text?action.text:'').replace(/"/g,'&quot;');
+    const own=action&&action.owner?action.owner:'';
+    const ownerHtml = ownerOptsHtml.replace(/ selected/g,'').split('</option>').map(opt=>{
+        const m=opt.match(/value="([^"]*)"/);
+        if(m && m[1]===own) return opt.replace('<option','<option selected');
+        return opt;
+    }).join('</option>');
+    return `<div class="ids-action-row" data-ai="${ai}">
+        <input class="ids-action-text" type="text" value="${txt}" onchange="updateSolveAction('${issueId}', ${ai}, 'text', this.value)" placeholder="Que hacer concretamente...">
+        <select class="ids-action-owner" onchange="updateSolveAction('${issueId}', ${ai}, 'owner', this.value)">
+            <option value="">Sin asignar</option>${ownerHtml}
+        </select>
+        <button class="ids-action-del" onclick="removeSolveAction('${issueId}', ${ai})" title="Quitar acción">&times;</button>
     </div>`;
 }
 
@@ -894,6 +933,63 @@ async function deleteIdsIssue(id){
     if(!confirm('Eliminar este tema?')) return;
     try { await api('DELETE',`/api/ids/${id}`); } catch(e){}
     idsIssues = idsIssues.filter(x=>x.id!==id);
+    expandedIdsItems.delete(id);
+    syncIdsViews();
+}
+
+function addSolveAction(id){
+    const iss=idsIssues.find(x=>x.id===id);
+    if(!iss) return;
+    if(!Array.isArray(iss.solve_actions)) iss.solve_actions=[];
+    iss.solve_actions.push({text:'',owner:''});
+    persistSolveActions(iss);
+    syncIdsViews();
+}
+function updateSolveAction(id, ai, field, value){
+    const iss=idsIssues.find(x=>x.id===id);
+    if(!iss || !Array.isArray(iss.solve_actions) || !iss.solve_actions[ai]) return;
+    iss.solve_actions[ai][field]=value;
+    persistSolveActions(iss);
+    // Re-render solo si cambio que afecta el conteo del boton (text vacio<->lleno)
+    if(field==='text') syncIdsViews();
+}
+function removeSolveAction(id, ai){
+    const iss=idsIssues.find(x=>x.id===id);
+    if(!iss || !Array.isArray(iss.solve_actions)) return;
+    iss.solve_actions.splice(ai,1);
+    persistSolveActions(iss);
+    syncIdsViews();
+}
+async function persistSolveActions(iss){
+    try { await api('PUT',`/api/ids/${iss.id}`,{solve_actions: iss.solve_actions||[]}); } catch(e){}
+}
+async function convertSolveActions(id){
+    const iss=idsIssues.find(x=>x.id===id);
+    if(!iss) return;
+    const valid=(iss.solve_actions||[]).filter(a=>a && a.text && a.text.trim());
+    if(valid.length===0){ alert('Cargá al menos una acción con texto.'); return; }
+    // Si el IDS es recurrente, pedir causa raiz primero (igual que convertIdsToTodo)
+    const recur=computeIdsRecurrence(iss.topic);
+    if(recur>=2){
+        const rootCause=prompt(
+            `🔥 Este tema apareció en ${recur} reuniones anteriores.\n\n`+
+            `Antes de cerrarlo, escribí la CAUSA RAÍZ que estás atacando esta vez:`
+        );
+        if(rootCause===null) return;
+        if(!rootCause.trim()){ alert('Sin causa raíz no se puede cerrar un tema recurrente.'); return; }
+        const tag='\n\n[Causa raíz '+new Date().toLocaleDateString('es-AR')+']: '+rootCause.trim();
+        const newIdentify=(iss.identify||'').trim()+tag;
+        try { await api('PUT',`/api/ids/${id}`,{identify:newIdentify}); } catch(e){}
+        iss.identify=newIdentify;
+    }
+    try {
+        const r=await api('POST',`/api/ids/${id}/convert-actions-to-todos`,{fallbackOwner:iss.owner||participants[0]||'Equipo'});
+        if(r && Array.isArray(r.todos)){
+            r.todos.forEach(t=>todos.push(t));
+            renderTodos(); updateCounters();
+        }
+    } catch(e){ alert('Error al convertir. Probá de nuevo.'); return; }
+    idsIssues=idsIssues.filter(x=>x.id!==id);
     expandedIdsItems.delete(id);
     syncIdsViews();
 }
@@ -1387,6 +1483,7 @@ function buildModalHeadlines(){
         :headlines.map(h=>`<div class="headline-item">
             <span class="todo-owner">${h.owner}</span>
             <span class="headline-text">${h.text}</span>
+            <button class="headline-to-ids" onclick="convertHeadlineToIds('${h.id}')" title="Enviar a IDS">&#8594; IDS</button>
             <button class="headline-delete" onclick="deleteHeadline('${h.id}')">&times;</button>
         </div>`).join('');
     return `<div id="mHeadlinesList" style="margin-bottom:12px">${list}</div>
@@ -1466,7 +1563,8 @@ function buildModalConclude(){
         if(t.newThisMeeting) return; // shown in "new" section below
         const chk=t.done?'&#10003;':'&#9675;';
         const col=t.done?'var(--accent-emerald)':'var(--accent-amber)';
-        todosHtml+=`<div class="conclude-todo-item"><span style="color:${col};font-weight:700;font-size:16px;flex-shrink:0">${chk}</span><span style="${t.done?'text-decoration:line-through;opacity:0.5':''};flex:1">${t.text}</span><span class="conclude-todo-owner">${t.owner}</span></div>`;
+        const dateChip = formatTodoCreatedDate(t.created_at);
+        todosHtml+=`<div class="conclude-todo-item"><span style="color:${col};font-weight:700;font-size:16px;flex-shrink:0">${chk}</span><span style="${t.done?'text-decoration:line-through;opacity:0.5':''};flex:1">${t.text}</span>${dateChip}<span class="conclude-todo-owner">${t.owner}</span></div>`;
     });
     todosHtml+='</div>';
     // New To-Dos for next week
@@ -1474,7 +1572,8 @@ function buildModalConclude(){
     let newTodosHtml=`<div class="modal-section-title-lg" style="margin-top:16px;color:var(--accent-cyan)">Nuevos To-Dos para la proxima semana (${newOnes.length})</div><div class="modal-conclude-todos">`;
     if(newOnes.length===0) newTodosHtml+='<div style="color:var(--text-muted);font-size:14px;text-align:center;padding:14px">Agregar tareas abajo</div>';
     else newOnes.forEach(t=>{
-        newTodosHtml+=`<div class="conclude-todo-item" style="background:rgba(6,182,212,0.08);border-left:3px solid var(--accent-cyan);padding-left:10px"><span style="color:var(--accent-cyan);font-weight:700;font-size:18px;flex-shrink:0">+</span><span style="flex:1">${t.text}</span><span class="conclude-todo-owner">${t.owner}</span><button class="todo-delete" onclick="deleteTodo('${t.id}')" style="margin-left:8px">&times;</button></div>`;
+        const dateChip = formatTodoCreatedDate(t.created_at);
+        newTodosHtml+=`<div class="conclude-todo-item" style="background:rgba(6,182,212,0.08);border-left:3px solid var(--accent-cyan);padding-left:10px"><span style="color:var(--accent-cyan);font-weight:700;font-size:18px;flex-shrink:0">+</span><span style="flex:1">${t.text}</span>${dateChip}<span class="conclude-todo-owner">${t.owner}</span><button class="todo-delete" onclick="deleteTodo('${t.id}')" style="margin-left:8px">&times;</button></div>`;
     });
     newTodosHtml+=`</div>
         <div class="add-row" style="margin-top:10px">
@@ -1502,6 +1601,16 @@ function buildModalConclude(){
 }
 
 function setConcern(user, text){ concerns[user]=text; }
+
+function formatTodoCreatedDate(iso){
+    if(!iso) return '';
+    const d=new Date(iso);
+    if(isNaN(d.getTime())) return '';
+    const days=Math.floor((Date.now()-d.getTime())/(24*3600*1000));
+    const dateStr=`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+    const ageTxt = days===0?'hoy':(days===1?'ayer':`hace ${days}d`);
+    return `<span class="conclude-todo-date" title="Creado el ${dateStr} (${ageTxt})">${dateStr}</span>`;
+}
 
 function copyRecap(ev){
     const date=new Date();
@@ -1695,6 +1804,17 @@ async function deleteHeadline(id){
     renderHeadlines(); updateCounters(); syncModal();
 }
 
+async function convertHeadlineToIds(id){
+    const h = headlines.find(x=>x.id===id);
+    if(!h) return;
+    try {
+        const r = await api('POST',`/api/headlines/${id}/convert-to-ids`);
+        if(r && r.ids){ idsIssues.push(r.ids); }
+    } catch(e){ alert('No se pudo convertir. Probá de nuevo.'); return; }
+    headlines = headlines.filter(x=>x.id!==id);
+    renderHeadlines(); renderIdsIssues(); updateCounters(); syncModal();
+}
+
 function renderHeadlines(){
     const c=document.getElementById('headlinesList');
     if(headlines.length===0){ c.innerHTML='<div style="color:var(--text-muted);font-size:12px;padding:8px;text-align:center">Sin novedades</div>'; return; }
@@ -1702,6 +1822,7 @@ function renderHeadlines(){
         <div class="headline-item">
             <span class="todo-owner">${h.owner}</span>
             <span class="headline-text">${h.text}</span>
+            <button class="headline-to-ids" onclick="convertHeadlineToIds('${h.id}')" title="Enviar a IDS">&#8594; IDS</button>
             <button class="headline-delete" onclick="deleteHeadline('${h.id}')" title="Eliminar">&times;</button>
         </div>`).join('');
 }
